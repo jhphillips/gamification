@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Timed Streak Quiz – Improved</title>
+<style>
+  :root{
+    --header-h: 64px;
+    --bg:#0b1220;
+    --panel:#0f172a;
+    --muted:#475569;
+    --text:#f8fafc;
+    --primary:#22c55e;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --focus:#7dd3fc;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:radial-gradient(1200px 600px at 50% -10%, #0e1726 0%, var(--bg) 60%);
+    color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:12px;
+  }
+  .game-shell{
+    position:relative;width:100%;max-width:960px;min-height:480px;
+    background:rgba(17,24,39,.92);border:1px solid #1f2937;border-radius:18px;
+    box-shadow:var(--shadow);
+  }
+  header{
+    position:sticky;top:0;z-index:20;
+    height:var(--header-h);
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+    padding:10px 18px;
+    background:rgba(8,13,24,.95);
+    border-bottom:1px solid #0b2440;
+    backdrop-filter:blur(6px);
+  }
+  .brand{font-weight:700;letter-spacing:.3px;color:var(--text)}
+  .hud{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .chip{background:#0f1a2b;border:1px solid #23354a;border-radius:999px;padding:6px 10px;font-size:14px;color:#e2e8f0}
+  .chip .val{font-weight:700;margin-left:6px}
+  .lives{display:inline-flex;gap:4px;margin-left:6px}
+  .heart{width:14px;height:14px;display:inline-block;background:var(--danger);opacity:.25;border-radius:2px}
+  .heart.on{opacity:1}
+  main{padding:calc(18px + 8px) 18px 18px;}
+  .panel{background:#0e1626;border:1px solid #1f2a3a;border-radius:16px;padding:18px;}
+  .stack{display:grid;gap:14px}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .title{font-size:22px;font-weight:800;letter-spacing:.2px;color:var(--text)}
+  .subtitle{opacity:.8}
+  .btn{background:linear-gradient(180deg, #10b981, #059669);color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;transition:transform .08s ease, filter .12s ease;box-shadow:0 8px 20px rgba(34,197,94,.25)}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;filter:grayscale(.2)}
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{background:linear-gradient(180deg,#374151,#1f2937);box-shadow:none}
+  .q-card{padding:14px;border:1px solid #1f2a3a;border-radius:12px;background:#0f172a}
+  .q-text{font-size:20px;font-weight:700;color:var(--text)}
+  .choices{display:grid;gap:10px;margin-top:8px}
+  .choice{background:#0f1b2e;border:2px solid #1f3246;border-radius:12px;padding:12px;cursor:pointer;color:#e8edf4}
+  .choice:hover{border-color:#2b485f}
+  .choice.correct{border-color:rgba(34,197,94,.9);background:rgba(34,197,94,.12)}
+  .choice.wrong{border-color:rgba(239,68,68,.9);background:rgba(239,68,68,.12)}
+  .choice:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  .feedback{min-height:28px;padding:8px 10px;border-radius:10px;background:#0b1220;border:1px dashed #334155}
+  .meter{height:10px;background:#0e1626;border:1px solid #1b2a3c;border-radius:999px;overflow:hidden}
+  .meter>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#34d399,#10b981)}
+  #timeBar[data-zone="warn"]{background:linear-gradient(90deg,#f59e0b,#b45309)!important}
+  #timeBar[data-zone="danger"]{background:linear-gradient(90deg,#ef4444,#b91c1c)!important}
+</style>
+</head>
+<body>
+<div class="game-shell">
+  <header>
+    <div class="brand">Timed Streak Quiz</div>
+    <div class="hud">
+      <span class="chip">Timer: <strong class="val" id="uiTimer">—</strong></span>
+      <span class="chip">Score: <strong class="val" id="uiScore">0</strong></span>
+      <span class="chip">Streak: <strong class="val" id="uiStreak">0</strong></span>
+      <span class="chip">Lives:
+        <span class="lives"><i class="heart" id="h1"></i><i class="heart" id="h2"></i><i class="heart" id="h3"></i></span>
+      </span>
+    </div>
+  </header>
+  <main>
+    <section class="panel center stack">
+      <div class="title">Ready to play?</div>
+      <p class="subtitle">Answer fast to build streaks. Three lives. Earn badges. Good luck.</p>
+      <button class="btn">Start</button>
+    </section>
+  </main>
+</div>
+<script>
+// Example: show timer bar zones
+function updateTimerUI(secsLeft, maxSecs){
+  const bar = document.getElementById("timeBar");
+  const pct = Math.max(0, Math.min(100, (secsLeft/maxSecs)*100));
+  bar.style.width = pct+"%";
+  bar.removeAttribute("data-zone");
+  if (pct < 25) bar.setAttribute("data-zone","danger");
+  else if (pct < 50) bar.setAttribute("data-zone","warn");
+}
+</script>
+</body>
+</html>
