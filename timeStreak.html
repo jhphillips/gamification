@@ -1,0 +1,1062 @@
+<!doctype html>
+<!--
+===============================================================================
+AUTHORING GUIDE (Timed Streak Quiz – Multi-Round)
+===============================================================================
+WHAT THIS IS
+- A lightweight, single-file quiz mini-game for Storyline (or plain web) with
+  3 rounds, 10 questions per round, lives, streak scoring, badges, and a
+  pass-to-advance gate (>= 50% by default).
+
+QUICK START (most teams only need these)
+1) Edit QUESTIONS:
+   - Go to BANKS{} below. Add/replace items:
+     { q:"Question text", a:["A","B","C","D"], correct:0, explain:"Why" }
+   - Create more banks by adding keys (e.g., `claims_basics: [ ... ]`).
+
+2) Configure ROUNDS:
+   - Go to GAME_CONFIG.ROUNDS (3 entries by default).
+   - For each round, set:
+     { id:"R1", title:"Round 1", bank:"insurance_basics", take:10,
+       timePerQ:20, lives:3, base:10, step:5, passPct:50 }
+   - Change `bank` to point at any bank you created.
+   - `take` is how many questions to draw for that round.
+
+3) No Repeat Questions Across Rounds:
+   - Enabled when all rounds point to the SAME bank.
+   - We split one randomized deck across rounds and lock each round’s slice
+     (orderOriginal) so retries only reshuffle inside that slice.
+
+4) Storyline Variables (auto-set if embedded):
+   - The script calls parent.GetPlayer().SetVar for these (create them in SL):
+       GameScore (number)
+       Percent (number)          // per round at end
+       Passed (true/false)       // per round pass
+       MaxStreak (number)        // cumulative max streak
+       QuestionsCorrect (number) // cumulative
+       QuestionsTotal (number)   // current round total
+       ResultJSON (text)         // JSON of results slice for host logging
+       LevelReached (number)     // reserved if you want per-round/series level
+       Round (number)            // current round index (1-based)
+
+5) Theming/SFX/Keys: see CSS tokens + SOUND config.
+   Keys: M mute, P pause/resume, N next.
+
+Enjoy!
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Timed Streak Quiz – Multi-Round</title>
+<style>
+  :root{
+    --header-h: 120px;
+
+    /* Higher-contrast tokens */
+    --bg:#0b1220;
+    --panel:#0f172a;
+    --muted:#475569;
+    --text:#f8fafc;
+    --primary:#22c55e;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --focus:#7dd3fc;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+
+    /* dramatic KO overlay */
+    --ko-overlay: rgba(239,68,68,.15);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none !important;}
+
+  body{
+    margin:0;
+    background:radial-gradient(1200px 600px at 50% -10%, #0e1726 0%, var(--bg) 60%);
+    color:var(--text);
+    font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:12px;
+    transition:filter .25s ease;
+  }
+
+  .game-shell{
+    position:relative;
+    width:100%;max-width:960px;min-height:480px;
+    background:rgba(17,24,39,.92);
+    border:1px solid #1f2937;border-radius:18px;box-shadow:var(--shadow);
+    overflow:initial; /* allow sticky header */
+  }
+
+  header{
+    position:sticky; top:0; z-index:20;
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+    height:var(--header-h);
+    padding:10px 18px;
+    background:rgba(8,13,24,.95);
+    border-bottom:1px solid #0b2440;
+    backdrop-filter:blur(6px);
+  }
+
+  .brand{font-weight:700;letter-spacing:.3px;color:var(--text)}
+  .hud{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .chip{background:#0f1a2b;border:1px solid #23354a;border-radius:999px;padding:6px 10px;font-size:14px;color:#e2e8f0}
+  .chip .val{font-weight:700;margin-left:6px}
+  .lives{display:inline-flex;gap:4px;margin-left:6px}
+  .heart{width:14px;height:14px;display:inline-block;border-radius:2px;background:var(--danger);opacity:.25}
+  .heart.on{opacity:1}
+
+  main{padding:18px}
+
+  .panel{
+    background:#0e1626;border:1px solid #1f2a3a;border-radius:16px;padding:18px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+  }
+  .stack{display:grid;gap:14px}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .title{font-size:22px;font-weight:800;letter-spacing:.2px;color:var(--text)}
+  .subtitle{opacity:.85}
+
+  .btn{
+    background:linear-gradient(180deg, #10b981, #059669);
+    color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;
+    transition:transform .08s ease, filter .12s ease;box-shadow:0 8px 20px rgba(34,197,94,.25)
+  }
+  .btn[disabled]{opacity:.5;cursor:not-allowed;filter:grayscale(.2)}
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{background:linear-gradient(180deg,#374151,#1f2937);box-shadow:none}
+  .btn.warn{background:linear-gradient(180deg,#f59e0b,#d97706)}
+  .btn.danger{background:linear-gradient(180deg,#ef4444,#dc2626)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+
+  .q-card{
+    padding:14px;border:1px solid #1f2a3a;border-radius:12px;background:#0f172a;
+  }
+  .q-text{font-size:20px;font-weight:700;color:var(--text)}
+  .choices{display:grid;gap:10px;margin-top:8px}
+  .choice{
+    text-align:left;width:100%;
+    background:#0f1b2e;border:2px solid #1f3246;border-radius:12px;padding:12px;cursor:pointer;color:#e8edf4
+  }
+  .choice:hover{border-color:#2b485f}
+  .choice:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  .choice.correct{border-color:rgba(34,197,94,.9);background:rgba(34,197,94,.12)}
+  .choice.wrong{border-color:rgba(239,68,68,.9);background:rgba(239,68,68,.12)}
+
+  .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .meter{height:10px;background:#0e1626;border:1px solid #1b2a3c;border-radius:999px;overflow:hidden}
+  .meter>i{display:block;height:100%;width:0%;}
+  #timeBar[data-zone="ok"]{ background:linear-gradient(90deg,#34d399,#10b981) }
+  #timeBar[data-zone="warn"]{ background:linear-gradient(90deg,#f59e0b,#b45309) }
+  #timeBar[data-zone="danger"]{ background:linear-gradient(90deg,#ef4444,#b91c1c) }
+
+  .feedback{min-height:28px;padding:8px 10px;border-radius:10px;background:#0b1220;border:1px dashed #334155}
+  .scorebig{font-size:48px;font-weight:900}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #1e293b;background:#0b1220}
+  .grid{display:grid;gap:14px}
+  @media (min-width:860px){ .grid{grid-template-columns:1.2fr .8fr} }
+  .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+
+  .ko-overlay{
+    position:absolute; inset:0; pointer-events:none; z-index:25;
+    background:transparent;
+  }
+  .ko-overlay.active{ animation: koFlash .6s ease; }
+  @keyframes koFlash{
+    0%{ background:transparent; }
+    20%{ background:var(--ko-overlay); }
+    100%{ background:transparent; }
+  }
+  .shake{ animation: shake .4s ease; }
+  @keyframes shake{
+    0%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+    100%{ transform:translateX(0); }
+  }
+</style>
+</head>
+<body>
+<div class="game-shell" role="application" aria-label="Timed Streak Quiz">
+  <div class="ko-overlay" id="koOverlay" aria-hidden="true"></div>
+
+  <header>
+    <div class="brand">Timed Streak Quiz</div>
+    <div class="hud">
+      <span class="chip" aria-live="polite">Round: <strong class="val" id="uiRound">1</strong>/<span id="uiRoundTot">3</span></span>
+      <span class="chip" aria-live="polite">Timer: <strong class="val" id="uiTimer">—</strong></span>
+      <span class="chip">Score: <strong class="val" id="uiScore">0</strong></span>
+      <span class="chip">Streak: <strong class="val" id="uiStreak">0</strong></span>
+      <span class="chip">Lives:
+        <span class="lives" aria-label="lives">
+          <i class="heart" id="h1"></i><i class="heart" id="h2"></i><i class="heart" id="h3"></i>
+        </span>
+      </span>
+      <span class="chip">Q <strong class="val" id="uiQNum">0</strong>/<span id="uiQTot">0</span></span>
+      <div class="row">
+        <button class="btn secondary" id="btnPause" aria-pressed="false">Pause</button>
+        <button class="btn secondary" id="btnResume" disabled>Resume</button>
+        <button class="btn secondary" id="btnRetry" disabled>Retry</button>
+        <button class="btn secondary" id="btnSound">Sound: On</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- START SCREEN -->
+    <section id="screenStart" class="panel center stack" aria-labelledby="startTitle">
+      <div class="title" id="startTitle">Ready to play?</div>
+      <p class="subtitle">3 rounds · 10 questions each · pass ≥ 50% to advance. Three lives per round. Answer fast to build streaks.</p>
+      <div class="row">
+        <button class="btn" id="btnStart">Start</button>
+      </div>
+      <div class="meter" aria-hidden="true"><i style="width:100%"></i></div>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="screenGame" class="panel stack" hidden>
+      <div class="grid">
+        <div class="stack">
+          <div class="q-card">
+            <div class="q-text" id="qText">—</div>
+            <div class="choices" id="choices" role="listbox" aria-label="answer choices"></div>
+          </div>
+          <div class="meta">
+            <div class="meter" style="flex:1" aria-label="time remaining"><i id="timeBar" data-zone="ok"></i></div>
+            <span class="badge" title="combo"><span>Combo:</span><strong id="uiCombo">x1</strong></span>
+          </div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+          <div class="row">
+            <button class="btn secondary" id="btnNext" disabled>Next</button>
+          </div>
+        </div>
+        <aside class="stack">
+          <div class="panel">
+            <div class="title">Round Info</div>
+            <div>Base points: <strong id="uiBase">10</strong></div>
+            <div>Streak bonus/step: <strong id="uiBonus">5</strong></div>
+            <div>Max Streak: <strong id="uiMaxStreak">0</strong></div>
+            <div>Badges: <span id="uiBadges">None</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- END SCREEN (per round) -->
+    <section id="screenEnd" class="panel center stack" hidden aria-labelledby="endTitle">
+      <div class="title" id="endTitle">Round Complete</div>
+      <div class="scorebig" id="finalScore">0</div>
+      <div id="endSummary">—</div>
+      <div class="row" role="group" aria-label="results">
+        <span class="badge">Round: <strong id="endRoundIdx">1</strong>/<span id="endRoundTot">3</span></span>
+        <span class="badge">Max Streak: <strong id="endMaxStreak">0</strong></span>
+        <span class="badge">Accuracy: <strong id="endAccuracy">0%</strong></span>
+        <span class="badge">Badges: <strong id="endBadges">—</strong></span>
+      </div>
+      <div id="lifeOutNote" class="subtitle" hidden>💥 You ran out of lives this round.</div>
+      <div class="row">
+        <button class="btn" id="btnNextStep">Next</button>
+        <button class="btn secondary" id="btnReview">Review Answers</button>
+      </div>
+      <div id="reviewPanel" class="panel stack" hidden></div>
+    </section>
+    <div id="srLive" class="visually-hidden" aria-live="polite"></div>
+  </main>
+</div>
+
+<script>
+/* Unique deck split across rounds if all use same bank.
+   If the bank is smaller than totalNeeded, we maximize cross-round uniqueness
+   and only allow repeats AFTER we exhaust the bank, while still preventing
+   duplicates WITHIN a round. */
+function makeRuntimeRounds(){
+  const cfg = GAME_CONFIG.ROUNDS;
+  const sameBank = cfg.every(r => r.bank === cfg[0].bank);
+
+  // helper that builds one round's "order" with no duplicates inside the round
+  function fillRoundOrder(bankLen, alreadyUsed, need){
+    const order = [];
+
+    // 1) take as many not-yet-used as possible
+    const remaining = [];
+    for(let i=0;i<bankLen;i++){ if(!alreadyUsed.has(i)) remaining.push(i); }
+    shuffle(remaining).forEach(i=>{
+      if(order.length < need){ order.push(i); alreadyUsed.add(i); }
+    });
+
+    // 2) if we still need more, we have to allow repeats across rounds:
+    //    reset the pool and avoid only in-round duplicates
+    while(order.length < need){
+      const pool = shuffle(range(bankLen));
+      for(const i of pool){
+        if(order.length >= need) break;
+        if(!order.includes(i)) order.push(i); // keep round-unique
+      }
+    }
+
+    return order;
+  }
+
+  if(!sameBank){
+    // independent banks per round; just randomize each, but keep retry-safe copy
+    return cfg.map(r=>{
+      const bank = BANKS[r.bank] || [];
+      const take = Math.min(r.take, Math.max(0, bank.length));
+      // if bank is smaller than take, we still ensure in-round uniqueness
+      const useTake = Math.max(0, Math.min(r.take, bank.length || r.take));
+      const baseOrder = bank.length
+        ? shuffle(range(bank.length)).slice(0, Math.min(useTake, bank.length))
+        : [];
+      // if underfilled (bank < take), top up from repeats while staying round-unique
+      const order = baseOrder.slice();
+      while(order.length < r.take && bank.length){
+        const candidate = Math.floor(Math.random() * bank.length);
+        if(!order.includes(candidate)) order.push(candidate);
+      }
+      return { ...r, order, orderOriginal: order.slice(), total: order.length };
+    });
+  }
+
+  // shared bank across rounds
+  const base = BANKS[cfg[0].bank] || [];
+  const totalNeeded = cfg.reduce((s,r)=> s + r.take, 0);
+
+  // happy path: enough questions to cover everything uniquely
+  if(base.length >= totalNeeded){
+    const deck = shuffle(range(base.length)).slice(0, totalNeeded);
+    let cursor = 0;
+    return cfg.map(r=>{
+      const slice = deck.slice(cursor, cursor + r.take);
+      cursor += r.take;
+      return { ...r, order: slice.slice(), orderOriginal: slice.slice(), total: slice.length };
+    });
+  }
+
+  // shortage path: maximize uniqueness across rounds, never repeat within a round
+  console.warn(`[Quiz] Bank has ${base.length} items but ${totalNeeded} were requested. ` +
+               `We’ll reuse items across rounds after the first ${base.length} unique pulls.`);
+
+  const usedAcrossRounds = new Set(); // track what we’ve used so far
+  return cfg.map(r=>{
+    const order = fillRoundOrder(base.length, usedAcrossRounds, r.take);
+    return { ...r, order: order.slice(), orderOriginal: order.slice(), total: order.length };
+  });
+}
+
+	
+	/* ==============================
+   BANKS + MULTI-ROUND CONFIG
+   ============================== */
+
+const BANKS = {
+  insurance_basics: [
+    {q:"What does 'loss ratio' generally compare?", a:["Claims paid to premiums earned","Expenses to revenue","Policies sold to renewals","Assets to liabilities"], correct:0, explain:"Loss ratio ≈ claims ÷ earned premium."},
+    {q:"Which product typically has the highest risk for claim severity?", a:["Auto liability","Travel insurance","Pet insurance","Homeowners (fire)"], correct:3, explain:"Total loss fires can be severe vs frequency-driven coverages."},
+    {q:"Combined ratio under 100% implies…", a:["Underwriting profit","Investment loss","Reserve deficiency","Rate inadequacy"], correct:0, explain:"CR < 100% means underwriting profit before investment income."},
+    {q:"Deductibles primarily reduce…", a:["Claim frequency","Claim severity","Premiums to reinsurers","Acquisition costs"], correct:0, explain:"They deter small claims, lowering frequency."},
+    {q:"What does reinsurance do for an insurer?", a:["Increases capital strain","Transfers risk","Eliminates underwriting","Sets retail prices"], correct:1, explain:"It cedes part of risk to another carrier."},
+    {q:"In solvency terms, RBC stands for…", a:["Risk-Based Capital","Rate Basis Calculation","Reinsurance Balance Check","Reserve Buffer Coefficient"], correct:0, explain:"Regulatory capital framework."},
+    {q:"A peril is best defined as…", a:["A cause of loss","A hazard","An exclusion","A deductible"], correct:0, explain:"Peril = cause (e.g., fire, theft)."},
+    {q:"'Adverse selection' occurs when…", a:["Low-risk seek more coverage","High-risk are more likely to buy","Insurer lowers rates too much","Agent misclassifies risk"], correct:1, explain:"Higher-risk customers are more likely to buy."},
+    {q:"Which improves accessibility?", a:["Color-only feedback","Keyboard-trappable choices","Auto-playing audio","Hidden focus rings"], correct:1, explain:"Ensure keyboard and visible focus."},
+    {q:"What is the purpose of a reserve?", a:["Marketing budget","Future claim payments","Agent bonuses","Tax shelter"], correct:1, explain:"Reserves are for incurred claims not yet paid."},
+    {q:"Loss frequency refers to…", a:["How often claims occur","Average claim size","Policy limits","Broker commissions"], correct:0, explain:"Frequency vs severity."},
+    {q:"Coinsurance is…", a:["Sharing loss between insured and insurer","Reinsurance treaty","Deductible alternative","Rate filing method"], correct:0, explain:"Policyholder cost-sharing."},
+    {q:"A hazard is best described as…", a:["A cause of loss","A condition that increases chance of loss","A policy condition","A deductible"], correct:1, explain:"Hazard increases likelihood or severity."},
+    {q:"Underwriting primarily involves…", a:["Paying claims","Setting reserves","Evaluating and pricing risk","Selling policies"], correct:2, explain:"Evaluate risk and set appropriate terms."},
+    {q:"Exposure in insurance means…", a:["Probability of loss","Unit of risk measure","Policy limit","Reserve balance"], correct:1, explain:"E.g., auto-years, payroll, sqft."},
+    {q:"Retention in a program usually refers to…", a:["Marketing budget","Portion of risk kept by insured","Reinsurer share","Agent commission"], correct:1, explain:"The piece the insured keeps."},
+    {q:"An exclusion in a policy is…", a:["Guaranteed coverage","Optional endorsement","What is not covered","A condition precedent"], correct:2, explain:"Specifies what's out of scope."},
+    {q:"Binding authority allows…", a:["Agents to settle claims","Agents to issue coverage","Insureds to adjust premium","Underwriters to sell securities"], correct:1, explain:"Agents can bind coverage per authority."},
+    {q:"Earned premium is…", a:["Written this period","Paid to reinsurer","Portion of written premium recognized as revenue","Unearned balance"], correct:2, explain:"Recognized over time as risk is borne."},
+    {q:"Salvage and subrogation help…", a:["Increase losses","Reduce net claim cost","Increase reserves","Raise expenses"], correct:1, explain:"Recoveries lower net cost."},
+	    {
+    q: "Which policy triggers coverage based on when the injury or damage OCCURS, regardless of when the claim is made?",
+    a: ["Occurrence form", "Claims-made form", "Discovery form", "Tail policy"],
+    correct: 0,
+    explain: "Occurrence triggers by date of loss; claims-made triggers by when the claim is reported."
+  },
+  {
+    q: "An aggregate limit on a liability policy is best described as…",
+    a: [
+      "The most the insurer pays per occurrence",
+      "The most the insurer pays for all losses in the policy period",
+      "The deductible applied to each claim",
+      "A sublimit for defense costs only"
+    ],
+    correct: 1,
+    explain: "Aggregate = annual cap for all covered losses in the term."
+  },
+  {
+    q: "A Self-Insured Retention (SIR) differs from a deductible primarily because…",
+    a: [
+      "The insurer adjusts all claims under an SIR",
+      "The insured pays and often handles the first layer before the insurer’s duty attaches",
+      "It only applies to property policies",
+      "It is always reimbursed by reinsurers"
+    ],
+    correct: 1,
+    explain: "With an SIR, the insured is the primary payer/handler up to the retention; deductibles generally attach to insurer-handled claims."
+  },
+  {
+    q: "Facultative reinsurance is typically used to…",
+    a: [
+      "Cover a whole book of business automatically",
+      "Transfer risk on individual, specifically underwritten risks",
+      "Eliminate all catastrophe exposure",
+      "Finance producer commissions"
+    ],
+    correct: 1,
+    explain: "Facultative applies case-by-case; treaty covers a defined portfolio automatically."
+  },
+  {
+    q: "In property risk modeling, a common catastrophe metric is…",
+    a: ["Loss expense ratio", "Probable Maximum Loss (PML)", "Quota share", "Expense constant"],
+    correct: 1,
+    explain: "PML (often via EP curves) estimates large-loss potential at a given return period."
+  },
+  {
+    q: "IBNR in reserving stands for…",
+    a: [
+      "Incurred But Not Reported losses",
+      "Indexed Base Net Rate",
+      "Insurance Backed Net Reserves",
+      "Incurred But Not Recorded premiums"
+    ],
+    correct: 0,
+    explain: "IBNR = losses that have happened but aren’t reported/fully developed yet."
+  },
+  {
+    q: "An experience mod (e.g., 0.85) in Workers’ Comp generally means…",
+    a: [
+      "Worse-than-average loss experience; premium surcharged",
+      "Better-than-average loss experience; premium discounted",
+      "No effect on premium",
+      "Only affects claim handling, not price"
+    ],
+    correct: 1,
+    explain: "Mods < 1.00 reduce premium; > 1.00 increase it."
+  },
+  {
+    q: "Business Interruption (BI) coverage usually requires…",
+    a: [
+      "A government shutdown order, regardless of property damage",
+      "Direct physical loss or damage to covered property causing the income loss",
+      "A reinsurer’s approval of the claim",
+      "A declared catastrophe by a regulator"
+    ],
+    correct: 1,
+    explain: "Standard BI requires direct physical loss causing the suspension of operations."
+  },
+  {
+    q: "A property coinsurance clause most often penalizes the insured when…",
+    a: [
+      "The peril is excluded",
+      "The building is vacant",
+      "The amount of insurance carried is less than the required percentage at time of loss",
+      "There is an agreed value endorsement in place"
+    ],
+    correct: 2,
+    explain: "Underinsurance relative to the coinsurance requirement triggers a proportional penalty."
+  },
+  {
+    q: "A loss development factor (LDF) is used to…",
+    a: [
+      "Convert written premium to earned premium",
+      "Project ultimate losses from reported/incurred losses",
+      "Adjust policy limits for inflation",
+      "Set producer compensation tiers"
+    ],
+    correct: 1,
+    explain: "LDFs bring immature losses to an estimate of ultimate for pricing and reserving."
+  }
+	  
+	  
+  ]
+};
+
+/* 3 rounds, 10 questions each, pass ≥50% to advance */
+const GAME_CONFIG = {
+  ROUNDS: [
+    { id:"R1", title:"Round 1", bank:"insurance_basics", take:10, timePerQ:20, lives:3, base:10, step:5, passPct:50 },
+    { id:"R2", title:"Round 2", bank:"insurance_basics", take:10, timePerQ:18, lives:3, base:12, step:6, passPct:50 },
+    { id:"R3", title:"Round 3", bank:"insurance_basics", take:10, timePerQ:16, lives:3, base:14, step:7, passPct:50 }
+  ],
+  STRINGS:{
+    startCTA:"Start",
+    correct:"Correct!",
+    wrong:"Not quite.",
+    timeup:"Time's up!",
+    paused:"Game paused",
+    resumed:"Resumed",
+    badge_fast:"Fast Thinker",
+    badge_perfect:"Perfect Round",
+    badge_comeback:"Comeback",
+    end_pass:"Nice! You passed this round.",
+    end_fail:"Round failed. You need at least 50%.",
+    end_ko:"Out of lives — round over!"
+  },
+  XAPI_ENABLED:false,
+  XAPI:{ endpoint:"", key:"", secret:"", actor:{ mbox:"mailto:learner@example.com", name:"Learner" } },
+
+  SOUND_ENABLED: true,
+  SOUND_VOLUME: 0.18,
+  SFX: {
+    correct: { freq: 880,  dur: 0.10 },
+    wrong:   { freq: 220,  dur: 0.18 },
+    timeup:  { freq: 160,  dur: 0.22 },
+    start:   { freq: 660,  dur: 0.12 },
+    pause:   { freq: 420,  dur: 0.08 },
+    resume:  { freq: 520,  dur: 0.08 },
+    badge:   { freq: 990,  dur: 0.10 },
+    lose:    { freq: 300,  dur: 0.14 },
+    koA:     { freq: 500,  dur: 0.18 },
+    koB:     { freq: 340,  dur: 0.22 }
+  }
+};
+
+/* ==============================
+   STATE
+   ============================== */
+const State = {
+  running:false, paused:false,
+  roundIndex:0,          // 0..(ROUNDS-1)
+  rounds:[],             // runtime rounds with question order
+  roundStartResultIdx:0, // where results slice starts for current round
+
+  // per-round
+  lives:0, qIndex:0, secsLeft:0, timerId:null,
+
+  // cumulative
+  score:0, streak:0, maxStreak:0, combo:1,
+  correctCount:0, results:[], badges:new Set(),
+
+  roundOverReason:null
+};
+
+/* ==============================
+   UTILS / INTEGRATIONS
+   ============================== */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const srLive = msg => { const el=$("#srLive"); el.textContent=""; setTimeout(()=>el.textContent=msg,10); };
+
+/* SOUND (Web Audio) */
+let _audioCtx = null;
+function ensureAudio(){ if(!_audioCtx){ try{ _audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function playTone(freq, dur, when=0){
+  if(!_audioCtx) return;
+  const t = _audioCtx.currentTime + when;
+  const osc = _audioCtx.createOscillator();
+  const gain = _audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(GAME_CONFIG.SOUND_VOLUME, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.06, dur));
+  osc.connect(gain).connect(_audioCtx.destination);
+  osc.start(t); osc.stop(t + dur + 0.02);
+}
+function playSfx(name){
+  if(!GAME_CONFIG.SOUND_ENABLED) return;
+  ensureAudio();
+  const spec = GAME_CONFIG.SFX[name];
+  if(!spec || !_audioCtx) return;
+  if(name==="koA"){ playTone(GAME_CONFIG.SFX.koA.freq, GAME_CONFIG.SFX.koA.dur, 0); playTone(GAME_CONFIG.SFX.koB.freq, GAME_CONFIG.SFX.koB.dur, .18); return; }
+  if(name==="lose"){ playTone(spec.freq, spec.dur, 0); return; }
+  playTone(spec.freq, spec.dur, 0);
+}
+function updateSoundUI(){ const btn=$("#btnSound"); if(btn) btn.textContent = "Sound: " + (GAME_CONFIG.SOUND_ENABLED?"On":"Off"); }
+
+/* Storyline bridge (robust) */
+function pushToHost(payload){
+  try{ window.parent && window.parent.postMessage(payload, "*"); }catch(e){}
+
+  const varMap = {
+    score:"GameScore",
+    percent:"Percent",
+    passed:"Passed",
+    maxStreak:"MaxStreak",
+    questionsCorrect:"QuestionsCorrect",
+    questionsTotal:"QuestionsTotal",
+    resultJSON:"ResultJSON",
+    levelReached:"LevelReached",
+    round:"Round"
+  };
+
+  try{
+    const player = (window.parent && typeof window.parent.GetPlayer === "function")
+      ? window.parent.GetPlayer()
+      : null;
+
+    if(player && typeof player.SetVar === "function"){
+      Object.entries(varMap).forEach(([key, varName])=>{
+        if (payload[key] !== undefined){
+          const val = (typeof payload[key] === "object") ? JSON.stringify(payload[key]) : payload[key];
+          player.SetVar(varName, val);
+        }
+      });
+    }
+  }catch(e){
+    /* ignore if not embedded in Storyline */
+  }
+}
+
+/* xAPI stub */
+function sendXAPI(){ /* noop unless you wire your LRS */ }
+
+/* Helpers */
+function range(n){ return [...Array(n).keys()]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* Unique deck split across rounds if all use same bank (no cross-round repeats).
+   Each round keeps an immutable orderOriginal for safe retry reshuffles. */
+function makeRuntimeRounds(){
+  const cfg = GAME_CONFIG.ROUNDS;
+  const sameBank = cfg.every(r => r.bank === cfg[0].bank);
+
+  if(!sameBank){
+    // Independent banks: still save orderOriginal so retry only reshuffles that slice
+    return cfg.map(r=>{
+      const bank = BANKS[r.bank] || [];
+      const take = Math.min(r.take, bank.length);
+      const order = shuffle(range(bank.length)).slice(0, take);
+      return { ...r, order, orderOriginal: order.slice(), total: order.length };
+    });
+  }
+
+  // All rounds share one bank: split a single randomized deck across rounds
+  const base = BANKS[cfg[0].bank] || [];
+  const totalNeeded = cfg.reduce((s,r)=> s + r.take, 0);
+  const deck = shuffle(range(base.length)).slice(0, Math.min(totalNeeded, base.length));
+
+  let cursor = 0;
+  return cfg.map(r=>{
+    const slice = deck.slice(cursor, cursor + r.take);
+    cursor += r.take;
+    return { ...r, order: slice.slice(), orderOriginal: slice.slice(), total: slice.length };
+  });
+}
+
+function getCurrentRound(){ return State.rounds[State.roundIndex]; }
+
+/* Defensive getQuestion */
+function getQuestion(r, idx){
+  const bank = BANKS[r.bank] || [];
+  const id = r.order[idx];
+  return (Number.isInteger(id) && bank[id] !== undefined) ? bank[id] : null;
+}
+
+function setRoundHUD(r){
+  $("#uiRound").textContent = State.roundIndex+1;
+  $("#uiRoundTot").textContent = State.rounds.length;
+  $("#uiQTot").textContent = r.total;
+  $("#uiBase").textContent = r.base;
+  $("#uiBonus").textContent = r.step;
+}
+
+/* ==============================
+   RENDER / FLOW
+   ============================== */
+function setVis(el,on){ if(!el)return; el.hidden=!on; el.setAttribute("aria-hidden", on?"false":"true"); }
+function show(which){
+  setVis($("#screenStart"), which==="start");
+  setVis($("#screenGame"),  which==="game");
+  setVis($("#screenEnd"),   which==="end");
+}
+
+function resetAll(){
+  Object.assign(State, {
+    running:false, paused:false,
+    roundIndex:0, rounds: makeRuntimeRounds(),
+    roundStartResultIdx:0,
+    lives:0, qIndex:0, secsLeft:0, timerId:null,
+    score:0, streak:0, maxStreak:0, combo:1,
+    correctCount:0, results:[], badges:new Set(),
+    roundOverReason:null
+  });
+  $("#uiBadges").textContent = "None";
+  $("#uiMaxStreak").textContent = "0";
+  $("#uiScore").textContent = "0";
+  $("#uiStreak").textContent = "0";
+  updateSoundUI();
+}
+
+function beginRound(){
+  const r = getCurrentRound();
+  State.lives = r.lives;
+  State.qIndex = 0;
+  State.secsLeft = r.timePerQ;
+  State.roundOverReason = null;
+  State.roundStartResultIdx = State.results.length;
+
+  setRoundHUD(r);
+  setLivesUI(State.lives);
+  $("#feedback").textContent = "";
+  $("#btnNext").disabled = true;
+  $("#btnRetry").disabled = false;
+  $("#btnResume").disabled = true;
+  $("#btnPause").disabled = false;
+
+  show("game");
+  loadQuestion();
+}
+
+function startGame(){
+  playSfx("start");
+  resetAll();
+  State.running = true;
+  beginRound();
+  sendGameUpdate();
+}
+
+/* Hardened loader with bounds/undefined guards */
+function loadQuestion(){
+  const r = getCurrentRound();
+  if(!r || r.total === 0 || State.qIndex >= r.total){
+    return endRound("complete");
+  }
+
+  $("#feedback").textContent = "";
+  $("#uiQNum").textContent = State.qIndex+1;
+
+  const q = getQuestion(r, State.qIndex);
+  if(!q || !q.a){
+    return endRound("complete");
+  }
+
+  $("#qText").textContent = q.q;
+
+  const choices = $("#choices");
+  choices.innerHTML = "";
+  q.a.forEach((text, idx)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.role = "option";
+    btn.setAttribute("aria-label", text);
+    btn.textContent = text;
+    btn.addEventListener("click", ()=> handleAnswer(idx));
+    btn.addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); handleAnswer(idx); }});
+    choices.appendChild(btn);
+  });
+  setTimeout(()=>choices.querySelector(".choice")?.focus(), 10);
+
+  State.secsLeft = r.timePerQ;
+  updateTimerUI(r);
+  startTimer();
+  $("#btnNext").disabled = true;
+}
+
+function handleAnswer(choiceIdx){
+  if(!State.running || State.paused) return;
+  clearTimer();
+  const r = getCurrentRound();
+
+  const q = getQuestion(r, State.qIndex);
+  if(!q){ return endRound("complete"); }
+
+  const correct = (choiceIdx===q.correct);
+
+  const allChoices = $$("#choices .choice");
+  allChoices.forEach((el,i)=>{
+    el.disabled = true;
+    if(i===q.correct) el.classList.add("correct");
+    if(i===choiceIdx && !correct) el.classList.add("wrong");
+  });
+
+  if(correct){
+    playSfx("correct");
+    State.streak += 1;
+    State.maxStreak = Math.max(State.maxStreak, State.streak);
+    State.combo = 1 + Math.max(0, State.streak-1);
+    const points = r.base + r.step * (State.streak-1);
+    State.score += points;
+    State.correctCount += 1;
+    $("#feedback").textContent = `${GAME_CONFIG.STRINGS.correct} +${points} (${q.explain})`;
+    celebrateIfNeeded();
+  }else{
+    playSfx("wrong");
+    State.streak = 0; State.combo = 1;
+    State.lives -= 1; setLivesUI(State.lives);
+    $("#feedback").textContent = `${GAME_CONFIG.STRINGS.wrong} ${q.explain}`;
+    playSfx("lose");
+    if(State.lives<=0){
+      State.results.push(resultRow(q, false, "life_out"));
+      return endRound("life_out");
+    }
+  }
+
+  State.results.push(resultRow(q, correct));
+  $("#btnNext").disabled = false;
+  updateHUD();
+  sendGameUpdate();
+}
+
+function nextQuestion(){
+  const r = getCurrentRound();
+  if(State.qIndex < r.total-1){
+    State.qIndex += 1;
+    loadQuestion();
+  }else{
+    endRound("complete");
+  }
+}
+
+function endRound(reason){
+  clearTimer();
+  State.roundOverReason = reason || "complete";
+
+  const r = getCurrentRound();
+  const slice = State.results.slice(State.roundStartResultIdx);
+  const roundAnswered = slice.length;
+  const roundCorrect = slice.filter(x=>x.result==="correct").length;
+  const roundPct = roundAnswered ? Math.round((roundCorrect/ r.total)*100) : 0;
+  const passed = roundPct >= r.passPct;
+
+  const ko = (State.roundOverReason === "life_out");
+  const endTitle = $("#endTitle");
+  const lifeNote = $("#lifeOutNote");
+  const shell = $(".game-shell");
+  const overlay = $("#koOverlay");
+
+  $("#finalScore").textContent = State.score;
+  $("#endMaxStreak").textContent = State.maxStreak;
+  $("#endAccuracy").textContent = `${roundPct}%`;
+  $("#endBadges").textContent = (Array.from(State.badges).join(", ") || "None");
+  $("#endRoundIdx").textContent = State.roundIndex+1;
+  $("#endRoundTot").textContent = State.rounds.length;
+
+  if(ko){
+    $("#endSummary").textContent = GAME_CONFIG.STRINGS.end_ko + (passed ? " You still met accuracy to advance." : "");
+    lifeNote.hidden = false;
+    endTitle.textContent = "Round Over";
+    overlay.classList.remove("active"); void overlay.offsetWidth; overlay.classList.add("active");
+    shell.classList.remove("shake"); void shell.offsetWidth; shell.classList.add("shake");
+    playSfx("koA");
+  }else{
+    $("#endSummary").textContent = passed ? GAME_CONFIG.STRINGS.end_pass : GAME_CONFIG.STRINGS.end_fail;
+    lifeNote.hidden = true;
+    endTitle.textContent = "Round Complete";
+  }
+
+  const isLast = (State.roundIndex >= State.rounds.length-1);
+  const nextBtn = $("#btnNextStep");
+  if(passed){
+    nextBtn.textContent = isLast ? "See Results" : "Next Round";
+    nextBtn.className = "btn";
+    nextBtn.onclick = ()=>{
+      if(isLast){ finalSeriesEnd(); } else { State.roundIndex += 1; beginRound(); }
+    };
+  }else{
+    nextBtn.textContent = "Retry Round";
+    nextBtn.className = "btn danger";
+    nextBtn.onclick = ()=> retryRound();
+  }
+
+  show("end");
+
+  pushToHost({
+    type:"roundEnd",
+    round: State.roundIndex+1,
+    percent: roundPct,
+    passed,
+    reason: State.roundOverReason,
+    score: State.score
+  });
+}
+
+/* Retry only reshuffles within this round’s original slice */
+function retryRound(){
+  State.results.splice(State.roundStartResultIdx);
+
+  const r = getCurrentRound();
+  const baseSlice = Array.isArray(r.orderOriginal) ? r.orderOriginal : (r.order || []);
+  r.order = shuffle(baseSlice.slice());
+  r.total = r.order.length;
+
+  beginRound();
+}
+
+function finalSeriesEnd(){
+  $("#endSummary").textContent = "All rounds complete!";
+  const nextBtn = $("#btnNextStep");
+  nextBtn.textContent = "Play Again";
+  nextBtn.className = "btn";
+  nextBtn.onclick = ()=> startGame();
+}
+
+/* ==============================
+   TIMER
+   ============================== */
+function startTimer(){
+  clearTimer();
+  const r = getCurrentRound();
+  State.timerId = setInterval(()=>{
+    if(State.paused) return;
+    State.secsLeft -= 1;
+    updateTimerUI(r);
+    if(State.secsLeft <= 0){
+      clearTimer();
+      $("#feedback").textContent = GAME_CONFIG.STRINGS.timeup;
+      playSfx("timeup");
+      State.streak = 0; State.combo = 1;
+      State.lives -= 1; setLivesUI(State.lives);
+      const q = getQuestion(r, State.qIndex);
+      if(q){ State.results.push(resultRow(q, false, "timeout")); }
+      updateHUD(); sendGameUpdate();
+      const allChoices = $$("#choices .choice");
+      if(q){
+        allChoices.forEach((el,i)=>{ el.disabled=true; if(i===q.correct) el.classList.add("correct"); });
+      }else{
+        allChoices.forEach((el)=> el.disabled=true);
+      }
+      $("#btnNext").disabled = false;
+      playSfx("lose");
+      if(State.lives<=0){ endRound("life_out"); }
+    }
+  }, 1000);
+}
+function clearTimer(){ if(State.timerId){ clearInterval(State.timerId); State.timerId=null; } }
+function updateTimerUI(r=getCurrentRound()){
+  $("#uiTimer").textContent = State.secsLeft+"s";
+  const pct = Math.max(0, Math.min(100, (State.secsLeft / r.timePerQ)*100));
+  const bar = $("#timeBar");
+  bar.style.width = pct + "%";
+  if (pct < 25) { bar.setAttribute("data-zone","danger"); }
+  else if (pct < 50) { bar.setAttribute("data-zone","warn"); }
+  else { bar.setAttribute("data-zone","ok"); }
+}
+
+/* ==============================
+   UI HELPERS
+   ============================== */
+function updateHUD(){
+  $("#uiScore").textContent = State.score;
+  $("#uiStreak").textContent = State.streak;
+  $("#uiMaxStreak").textContent = State.maxStreak;
+  $("#uiCombo").textContent = "x"+State.combo;
+}
+function setLivesUI(n){
+  [$("#h1"),$("#h2"),$("#h3")].forEach((h,i)=>h.classList.toggle("on", i < n));
+}
+function celebrateIfNeeded(){
+  const before = State.badges.size;
+  if(State.streak>=5) State.badges.add(GAME_CONFIG.STRINGS.badge_fast);
+  const r = getCurrentRound();
+  const sliceLen = Math.min(State.results.length - State.roundStartResultIdx + 1, r.total);
+  if(sliceLen===r.total && State.lives===r.lives) State.badges.add(GAME_CONFIG.STRINGS.badge_perfect);
+  if(State.lives===1 && State.correctCount>=5) State.badges.add(GAME_CONFIG.STRINGS.badge_comeback);
+  const list = Array.from(State.badges);
+  $("#uiBadges").textContent = list.length? list.join(", "):"None";
+  $("#uiScore").animate([{transform:"scale(1.0)"},{transform:"scale(1.08)"},{transform:"scale(1.0)"}], {duration:180});
+  if(State.badges.size > before){ playSfx("badge"); }
+}
+function resultRow(q, correct, reason){
+  return {
+    q:q.q, choices:q.a, correctIndex:q.correct,
+    picked: correct ? q.correct : -1,
+    result: correct ? "correct" : "wrong",
+    reason: reason||null,
+    timeRemaining: State.secsLeft,
+    streakAfter: State.streak,
+    scoreAfter: State.score,
+    explain: q.explain
+  };
+}
+function sendGameUpdate(){
+  const r = getCurrentRound();
+  pushToHost({
+    type:"gameUpdate",
+    score: State.score,
+    maxStreak: State.maxStreak,
+    questionsCorrect: State.correctCount,
+    questionsTotal: r ? r.total : 0,
+    lives: State.lives,
+    paused: State.paused,
+    round: State.roundIndex+1
+  });
+}
+
+/* ==============================
+   REVIEW
+   ============================== */
+function renderReview(){
+  const wrap = $("#reviewPanel");
+  wrap.hidden = !wrap.hidden;
+  if(wrap.hidden) return;
+  wrap.innerHTML = "";
+  const slice = State.results.slice(State.roundStartResultIdx);
+  slice.forEach((r,i)=>{
+    const card = document.createElement("div");
+    card.className = "q-card";
+    card.innerHTML = `
+      <div class="q-text">Q${i+1}. ${escapeHtml(r.q)}</div>
+      <div class="choices">
+        ${r.choices.map((c,idx)=>{
+          const cls = idx===r.correctIndex?"correct": (idx===r.picked?"wrong":"");
+          return `<div class="choice ${cls}" style="pointer-events:none" tabindex="-1">${escapeHtml(c)}</div>`;
+        }).join("")}
+      </div>
+      <div class="feedback" style="margin-top:8px">${escapeHtml(r.explain||"")}</div>
+    `;
+    card.setAttribute("aria-label", `Question ${i+1} review`);
+    wrap.appendChild(card);
+  });
+}
+
+/* ==============================
+   WIRING / EVENTS
+   ============================== */
+$("#btnStart").addEventListener("click", startGame);
+$("#btnNext").addEventListener("click", nextQuestion);
+$("#btnPause").addEventListener("click", ()=>{
+  if(!State.running || State.paused) return;
+  State.paused=true; clearTimer();
+  $("#btnPause").setAttribute("aria-pressed","true");
+  $("#btnResume").disabled=false; $("#btnRetry").disabled=false;
+  $("#feedback").textContent = GAME_CONFIG.STRINGS.paused; srLive(GAME_CONFIG.STRINGS.paused);
+  playSfx("pause"); sendGameUpdate();
+});
+$("#btnResume").addEventListener("click", ()=>{
+  if(!State.running || !State.paused) return;
+  State.paused=false; startTimer();
+  $("#btnPause").setAttribute("aria-pressed","false"); $("#btnResume").disabled=true;
+  $("#feedback").textContent = GAME_CONFIG.STRINGS.resumed; srLive(GAME_CONFIG.STRINGS.resumed);
+  playSfx("resume"); sendGameUpdate();
+});
+$("#btnRetry").addEventListener("click", ()=> retryRound());
+$("#btnReview").addEventListener("click", ()=> renderReview());
+$("#btnSound").addEventListener("click", ()=>{
+  GAME_CONFIG.SOUND_ENABLED = !GAME_CONFIG.SOUND_ENABLED;
+  updateSoundUI();
+  srLive(`Sound ${GAME_CONFIG.SOUND_ENABLED ? "on" : "off"}`);
+});
+
+window.addEventListener("message", (e)=>{
+  const data = e.data || {};
+  if(data && data.type==="gameControl"){
+    if(data.action==="pause") $("#btnPause").click();
+    if(data.action==="resume") $("#btnResume").click();
+    if(data.action==="reset")  startGame();
+  }
+});
+
+// Keyboard: M mute/unmute, P pause/resume, N next (when enabled)
+document.addEventListener("keydown",(e)=>{
+  if(e.key.toLowerCase()==="m"){
+    GAME_CONFIG.SOUND_ENABLED = !GAME_CONFIG.SOUND_ENABLED; updateSoundUI();
+    srLive(`Sound ${GAME_CONFIG.SOUND_ENABLED ? "on" : "off"}`);
+  }
+  if(!State.running) return;
+  if(e.key.toLowerCase()==="p"){ State.paused ? $("#btnResume").click() : $("#btnPause").click(); }
+  if(e.key.toLowerCase()==="n" && !$("#btnNext").disabled){ nextQuestion(); }
+});
+
+/* INIT */
+show("start"); updateSoundUI();
+</script>
+</body>
+</html>
