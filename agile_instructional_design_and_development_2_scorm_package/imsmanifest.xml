@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="com.elearning-builder.1762795625056" version="1.0"
+          xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
+          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd
+                              http://www.adlnet.org/xsd/adlcp_v1p3 adlcp_v1p3.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>2004 3rd Edition</schemaversion>
+  </metadata>
+  <organizations default="org_1">
+    <organization identifier="org_1">
+      <title>Agile Instructional Design and Development 2</title>
+      <item identifier="item_1" identifierref="res_1">
+        <title>Agile Instructional Design and Development 2</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="res_1" type="webcontent" adlcp:scormType="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="scorm-api-wrapper.js"/>
+    </resource>
+  </resources>
+</manifest>

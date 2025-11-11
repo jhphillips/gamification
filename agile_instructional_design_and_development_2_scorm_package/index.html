@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agile Instructional Design and Development 2</title>
+  
+  <script src="scorm-api-wrapper.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #16a34a;
+      --good: #16a34a;
+      --warn: #f59e0b;
+      --bad: #dc2626;
+      --shadow:0 20px 60px rgba(2,6,23,.18);
+      --grad: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
+      --softgrad: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    }
+    body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--grad);min-height:100vh;padding:20px;padding-bottom:40px;display:flex;justify-content:center;align-items:flex-start;}
+    .container{background:var(--panel);border-radius:20px;box-shadow:var(--shadow);max-width:960px;width:100%;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+    .skills-panel{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:14px;animation:fadeInUp .5s ease-out .2s both;}
+    .skill-box{background:var(--softgrad);color:#0b1733;padding:14px;border-radius:12px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(0.4, 0, 0.2, 1);}
+    .skill-box.updated{animation:skillPulse .6s ease-out;box-shadow:0 0 20px rgba(37, 99, 235, 0.3);}
+    @keyframes skillPulse{0%{transform:scale(1);box-shadow:0 0 30px rgba(37, 99, 235, 0.5);} 50%{transform:scale(1.02);} 100%{transform:scale(1);box-shadow:0 0 10px rgba(37, 99, 235, 0.2);}}
+    .skill-name{font-weight:700;margin-bottom:8px;font-size:14px}
+    .skill-bar{background:rgba(255,255,255,.5);height:8px;border-radius:4px;overflow:hidden}
+    .skill-fill{background:#fff;height:100%;transition:width .6s cubic-bezier(0.4, 0, 0.2, 1);border-radius:4px}
+    .skill-level{font-size:12px;margin-top:6px;opacity:.9}
+    .badge-bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 22px;animation:fadeInUp .5s ease-out .3s both; min-height: 34px;}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#e2e8f0;border:1px solid #cbd5e1;color:#0f172a;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .badge .emoji{font-size:14px}
+    @keyframes scaleIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .main-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;animation:fadeInUp .5s ease-out both;}
+    .replay-tour-btn{background:transparent;border:1px solid #e2e8f0;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;}
+    .replay-tour-btn:hover{background:var(--bg);color:var(--ink)}
+    h1{color:var(--ink);margin-bottom:6px;font-size:28px;}
+    .sub{color:var(--muted);margin-bottom:14px;}
+    .status-badge{display:inline-block;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:10px;}
+    .status-badge.learning{background:#dbeafe;color:#1d4ed8}
+    .status-badge.remedial{background:#fff7ed;color:#b45309}
+    .status-badge.mastery{background:#dcfce7;color:#166534}
+    .scenario{background:var(--bg);padding:22px;border-radius:12px;margin-bottom:24px;border-left:4px solid var(--accent);animation:scenarioFadeIn .5s ease-out;scroll-margin-top:20px;}
+    .scenario.remedial{border-left-color:var(--warn);background:#fff8ee}
+    /* FIX: Improve contrast for elements within remedial scenarios */
+    .scenario.remedial .context-hint {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    .scenario.remedial .feedback.incorrect {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    @keyframes scenarioFadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .scenario-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .scenario-title{font-size:18px;font-weight:800;color:var(--ink)}
+    .scenario-tags{display:flex;gap:8px}
+    .tag{background:var(--accent);color:#fff;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .tag.remedial{background:var(--warn)}
+    .context-hint{background:#fffbea;border-left:3px solid #facc15;padding:12px;margin: 16px 0;border-radius:6px;font-size:14px;color:#4b5563;line-height:1.6;}
+    .scenario-text{color:#334155;line-height:1.6;margin-bottom:16px;white-space:pre-wrap}
+    .question{font-weight:800;color:var(--ink);margin-bottom:16px}
+    .options{display:flex;flex-direction:column;gap:12px}
+    .option{background:#fff;border:2px solid #e5e7eb;padding:16px;border-radius:10px;cursor:pointer;transition:.25s ease;position:relative;animation:optionSlideIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);white-space:pre-wrap;}
+    @keyframes optionSlideIn{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+    .option:hover{border-color:var(--accent);transform:translateX(5px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
+    .option.selected{border-color:var(--accent);background:#eef2ff}
+    .option.correct{border-color:var(--good);background:#ecfdf5}
+    .option.incorrect{border-color:var(--bad);background:#fee2e2}
+    .option.disabled{cursor:not-allowed;opacity:.6;pointer-events:none}
+    .feedback{margin-top:16px;padding:16px;border-radius:10px;display:none;animation:feedbackSlideUp .5s cubic-bezier(0.34, 1.56, 0.64, 1);scroll-margin-top:20px;}
+    @keyframes feedbackSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .feedback.show{display:block}
+    .feedback.correct{background:#ecfdf5;border-left:4px solid var(--good);color:#14532d}
+    .feedback.incorrect{background:#fff7ed;border-left:4px solid var(--warn);color:#7c2d12}
+    .feedback-title{font-weight:800;margin-bottom:6px;font-size:16px}
+    .skill-impact{margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);font-size:13px}
+    .skill-change{display:inline-block;margin:0 8px 6px 0;padding:2px 8px;border-radius:4px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .skill-change.positive{background:rgba(22,163,74,.18);color:#166534}
+    .skill-change.negative{background:rgba(220,38,38,.18);color:#7f1d1d}
+    .continue-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;transition:.25s;display:none;animation:buttonFadeIn .5s ease-out;align-self:flex-start;}
+    .scenario .continue-btn { margin-top: 20px; }
+    .continue-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35)}
+    .continue-btn.show{display:inline-block}
+    .completion-screen{text-align:center;display:none;animation:fadeIn .6s}
+    .completion-screen.show{display:block}
+    .completion-icon{font-size:80px;margin-bottom:10px;animation:bounce 1s ease-in-out}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    .completion-title{font-size:30px;color:var(--ink);margin-bottom:6px}
+    .completion-message{color: var(--muted); margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;}
+    .mastery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:24px 0}
+    .mastery-item{background:var(--bg);padding:16px;border-radius:10px;text-align:center;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .mastery-label{font-size:12px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+    .mastery-value{font-size:22px;font-weight:800;color:var(--accent)}
+    .journey-summary{background:var(--bg);padding:20px;border-radius:12px;margin-top:20px;text-align:left}
+    .final-skills-list{list-style:none;padding:0;margin:12px 0}
+    .final-skill-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}
+    .final-skill-item:last-child{border-bottom:none}
+    .final-skill-name{font-weight:600;color:var(--ink)}
+    .final-skill-value{font-weight:700;color:var(--accent);font-size:1.1rem;}
+    .restart-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px}
+    .secondary-btn{background:transparent;color:var(--muted);border:1px solid #cbd5e1;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px;margin-left:12px}
+    .secondary-btn:hover{background:var(--bg);color:var(--ink)}
+    
+    /* ===== WELCOME TOUR ===== */
+    .tour-overlay, .welcome-modal { display: none; }
+    .tour-overlay.show, .welcome-modal.show { display: block; }
+    .tour-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;opacity:1;transition:opacity .4s ease-out;animation:fadeIn .3s ease-out;}
+    .welcome-modal{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);z-index:303;animation:modalSlideIn .5s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    @keyframes modalSlideIn{from{opacity:0;transform:translate(-50%, -50%) scale(0.9);}to{opacity:1;transform:translate(-50%, -50%) scale(1);}}
+    .welcome-content{background:var(--panel);border-radius:20px;padding:40px;max-width:500px;width:calc(100% - 40px);text-align:center;box-shadow:0 25px 50px rgba(2,6,23,.3);}
+    .welcome-content h2{font-size:28px;color:var(--ink);margin:0 0 12px;}
+    .welcome-content p{font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 28px;}
+    .welcome-buttons{display:flex;gap:12px;justify-content:center;}
+    .welcome-btn{background:var(--grad);color:#fff;border:none;padding:12px 28px;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;flex:1;}
+    .welcome-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35);}
+    .welcome-btn.secondary{background:transparent;color:var(--muted);border:1px solid #cbd5e1;}
+    .welcome-btn.secondary:hover{background:var(--bg);color:var(--ink);}
+    .tour-spotlight{position:fixed;border:3px solid var(--accent);box-shadow:0 0 0 9999px rgba(15, 23, 42, 0.85);border-radius:12px;z-index:301;pointer-events:none;transition: all .4s cubic-bezier(0.4, 0, 0.2, 1); display:none;}
+    .tour-tooltip{position:fixed;background:var(--panel);border-radius:12px;padding:20px;max-width:340px;z-index:302;box-shadow:0 25px 50px rgba(2,6,23,.3);animation:tooltipSlide .4s cubic-bezier(0.34, 1.56, 0.64, 1);display:none; transition: top .4s, left .4s;}
+    @keyframes tooltipSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .tour-tooltip h3{font-size:18px;font-weight:800;color:var(--ink);margin:0 0 10px;}
+    .tour-tooltip p{font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 16px;}
+    .tour-controls{display:flex;gap:12px;justify-content:space-between;align-items:center;}
+    .tour-dots{display:flex;gap:6px;}
+    .tour-dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:.2s;}
+    .tour-dot.active{background:var(--accent);transform:scale(1.3);}
+    .tour-btn{background:var(--grad);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+    .tour-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3);}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="learningContent">
+        <div class="main-header">
+            <div>
+                <span class="status-badge learning" id="statusBadge" aria-live="polite">📚 Adaptive Learning</span>
+                <h1 id="courseTitle"></h1>
+                <div class="sub">An adaptive learning experience.</div>
+            </div>
+            <button id="replayTourBtn" class="replay-tour-btn">🎬 Replay Tour</button>
+        </div>
+      <div class="scenario" id="scenarioContainer">
+        <div class="scenario-header">
+          <div class="scenario-title" id="scenarioTitle"></div>
+          <div class="scenario-tags" id="scenarioTags"></div>
+        </div>
+        <div class="context-hint" id="contextHint" style="display:none;"></div>
+        <div class="scenario-text" id="scenarioText"></div>
+        <div class="question" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedbackContainer">
+            <div class="feedback-title" id="feedbackTitle"></div>
+            <div id="feedbackText"></div>
+            <div class="skill-impact" id="skillImpact"></div>
+        </div>
+        <button class="continue-btn" id="continueBtn">Continue →</button>
+      </div>
+      <div class="skills-below">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Your Skills</h3>
+        <div class="skills-panel" id="skillsPanel"></div>
+      </div>
+      <div class="badges-section">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Badges Earned</h3>
+        <div class="badge-bar" id="badgeBar"></div>
+      </div>
+    </div>
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-icon">🎓</div>
+      <h2 class="completion-title">Learning Journey Complete!</h2>
+      <p class="completion-message" id="completionMessage"></p>
+      <div class="mastery-grid" id="masteryGrid"></div>
+      <div class="journey-summary">
+        <h3>Final Skill Levels</h3>
+        <ul class="final-skills-list" id="finalSkillsList"></ul>
+        <h3 style="margin-top:14px;">Badges Earned</h3>
+        <div class="badge-bar" id="finalBadgeBar"></div>
+      </div>
+      <button class="restart-btn" id="restartBtn">Start New Journey</button>
+      <button class="secondary-btn" id="exitCourseBtn">Exit Course</button>
+    </div>
+  </div>
+
+  <!-- Welcome Tour Elements -->
+  <div class="tour-overlay" id="tourOverlay"></div>
+  <div class="welcome-modal" id="welcomeModal">
+    <div class="welcome-content">
+      <h2>Welcome to Your Adaptive Course!</h2>
+      <p>This isn't a typical click-through course. Your journey will adapt based on your choices. Take a quick tour to see how it works.</p>
+      <div class="welcome-buttons">
+        <button class="welcome-btn secondary" id="skipTourBtn">Skip Tour</button>
+        <button class="welcome-btn" id="startTourBtn">Start Tour →</button>
+      </div>
+    </div>
+  </div>
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div class="tour-controls">
+      <div class="tour-dots" id="tourDots"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="tour-btn secondary" id="tourPrevBtn">← Back</button>
+        <button class="tour-btn" id="tourNextBtn">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script id="course-data" type="application/json">
+    {"courseData":{"title":"Agile Instructional Design and Development 2","content":"This advanced course empowers instructional designers and learning developers to apply Agile methodologies in real-world L&D contexts. Through realistic scenarios and decision-making challenges, learners will practice sprint planning, iterative prototyping, stakeholder collaboration, and continuous improvement techniques. Master the practical skills needed to transform traditional instructional design workflows into flexible, adaptive Agile frameworks that deliver faster results and better learning outcomes.","skills":["Agile Principles & Values","Sprint Planning & Execution","Iterative Design & Prototyping","Stakeholder Collaboration","Agile Metrics & Measurement","Team Role Management"],"theme":"green"},"generatedContent":{"scenarios":{"agile-values-intro":{"id":"agile-values-intro","title":"The Waterfall Mandate","difficulty":"foundation","skills":["Agile Principles & Values"],"context":"Your manager wants a complete design document before any development begins.","text":"Your manager says, 'I need to see the full storyboard and all content finalized before we start building anything. No surprises.' Your team has been learning Agile and wants to iterate.","question":"How do you respond?","options":[{"text":"Propose a hybrid approach: 'What if we start with a detailed outline and prototype the first module to validate direction?'","feedback":"Smart compromise. You're honoring their need for clarity while introducing iterative validation—a key Agile principle of early feedback.","skills":[{"skill":"Agile Principles & Values","change":18},{"skill":"Stakeholder Collaboration","change":12}]},{"text":"Agree fully: 'Absolutely, I'll create the complete documentation package first.'","feedback":"This maintains the status quo but misses an opportunity to introduce iterative benefits. Waterfall documentation often becomes outdated quickly.","skills":[{"skill":"Agile Principles & Values","change":-12},{"skill":"Stakeholder Collaboration","change":5}]},{"text":"Push back strongly: 'Agile doesn't work that way. We need to embrace iteration and flexibility.'","feedback":"While technically correct, this confrontational approach damages relationships. Change management requires empathy and gradual education.","skills":[{"skill":"Agile Principles & Values","change":-8},{"skill":"Stakeholder Collaboration","change":-15}]},{"text":"Explain the benefits: 'I understand your concern. Could we discuss how early prototypes actually reduce project risk?'","feedback":"Excellent approach. You're addressing their underlying need (risk reduction) while educating about Agile benefits. This builds buy-in.","skills":[{"skill":"Agile Principles & Values","change":20},{"skill":"Stakeholder Collaboration","change":15}]}]},"sprint-basics":{"id":"sprint-basics","title":"First Sprint Planning","difficulty":"foundation","skills":["Sprint Planning & Execution"],"context":"You're planning your first two-week learning sprint.","text":"Your team has 12 user stories in the backlog. The Product Owner wants to include 10 of them in this sprint. Your developers look concerned.","question":"What do you recommend?","options":[{"text":"Start conservatively: 'Let's commit to 4-5 stories for our first sprint and build velocity data for future planning.'","feedback":"Wise strategy. Starting with realistic commitments builds team confidence and provides actual velocity data for better future planning.","skills":[{"skill":"Sprint Planning & Execution","change":20},{"skill":"Agile Metrics & Measurement","change":10}]},{"text":"Defer to the Product Owner: 'If the PO wants 10 stories, we should try to deliver them.'","feedback":"This creates unrealistic expectations. The Development Team should have authority over sprint commitments based on capacity.","skills":[{"skill":"Sprint Planning & Execution","change":-15},{"skill":"Team Role Management","change":-10}]},{"text":"Compromise at 7 stories: 'How about we meet in the middle at 7 stories?'","feedback":"Arbitrary compromises without capacity analysis often lead to overcommitment. Use estimation and team input instead.","skills":[{"skill":"Sprint Planning & Execution","change":-8},{"skill":"Agile Metrics & Measurement","change":-5}]},{"text":"Use story points: 'Let's estimate each story and see what fits our team's capacity realistically.'","feedback":"Excellent. Using estimation techniques provides data-driven sprint planning and helps the team understand their actual capacity.","skills":[{"skill":"Sprint Planning & Execution","change":22},{"skill":"Agile Metrics & Measurement","change":15}]}]},"prototype-decision":{"id":"prototype-decision","title":"Prototype Fidelity Choice","difficulty":"foundation","skills":["Iterative Design & Prototyping"],"context":"You need stakeholder feedback on a new microlearning concept.","text":"Your team debates whether to create a clickable Storyline prototype or a simple PowerPoint mockup. The review meeting is in three days.","question":"What approach do you choose?","options":[{"text":"Go low-fidelity: 'Let's create a PowerPoint mockup to focus feedback on structure and content first.'","feedback":"Smart choice for early feedback. Low-fidelity prototypes are faster to create and help stakeholders focus on concept rather than polish.","skills":[{"skill":"Iterative Design & Prototyping","change":18},{"skill":"Sprint Planning & Execution","change":10}]},{"text":"Build high-fidelity: 'We should create a polished Storyline prototype to make a strong impression.'","feedback":"This risks over-investing before validation. High-fidelity too early can waste effort if the concept needs significant changes.","skills":[{"skill":"Iterative Design & Prototyping","change":-12},{"skill":"Agile Principles & Values","change":-8}]},{"text":"Split the work: 'Half the team does PowerPoint, half does Storyline, and we'll see which works better.'","feedback":"This duplicates effort unnecessarily. Agile emphasizes focused work and learning from each iteration, not parallel competing approaches.","skills":[{"skill":"Iterative Design & Prototyping","change":-15},{"skill":"Sprint Planning & Execution","change":-10}]},{"text":"Delay the meeting: 'Let's postpone to next week so we can build a proper prototype.'","feedback":"This delays feedback and misses the Agile value of rapid iteration. A simple mockup could provide valuable insights now.","skills":[{"skill":"Iterative Design & Prototyping","change":-10},{"skill":"Stakeholder Collaboration","change":-8}]}]},"stakeholder-communication":{"id":"stakeholder-communication","title":"The Email Request","difficulty":"foundation","skills":["Stakeholder Collaboration"],"context":"Your stakeholder sends detailed feedback via a long email thread.","text":"Instead of attending sprint reviews, your key stakeholder sends multi-page emails with feedback. The team is getting confused by conflicting email instructions.","question":"How do you address this?","options":[{"text":"Invite to stand-up: 'Would you join our 15-minute daily stand-up? It would help us align quickly on priorities.'","feedback":"Good thinking, but daily stand-ups are for the team. Sprint reviews and planned feedback sessions are better for stakeholders.","skills":[{"skill":"Stakeholder Collaboration","change":5},{"skill":"Team Role Management","change":-5}]},{"text":"Request sprint review attendance: 'Could we schedule 30 minutes every two weeks to review progress together?'","feedback":"Perfect. Regular sprint reviews provide structured feedback opportunities and reduce miscommunication from asynchronous email threads.","skills":[{"skill":"Stakeholder Collaboration","change":22},{"skill":"Agile Principles & Values","change":12}]},{"text":"Continue with emails: 'No problem, we'll work through the email feedback as it comes.'","feedback":"This perpetuates the problem. Email feedback lacks the collaborative dialogue and immediate clarification that Agile reviews provide.","skills":[{"skill":"Stakeholder Collaboration","change":-15},{"skill":"Agile Principles & Values","change":-10}]},{"text":"Create a feedback form: 'I'll build a structured feedback template to make your reviews easier.'","feedback":"While structure helps, this still maintains one-way communication. Agile thrives on conversation and collaborative feedback.","skills":[{"skill":"Stakeholder Collaboration","change":-8},{"skill":"Agile Principles & Values","change":-5}]}]},"role-understanding":{"id":"role-understanding","title":"Who Decides?","difficulty":"foundation","skills":["Team Role Management"],"context":"Your Agile team is debating who should prioritize backlog items.","text":"The Scrum Master, Product Owner, and a senior designer all have different opinions on which learning module should be built next sprint.","question":"Who should make the final prioritization decision?","options":[{"text":"The Product Owner: 'The PO represents learner needs and business value, so they prioritize the backlog.'","feedback":"Exactly right. The Product Owner owns backlog prioritization based on value, while the team decides how much they can deliver.","skills":[{"skill":"Team Role Management","change":20},{"skill":"Agile Principles & Values","change":15}]},{"text":"The Scrum Master: 'The Scrum Master manages the process and should decide what's next.'","feedback":"Incorrect. The Scrum Master facilitates but doesn't make prioritization decisions. They serve the team, not dictate direction.","skills":[{"skill":"Team Role Management","change":-15},{"skill":"Agile Principles & Values","change":-10}]},{"text":"The senior designer: 'The most experienced team member should guide priorities.'","feedback":"While expertise matters, priority decisions should be based on value to learners and business, not seniority.","skills":[{"skill":"Team Role Management","change":-12},{"skill":"Agile Principles & Values","change":-8}]},{"text":"Vote democratically: 'Let's have the team vote on priorities to keep everyone happy.'","feedback":"Democratic voting sounds fair but leads to priority by popularity rather than value. The PO is accountable for value-based decisions.","skills":[{"skill":"Team Role Management","change":-10},{"skill":"Sprint Planning & Execution","change":-5}]}]},"addie-vs-agile":{"id":"addie-vs-agile","title":"The Compliance Course","difficulty":"intermediate","skills":["Agile Principles & Values","Sprint Planning & Execution"],"context":"You're assigned a regulatory compliance course with strict legal review requirements.","text":"Legal requires reviewing all content before development. Your timeline is tight. A colleague suggests this project isn't suitable for Agile.","question":"How do you approach this project?","options":[{"text":"Use Agile with checkpoints: 'We'll develop in sprints but include legal review milestones at the end of each sprint.'","feedback":"Excellent adaptation. You're maintaining iterative development while accommodating necessary governance. This is practical Agile.","skills":[{"skill":"Agile Principles & Values","change":20},{"skill":"Sprint Planning & Execution","change":15}]},{"text":"Revert to waterfall: 'You're right, we should write all content first, get legal approval, then build.'","feedback":"This abandons Agile when a hybrid approach could work. Even regulated projects benefit from iteration and early validation.","skills":[{"skill":"Agile Principles & Values","change":-15},{"skill":"Iterative Design & Prototyping","change":-10}]},{"text":"Ignore constraints: 'Agile means flexibility. We'll iterate and deal with legal review at the end.'","feedback":"This sets up project failure. Agile isn't about ignoring constraints—it's about adapting the framework to real-world needs.","skills":[{"skill":"Agile Principles & Values","change":-18},{"skill":"Stakeholder Collaboration","change":-12}]},{"text":"Build a prototype first: 'Let's create a sample module for legal review before committing to the approach.'","feedback":"Smart risk mitigation. A prototype validates your approach with legal early, reducing rework. This embodies Agile's learning mindset.","skills":[{"skill":"Agile Principles & Values","change":18},{"skill":"Iterative Design & Prototyping","change":15}]}]},"user-story-writing":{"id":"user-story-writing","title":"Writing the User Story","difficulty":"intermediate","skills":["Sprint Planning & Execution","Stakeholder Collaboration"],"context":"You're converting project requirements into user stories for your learning backlog.","text":"The requirement states: 'Create an interactive scenario on conflict resolution with branching.' You need to write this as a user story.","question":"Which user story format is most effective?","options":[{"text":"'As a learner, I want to practice conflict resolution in realistic scenarios so I can apply skills confidently at work.'","feedback":"Perfect. This captures who, what, and why—focusing on learner value and outcomes rather than implementation details.","skills":[{"skill":"Sprint Planning & Execution","change":22},{"skill":"Agile Principles & Values","change":12}]},{"text":"'As a developer, I want to build a branching scenario using Storyline variables and triggers.'","feedback":"This focuses on technical implementation rather than learner value. User stories should represent the end user's perspective.","skills":[{"skill":"Sprint Planning & Execution","change":-12},{"skill":"Stakeholder Collaboration","change":-8}]},{"text":"'Create an interactive conflict resolution scenario with three branching paths and feedback.'","feedback":"This is a task description, not a user story. It lacks the perspective of who benefits and why it matters.","skills":[{"skill":"Sprint Planning & Execution","change":-15},{"skill":"Agile Principles & Values","change":-10}]},{"text":"'As a manager, I want employees to complete conflict resolution training so they meet compliance requirements.'","feedback":"This represents the business need, not the learner's need. Effective L&D user stories focus on the learner's goals and growth.","skills":[{"skill":"Sprint Planning & Execution","change":-8},{"skill":"Stakeholder Collaboration","change":5}]}]},"backlog-priorities":{"id":"backlog-priorities","title":"Competing Priorities","difficulty":"intermediate","skills":["Sprint Planning & Execution","Stakeholder Collaboration"],"context":"Multiple stakeholders are pushing different items to the top of your backlog.","text":"Sales wants product training immediately. HR insists onboarding is urgent. The CEO mentioned leadership development last week. All seem important.","question":"How do you handle these competing priorities?","options":[{"text":"Facilitate a prioritization session: 'Let's bring stakeholders together to rank items by business impact and urgency.'","feedback":"Excellent approach. Transparent prioritization with stakeholders present creates shared understanding and reduces conflict.","skills":[{"skill":"Stakeholder Collaboration","change":22},{"skill":"Sprint Planning & Execution","change":15}]},{"text":"Work on all three: 'We'll split the team and make progress on everything simultaneously.'","feedback":"This dilutes focus and reduces efficiency. Agile emphasizes completing valuable work rather than starting everything at once.","skills":[{"skill":"Sprint Planning & Execution","change":-15},{"skill":"Agile Principles & Values","change":-12}]},{"text":"Decide yourself: 'Based on my analysis, I'll prioritize onboarding first as it affects more people.'","feedback":"While analysis is good, unilateral decisions bypass stakeholder input. The Product Owner should drive prioritization collaboratively.","skills":[{"skill":"Stakeholder Collaboration","change":-12},{"skill":"Team Role Management","change":-8}]},{"text":"Use a scoring framework: 'Let's evaluate each project against criteria like business impact, urgency, and resource needs.'","feedback":"Strong approach. Objective criteria make prioritization defensible and help stakeholders understand decisions rationally.","skills":[{"skill":"Sprint Planning & Execution","change":18},{"skill":"Stakeholder Collaboration","change":15}]}]},"sme-availability":{"id":"sme-availability","title":"The Missing SME","difficulty":"intermediate","skills":["Stakeholder Collaboration","Sprint Planning & Execution"],"context":"Your SME is frequently unavailable during the sprint.","text":"Your technical SME agreed to daily 15-minute check-ins but has cancelled three times this week. Your team is blocked on content questions.","question":"What's your best next step?","options":[{"text":"Create asynchronous options: 'Let's use shared docs where we post questions and the SME can respond when available.'","feedback":"Pragmatic solution. Asynchronous collaboration maintains momentum when real-time availability is constrained, a common L&D reality.","skills":[{"skill":"Stakeholder Collaboration","change":18},{"skill":"Agile Principles & Values","change":12}]},{"text":"Wait for availability: 'We should pause work on these items until the SME has more time.'","feedback":"This creates unnecessary delays. Agile teams find ways to maintain momentum and work around temporary blockers.","skills":[{"skill":"Sprint Planning & Execution","change":-15},{"skill":"Agile Principles & Values","change":-10}]},{"text":"Escalate to their manager: 'I'll inform their supervisor that we need dedicated SME time per our agreement.'","feedback":"This may damage the relationship. Try collaborative solutions first before escalating what might be a workload or priority issue.","skills":[{"skill":"Stakeholder Collaboration","change":-12},{"skill":"Team Role Management","change":-8}]},{"text":"Batch questions strategically: 'Let's consolidate questions and schedule one focused 30-minute session per sprint instead.'","feedback":"Smart adaptation. You're respecting their constraints while ensuring the team gets needed input. This shows Agile flexibility.","skills":[{"skill":"Stakeholder Collaboration","change":20},{"skill":"Sprint Planning & Execution","change":15}]}]},"prototype-fidelity-choice":{"id":"prototype-fidelity-choice","title":"Polish or Progress?","difficulty":"intermediate","skills":["Iterative Design & Prototyping","Agile Principles & Values"],"context":"Your team is debating how polished a prototype should be for executive review.","text":"You have a working prototype with placeholder graphics and basic interactions. Some team members want to polish it before showing executives.","question":"What do you decide?","options":[{"text":"Show it now: 'Let's present what we have and explicitly frame it as an early prototype for feedback.'","feedback":"Excellent Agile thinking. Setting expectations around fidelity allows early feedback on concept before investing in polish.","skills":[{"skill":"Iterative Design & Prototyping","change":20},{"skill":"Agile Principles & Values","change":18}]},{"text":"Polish first: 'Executives expect quality. Let's add final graphics and smooth interactions before the review.'","feedback":"This delays valuable feedback and risks building the wrong thing beautifully. Clarify expectations about prototype purpose instead.","skills":[{"skill":"Iterative Design & Prototyping","change":-15},{"skill":"Sprint Planning & Execution","change":-10}]},{"text":"Create two versions: 'Let's polish the first screen to set expectations, but keep the rest as a rough prototype.'","feedback":"Interesting compromise, but inconsistent fidelity can confuse reviewers. Better to set clear expectations about the prototype's purpose.","skills":[{"skill":"Iterative Design & Prototyping","change":5},{"skill":"Stakeholder Collaboration","change":-5}]},{"text":"Record a demo: 'I'll create a narrated video walkthrough that explains the concept without exposing the rough edges.'","feedback":"This limits interactive feedback and dialogue. Live prototypes, even rough ones, generate richer discussion and validation.","skills":[{"skill":"Iterative Design & Prototyping","change":-8},{"skill":"Stakeholder Collaboration","change":-10}]}]},"retrospective-facilitation":{"id":"retrospective-facilitation","title":"The Tense Retrospective","difficulty":"intermediate","skills":["Team Role Management","Stakeholder Collaboration"],"context":"Your sprint retrospective reveals tension about missed commitments.","text":"During retro, a developer blames unclear requirements. The Product Owner counters that the team didn't ask questions. The mood is defensive.","question":"How do you facilitate this productively?","options":[{"text":"Focus on process, not people: 'Let's identify what process changes could prevent this next time, regardless of fault.'","feedback":"Perfect facilitation. Shifting from blame to process improvement maintains psychological safety while driving meaningful change.","skills":[{"skill":"Team Role Management","change":22},{"skill":"Stakeholder Collaboration","change":18}]},{"text":"Assign responsibility: 'Both sides have valid points. Let's determine who should own this in the future.'","feedback":"This continues the blame dynamic. Retrospectives should focus on systemic improvements, not individual accountability.","skills":[{"skill":"Team Role Management","change":-15},{"skill":"Agile Principles & Values","change":-12}]},{"text":"End the meeting: 'We're getting too heated. Let's table this discussion and reconvene when emotions settle.'","feedback":"Avoiding conflict prevents resolution. Skilled facilitation can guide teams through tension toward productive outcomes.","skills":[{"skill":"Team Role Management","change":-10},{"skill":"Stakeholder Collaboration","change":-12}]},{"text":"Create specific actions: 'What's one concrete thing we can try next sprint to improve requirement clarity?'","feedback":"Strong approach. Focusing on actionable experiments moves the team from conflict to solution-oriented thinking.","skills":[{"skill":"Team Role Management","change":18},{"skill":"Agile Principles & Values","change":15}]}]},"velocity-tracking":{"id":"velocity-tracking","title":"The Velocity Question","difficulty":"intermediate","skills":["Agile Metrics & Measurement","Sprint Planning & Execution"],"context":"Your manager wants to know why team velocity dropped this sprint.","text":"After three sprints averaging 32 story points, your team completed only 24 this sprint. Your manager asks if the team is slowing down.","question":"How do you explain this?","options":[{"text":"Explain context: 'We tackled more complex stories this sprint. Our delivered value is actually higher despite lower points.'","feedback":"Excellent response. You're helping management understand that velocity is a planning tool, not a performance metric. Value matters more.","skills":[{"skill":"Agile Metrics & Measurement","change":22},{"skill":"Stakeholder Collaboration","change":15}]},{"text":"Apologize: 'You're right, the team underperformed. We'll push harder next sprint to get back to 32 points.'","feedback":"This misuses velocity as a performance target, which creates pressure to game estimates and erodes the metric's usefulness.","skills":[{"skill":"Agile Metrics & Measurement","change":-18},{"skill":"Agile Principles & Values","change":-15}]},{"text":"Blame external factors: 'We had two sick days and that vendor integration delayed us.'","feedback":"While context matters, leading with excuses sounds defensive. Focus on value delivered and learnings for future estimation.","skills":[{"skill":"Agile Metrics & Measurement","change":-8},{"skill":"Stakeholder Collaboration","change":-10}]},{"text":"Refocus on outcomes: 'Our sprint goal was to validate the new navigation approach, which we achieved successfully.'","feedback":"Strong reframing. You're redirecting attention from velocity numbers to actual business outcomes and sprint goal achievement.","skills":[{"skill":"Agile Metrics & Measurement","change":18},{"skill":"Sprint Planning & Execution","change":12}]}]},"feedback-conflict":{"id":"feedback-conflict","title":"Contradictory Feedback","difficulty":"intermediate","skills":["Stakeholder Collaboration","Iterative Design & Prototyping"],"context":"Two stakeholders give opposite feedback on your prototype.","text":"Marketing wants the course shorter and punchier. Operations wants more detailed procedural content. Both are adamant their approach is critical.","question":"How do you resolve this?","options":[{"text":"Explore the why: 'Help me understand the specific outcomes each of you needs to achieve with this course.'","feedback":"Brilliant facilitation. Understanding underlying needs often reveals solutions that satisfy both stakeholders' actual goals.","skills":[{"skill":"Stakeholder Collaboration","change":22},{"skill":"Agile Principles & Values","change":15}]},{"text":"Split the difference: 'Let's make it medium-length with moderate detail to compromise between your needs.'","feedback":"Compromises often satisfy no one. Instead of splitting the difference, explore whether different learner paths could address distinct needs.","skills":[{"skill":"Stakeholder Collaboration","change":-10},{"skill":"Iterative Design & Prototyping","change":-8}]},{"text":"Choose the senior stakeholder: 'Operations is the primary audience owner, so we'll prioritize their detailed approach.'","feedback":"Hierarchy-based decisions without understanding needs can alienate stakeholders and miss opportunities for better solutions.","skills":[{"skill":"Stakeholder Collaboration","change":-15},{"skill":"Team Role Management","change":-10}]},{"text":"Propose adaptive learning: 'What if we create a short core path with optional deep-dive modules for those who need details?'","feedback":"Creative solution that addresses both needs through design rather than compromise. This demonstrates advanced instructional thinking.","skills":[{"skill":"Stakeholder Collaboration","change":20},{"skill":"Iterative Design & Prototyping","change":18}]}]},"scaling-agile":{"id":"scaling-agile","title":"Scaling Beyond Your Team","difficulty":"advanced","skills":["Agile Principles & Values","Team Role Management"],"context":"Your successful Agile pilot has attracted attention from other L&D teams.","text":"Three other teams want to adopt Agile, but your organization has centralized governance, quarterly planning cycles, and annual budgets.","question":"What's your scaling strategy?","options":[{"text":"Adapt, don't impose: 'Let's create a flexible framework that works within our governance while maintaining Agile principles.'","feedback":"Wise approach. Successful Agile scaling respects organizational realities while preserving core values of iteration and collaboration.","skills":[{"skill":"Agile Principles & Values","change":22},{"skill":"Team Role Management","change":18}]},{"text":"Full transformation: 'We need to change how the entire L&D organization operates to be truly Agile.'","feedback":"Idealistic but impractical. Large-scale transformation requires executive support and takes years. Start with what you can influence.","skills":[{"skill":"Agile Principles & Values","change":-12},{"skill":"Stakeholder Collaboration","change":-15}]},{"text":"Keep it small: 'Agile works for our team because we're special. Let's not dilute it by scaling.'","feedback":"This limits organizational impact and creates silos. Sharing successful practices, adapted appropriately, benefits everyone.","skills":[{"skill":"Agile Principles & Values","change":-15},{"skill":"Team Role Management","change":-10}]},{"text":"Coach incrementally: 'I'll work with one team at a time, helping them adapt Agile practices to their specific context.'","feedback":"Excellent strategy. Incremental coaching allows customization to each team's needs and builds sustainable capability.","skills":[{"skill":"Team Role Management","change":20},{"skill":"Stakeholder Collaboration","change":15}]}]},"hybrid-implementation":{"id":"hybrid-implementation","title":"The Hybrid Challenge","difficulty":"advanced","skills":["Agile Principles & Values","Sprint Planning & Execution"],"context":"Your organization mandates both Agile sprints and traditional project gates.","text":"Leadership wants Agile benefits but won't eliminate stage-gate approvals at 25%, 50%, and 75% completion. Your team feels caught between two systems.","question":"How do you make this work?","options":[{"text":"Align gates with sprint reviews: 'Let's schedule our sprint reviews to coincide with gate reviews and use them as approval points.'","feedback":"Clever integration. You're respecting governance requirements while maintaining sprint rhythm, making gates feel less disruptive.","skills":[{"skill":"Agile Principles & Values","change":20},{"skill":"Sprint Planning & Execution","change":18}]},{"text":"Run parallel processes: 'We'll do Agile internally but create gate documentation separately for approvals.'","feedback":"This creates duplicate work and doesn't address the underlying tension. Look for integration opportunities instead.","skills":[{"skill":"Agile Principles & Values","change":-10},{"skill":"Sprint Planning & Execution","change":-12}]},{"text":"Redefine completion: 'Let's work with leadership to redefine gates based on working software rather than completion percentages.'","feedback":"Ambitious and valuable. Shifting from activity-based to outcome-based gates better aligns with Agile while maintaining oversight.","skills":[{"skill":"Agile Principles & Values","change":22},{"skill":"Stakeholder Collaboration","change":18}]},{"text":"Abandon Agile: 'True Agile can't work with stage gates. Let's use traditional waterfall project management.'","feedback":"This gives up too easily. Many organizations successfully blend governance with Agile through creative integration.","skills":[{"skill":"Agile Principles & Values","change":-18},{"skill":"Sprint Planning & Execution","change":-15}]}]},"enterprise-agile-mastery":{"id":"enterprise-agile-mastery","title":"The Enterprise Transformation","difficulty":"mastery","skills":["Agile Principles & Values","Team Role Management","Stakeholder Collaboration","Sprint Planning & Execution"],"context":"You're leading Agile adoption for a 50-person L&D organization with multiple business units.","text":"You have: resistant managers, inconsistent tool adoption, competing priorities from five VPs, a mix of contractors and employees, and legacy annual planning cycles. The CEO wants 'faster learning delivery' within six months.","question":"What's your transformation approach?","options":[{"text":"Strategic pilot program: 'Start with 2-3 volunteer teams, measure results, create success stories, then scale with evidence.'","feedback":"Masterful strategy. Starting small, proving value, and using social proof is how sustainable transformation happens in complex organizations.","skills":[{"skill":"Agile Principles & Values","change":25},{"skill":"Team Role Management","change":20},{"skill":"Stakeholder Collaboration","change":18}]},{"text":"Big bang approach: 'Train everyone simultaneously, implement standard tools, and mandate Agile for all projects starting next month.'","feedback":"This ignores change management realities. Mandated transformation without buy-in typically fails or creates compliance theater.","skills":[{"skill":"Agile Principles & Values","change":-15},{"skill":"Team Role Management","change":-18},{"skill":"Stakeholder Collaboration","change":-20}]},{"text":"Focus on tools only: 'Roll out Jira and train people on sprint mechanics. The mindset shift will follow the tools.'","feedback":"Tools don't create transformation. Without addressing culture, processes, and incentives, you'll just have expensive software nobody uses properly.","skills":[{"skill":"Agile Principles & Values","change":-20},{"skill":"Sprint Planning & Execution","change":-15}]},{"text":"Multi-level strategy: 'Coach teams, align leadership on metrics, create flexible frameworks, and address organizational impediments iteratively.'","feedback":"Excellent systemic thinking. Addressing team, leadership, and organizational levels simultaneously is how real transformation succeeds.","skills":[{"skill":"Agile Principles & Values","change":23},{"skill":"Team Role Management","change":22},{"skill":"Stakeholder Collaboration","change":20},{"skill":"Sprint Planning & Execution","change":15}]}]},"remedial-agile-values":{"id":"remedial-agile-values","title":"Back to Basics: Agile Values","difficulty":"remedial","skills":["Agile Principles & Values"],"context":"Let's review the core concepts of Agile values.","text":"The Agile Manifesto values 'individuals and interactions over processes and tools.' Your team is debating which project management tool to use.","question":"What does this value mean for your situation?","options":[{"text":"Tools don't matter: 'Any tool works. What matters is how we communicate and collaborate as a team.'","feedback":"Exactly right. The Agile value emphasizes that team communication and collaboration matter more than which specific tool you choose.","skills":[{"skill":"Agile Principles & Values","change":20}]},{"text":"Skip tools entirely: 'Agile means we don't need any tools or formal processes at all.'","feedback":"Not quite. The value says tools are less important than people, not that tools are unnecessary. The right tools can support collaboration.","skills":[{"skill":"Agile Principles & Values","change":-15}]},{"text":"Perfect tool is critical: 'We need to find the absolute best tool before we can be truly Agile.'","feedback":"This misses the point. You're prioritizing the tool over team dynamics. Start with communication, add tools to support it.","skills":[{"skill":"Agile Principles & Values","change":-12}]},{"text":"Tools enable interaction: 'Let's pick a simple tool that helps our team communicate better, not one that imposes complex processes.'","feedback":"Great understanding. You're choosing tools that support human interaction rather than letting tools drive how people work.","skills":[{"skill":"Agile Principles & Values","change":18}]}]},"remedial-sprint-basics":{"id":"remedial-sprint-basics","title":"Back to Basics: Sprint Planning","difficulty":"remedial","skills":["Sprint Planning & Execution"],"context":"Let's clarify sprint planning fundamentals.","text":"Your team is planning their first sprint. Someone asks, 'How do we know how much work to commit to if we've never done this before?'","question":"What's the best answer?","options":[{"text":"Start conservatively: 'Pull in less work than you think you can do. You'll learn your actual capacity from this sprint.'","feedback":"Perfect answer. The first sprint is for learning your team's velocity. Under-committing builds confidence and provides real data.","skills":[{"skill":"Sprint Planning & Execution","change":20}]},{"text":"Commit to everything: 'Pull in as much as possible to show we're ambitious and hardworking.'","feedback":"This creates unrealistic expectations and likely leads to failure. The goal is sustainable pace and reliable delivery, not heroics.","skills":[{"skill":"Sprint Planning & Execution","change":-18}]},{"text":"Guess based on hours: 'Calculate how many hours we have and fill the sprint to match that capacity.'","feedback":"Time available doesn't equal productive capacity. Factor in meetings, interruptions, complexity, and learning curve in early sprints.","skills":[{"skill":"Sprint Planning & Execution","change":-10}]},{"text":"Match the last project: 'Let's look at how long similar work took in our last project and use that.'","feedback":"While past data helps, Agile sprints have different rhythms than traditional projects. Start fresh and build sprint-specific data.","skills":[{"skill":"Sprint Planning & Execution","change":-8}]}]},"remedial-prototyping":{"id":"remedial-prototyping","title":"Back to Basics: Rapid Prototyping","difficulty":"remedial","skills":["Iterative Design & Prototyping"],"context":"Let's review the purpose of rapid prototyping.","text":"Your colleague spends three days building a beautiful prototype with animations and branded graphics. It takes another two days to make changes based on feedback.","question":"What's the issue here?","options":[{"text":"Too much investment too early: 'We should create simpler prototypes first to test concepts before investing in polish.'","feedback":"Exactly right. Low-fidelity prototypes let you test ideas quickly and iterate based on feedback before investing in final quality.","skills":[{"skill":"Iterative Design & Prototyping","change":20}]},{"text":"Quality is wrong: 'The problem is the prototype should have been even higher quality to avoid any changes.'","feedback":"No—this makes the problem worse. High-fidelity prototypes slow iteration. The goal is learning fast, not avoiding changes.","skills":[{"skill":"Iterative Design & Prototyping","change":-15}]},{"text":"Feedback is the problem: 'We should have finalized the concept before building anything to avoid rework.'","feedback":"This is waterfall thinking. Prototypes exist to generate feedback and learning. Changes aren't rework—they're the point.","skills":[{"skill":"Iterative Design & Prototyping","change":-18}]},{"text":"Nothing wrong: 'A beautiful prototype shows professionalism and makes stakeholders happy.'","feedback":"While polish matters eventually, premature polish wastes time. Validate concepts first with simple prototypes, then add quality.","skills":[{"skill":"Iterative Design & Prototyping","change":-12}]}]},"remedial-stakeholder-communication":{"id":"remedial-stakeholder-communication","title":"Back to Basics: Stakeholder Collaboration","difficulty":"remedial","skills":["Stakeholder Collaboration"],"context":"Let's review effective stakeholder collaboration in Agile.","text":"You're about to have your first sprint review. Your stakeholder asks, 'Is this where I'll finally see the finished product?'","question":"How do you set proper expectations?","options":[{"text":"Clarify the purpose: 'Sprint reviews show work in progress so we can get your feedback and adjust. Nothing is final yet.'","feedback":"Perfect expectation-setting. Sprint reviews are collaborative feedback sessions, not final product unveilings.","skills":[{"skill":"Stakeholder Collaboration","change":20}]},{"text":"Promise completion: 'Yes, you'll see everything finished and ready to deploy.'","feedback":"This creates false expectations. Sprint reviews show incremental progress, not necessarily complete, polished deliverables.","skills":[{"skill":"Stakeholder Collaboration","change":-18}]},{"text":"Avoid their question: 'Let's just get into the review and you'll see what we have.'","feedback":"Unclear expectations lead to disappointment. Take time to educate stakeholders about sprint review purpose and format.","skills":[{"skill":"Stakeholder Collaboration","change":-12}]},{"text":"Postpone the meeting: 'Let's reschedule when we have something more complete to show you.'","feedback":"This defeats the purpose of frequent feedback. Show work early and often, even if incomplete, to guide development.","skills":[{"skill":"Stakeholder Collaboration","change":-15}]}]},"remedial-metrics":{"id":"remedial-metrics","title":"Back to Basics: Agile Metrics","difficulty":"remedial","skills":["Agile Metrics & Measurement"],"context":"Let's review the purpose of Agile metrics.","text":"Your manager says, 'Your velocity last sprint was 28 points and this sprint it's 32. Great job on the 14% improvement!'","question":"What should you clarify?","options":[{"text":"Velocity is for planning: 'Velocity helps us plan future sprints, not measure performance. Higher isn't necessarily better.'","feedback":"Exactly correct. Velocity is a planning tool, not a performance metric. Using it as a target creates pressure to inflate estimates.","skills":[{"skill":"Agile Metrics & Measurement","change":22}]},{"text":"Accept the praise: 'Thank you! We'll try to hit 35 points next sprint.'","feedback":"This reinforces the misunderstanding that velocity is a performance target. This leads to gaming estimates and meaningless metrics.","skills":[{"skill":"Agile Metrics & Measurement","change":-15}]},{"text":"Explain variability: 'Velocity naturally varies. This sprint just had simpler stories than last sprint.'","feedback":"While true, this doesn't fully address the core issue—that velocity shouldn't be used to measure team performance at all.","skills":[{"skill":"Agile Metrics & Measurement","change":8}]},{"text":"Blame the previous sprint: 'Last sprint was unusually low because we had challenges. This is more normal.'","feedback":"Defensive explanation misses the teaching opportunity. Help management understand what velocity actually measures and why.","skills":[{"skill":"Agile Metrics & Measurement","change":-10}]}]}},"badges":{"Agile Principles & Values":{"name":"Agile Visionary","icon":"🎯"},"Sprint Planning & Execution":{"name":"Sprint Master","icon":"🏃"},"Iterative Design & Prototyping":{"name":"Rapid Innovator","icon":"⚡"},"Stakeholder Collaboration":{"name":"Collaboration Champion","icon":"🤝"},"Agile Metrics & Measurement":{"name":"Metrics Maven","icon":"📊"},"Team Role Management":{"name":"Team Orchestrator","icon":"🎭"}}}}
+  </script>
+
+  <script>
+    
+    const COURSE_DATA = JSON.parse(document.getElementById('course-data').textContent);
+    const scenarios = COURSE_DATA.generatedContent.scenarios;
+    const skills = COURSE_DATA.courseData.skills;
+    const BADGE_CATALOG = COURSE_DATA.generatedContent.badges;
+    const TOUR_SEEN_KEY = 'adaptiveCourseTourSeen-' + COURSE_DATA.courseData.title.replace(/[^a-zA-Z0-9]/g, '');
+
+    const state = {
+        skills: {},
+        badges: [],
+        completedScenarios: new Set(),
+        currentScenario: null,
+        totalDecisions: 0,
+        interactionCount: 0,
+    };
+
+    // Constants based on the job aid
+    const MIN_SCENARIOS_TO_FINISH = 6;
+    const MASTERY_THRESHOLD = 70;
+    const REMEDIATION_THRESHOLD = 30;
+    const TARGET_MASTERED_SKILLS = 3;
+    const TARGET_AVERAGE_SKILL = 60;
+    
+    // --- SCORM HELPER FUNCTIONS ---
+    function getScorm() {
+        return window.pipwerks && window.pipwerks.SCORM ? window.pipwerks.SCORM : null;
+    }
+
+    function toIso8601(date) { // SCORM 2004 requires ISO 8601 format
+        return date.toISOString();
+    }
+    
+    function reportInteraction(details) {
+        const scorm = getScorm();
+        if (!scorm || scorm.version !== "2004") return;
+        
+        const n = state.interactionCount;
+        const root = 'cmi.interactions.' + n + '.';
+        
+        // Sanitize ID to be a valid SCORM identifier (no spaces, etc.)
+        const sanitizedId = details.id.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-._]/g, '').toLowerCase();
+
+        scorm.set(root + 'id', sanitizedId);
+        scorm.set(root + 'type', details.type);
+        scorm.set(root + 'timestamp', toIso8601(new Date()));
+        if(details.description) scorm.set(root + 'description', details.description.substring(0, 255));
+        if(details.learnerResponse) scorm.set(root + 'learner_response', details.learnerResponse.substring(0, 4000));
+        if(details.result) scorm.set(root + 'result', details.result);
+        if(details.correctResponse) scorm.set(root + 'correct_responses.0.pattern', details.correctResponse.substring(0, 4000));
+        
+        state.interactionCount++;
+    }
+
+    // --- CORE LOGIC ---
+    function getAvgSkill() {
+        const vals = Object.values(state.skills);
+        return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
+    }
+
+    function masteredCount() {
+        return Object.values(state.skills).filter(v => v >= MASTERY_THRESHOLD).length;
+    }
+
+    function shouldFinish() {
+        const hasMetMinScenarios = state.completedScenarios.size >= MIN_SCENARIOS_TO_FINISH;
+        if (!hasMetMinScenarios) return false;
+        
+        const hasMasteredEnough = masteredCount() >= TARGET_MASTERED_SKILLS;
+        const hasHighAverage = getAvgSkill() >= TARGET_AVERAGE_SKILL;
+
+        return hasMasteredEnough || hasHighAverage;
+    }
+
+    function init() {
+        const scorm = getScorm();
+        if(scorm && scorm.init()){
+            const suspendData = scorm.get('cmi.suspend_data');
+            if(suspendData && suspendData !== '""' && suspendData !== "''"){
+                try {
+                    const loadedState = JSON.parse(suspendData);
+                    Object.assign(state, loadedState);
+                    state.completedScenarios = new Set(state.completedScenarios);
+                } catch(e) {
+                    resetState();
+                }
+            } else {
+               resetState();
+            }
+        } else {
+            console.warn('SCORM API not found or failed to initialize.');
+            resetState();
+        }
+
+        document.getElementById('courseTitle').textContent = COURSE_DATA.courseData.title;
+        document.getElementById('restartBtn').addEventListener('click', () => {
+             resetState();
+             saveState();
+             localStorage.removeItem(TOUR_SEEN_KEY);
+             location.reload();
+        });
+        document.getElementById('replayTourBtn').addEventListener('click', replayTour);
+        
+        initTour();
+
+        if (!state.currentScenario || !scenarios[state.currentScenario]) {
+           state.currentScenario = getNextScenario();
+        }
+
+        if (state.currentScenario === null || shouldFinish()) {
+            showCompletionScreen();
+        } else {
+            updateSkillsDisplay();
+            renderBadges();
+            loadScenario(); 
+            
+            if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+                setTimeout(() => {
+                    document.getElementById('welcomeModal').classList.add('show');
+                    document.getElementById('tourOverlay').classList.add('show');
+                }, 300);
+            }
+        }
+    }
+
+    function resetState() {
+        state.skills = skills.reduce((acc, skill) => ({ ...acc, [skill]: 0 }), {});
+        state.badges = [];
+        state.completedScenarios = new Set();
+        state.totalDecisions = 0;
+        state.interactionCount = 0;
+        const foundationScenarioId = Object.keys(scenarios).find(id => scenarios[id].difficulty === 'foundation');
+        state.currentScenario = foundationScenarioId || Object.keys(scenarios)[0] || null;
+    }
+
+    function saveState(isFinal = false) {
+        const scorm = getScorm();
+        if (scorm && scorm.connection.isActive) {
+            scorm.set('cmi.suspend_data', JSON.stringify({ ...state, completedScenarios: Array.from(state.completedScenarios) }));
+            const score = getAvgSkill();
+            scorm.set('cmi.score.raw', score);
+            scorm.set('cmi.score.min', 0);
+            scorm.set('cmi.score.max', 100);
+            const totalScenariosForProgress = Math.max(MIN_SCENARIOS_TO_FINISH, Object.keys(scenarios).length);
+            scorm.set('cmi.progress_measure', (state.completedScenarios.size / totalScenariosForProgress).toFixed(2));
+            
+            if(shouldFinish() || isFinal){
+                 scorm.set('cmi.completion_status', 'completed');
+                 if(score >= 60){
+                     scorm.set('cmi.success_status', 'passed');
+                 } else {
+                     scorm.set('cmi.success_status', 'failed');
+                 }
+            } else {
+                 scorm.set('cmi.completion_status', 'incomplete');
+            }
+
+            if (isFinal) {
+                scorm.set('cmi.exit', '');
+            } else {
+                scorm.set('cmi.exit', 'suspend');
+            }
+            scorm.save();
+        }
+    }
+    
+    function getNextScenario() {
+        // Helper to find the best scenario from a given pool of IDs
+        const findBestCandidate = (idPool) => {
+            if (idPool.length === 0) return null;
+
+            const skillEntries = Object.entries(state.skills).sort((a, b) => a[1] - b[1]); // Sort weakest to strongest
+            
+            // Priority 1: Find a remedial scenario for the weakest skill below the remediation threshold.
+            for (const [weakSkill, score] of skillEntries) {
+                if (score < REMEDIATION_THRESHOLD) {
+                    const remedialCandidate = idPool.find(id => 
+                        scenarios[id].difficulty === 'remedial' && 
+                        scenarios[id].skills.includes(weakSkill)
+                    );
+                    if (remedialCandidate) return remedialCandidate;
+                }
+            }
+
+            // Priority 2: Find any non-remedial scenario that targets the weakest overall skill.
+            for (const [weakestSkill] of skillEntries) {
+                 const coreCandidate = idPool.find(id =>
+                    scenarios[id].difficulty !== 'remedial' &&
+                    scenarios[id].skills.includes(weakestSkill)
+                );
+                if (coreCandidate) return coreCandidate;
+            }
+            
+            // Fallback: if no targeted scenarios are found, return any non-remedial, then any.
+            const anyCore = idPool.find(id => scenarios[id].difficulty !== 'remedial');
+            if (anyCore) return anyCore;
+            
+            return idPool[0];
+        };
+
+        // Main logic starts here
+        const unseenIds = Object.keys(scenarios).filter(id => !state.completedScenarios.has(id));
+
+        if (unseenIds.length > 0) {
+            return findBestCandidate(unseenIds);
+        } else {
+            // No unseen scenarios left. We must recycle one to allow the learner to continue practicing.
+            const allScenarioIds = Object.keys(scenarios);
+            return findBestCandidate(allScenarioIds);
+        }
+    }
+
+    function loadScenario() {
+        if (!state.currentScenario) {
+            showCompletionScreen();
+            return;
+        }
+        renderScenario(state.currentScenario);
+    }
+    
+    function renderScenario(scenarioId) {
+        if (!scenarioId || !scenarios[scenarioId]) {
+            showCompletionScreen();
+            return;
+        }
+
+        const data = scenarios[scenarioId];
+        const container = document.getElementById('scenarioContainer');
+        container.className = data.difficulty === 'remedial' ? 'scenario remedial' : 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        
+        const contextHint = document.getElementById('contextHint');
+        if (data.context) {
+            contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+            contextHint.style.display = 'block';
+        } else {
+            contextHint.style.display = 'none';
+        }
+
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = '';
+        data.skills.forEach(sk => {
+            const skillTag = document.createElement('span');
+            skillTag.className = 'tag';
+            skillTag.textContent = sk;
+            tags.appendChild(skillTag);
+        });
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        
+        // Randomize option order for better learning
+        const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach((opt) => {
+            const el = document.createElement('div');
+            el.className = 'option';
+            el.textContent = opt.text;
+            el.onclick = () => selectOption(shuffledOptions.indexOf(opt), opt, data);
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+        setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function selectOption(selectedIndex, option, scenarioData) {
+        const options = document.querySelectorAll('.option');
+        options.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+        
+        const originalOrder = scenarioData.options;
+        const shuffledElements = Array.from(options);
+        const originalIndexOfSelected = originalOrder.findIndex(o => o.text === option.text);
+        
+        // Find the clicked element in the DOM to apply styles
+        const clickedEl = shuffledElements.find(el => el.textContent === option.text);
+        if(clickedEl) {
+          clickedEl.classList.add('selected');
+        }
+
+        const sum = option.skills.reduce((s, impact) => s + impact.change, 0);
+        const isPositive = sum >= 0;
+        if(clickedEl) {
+            clickedEl.classList.add(isPositive ? 'correct' : 'incorrect');
+        }
+        
+        const changes = [];
+        option.skills.forEach(impact => {
+            if(state.skills.hasOwnProperty(impact.skill)){
+              state.skills[impact.skill] = Math.max(0, Math.min(100, (state.skills[impact.skill] || 0) + impact.change));
+              changes.push({ skill: impact.skill, change: impact.change });
+              if(state.skills[impact.skill] >= MASTERY_THRESHOLD) awardBadge(impact.skill);
+            }
+        });
+
+        state.totalDecisions++;
+        state.completedScenarios.add(state.currentScenario);
+
+        const bestOption = scenarioData.options.reduce((best, current) => {
+            const bestSum = best.skills.reduce((s, imp) => s + imp.change, 0);
+            const currentSum = current.skills.reduce((s, imp) => s + imp.change, 0);
+            return currentSum > bestSum ? current : best;
+        });
+        reportInteraction({
+            id: scenarioData.id,
+            type: 'choice',
+            description: scenarioData.question,
+            learnerResponse: option.text,
+            result: isPositive ? 'correct' : 'incorrect',
+            correctResponse: bestOption.text
+        });
+        
+        showFeedback(isPositive, option.feedback, changes);
+        updateSkillsDisplay();
+        saveState();
+    }
+    
+    function showFeedback(isPositive, text, changes) {
+        const fb = document.getElementById('feedbackContainer');
+        fb.className = 'feedback show ' + (isPositive ? 'correct' : 'incorrect');
+        document.getElementById('feedbackTitle').textContent = isPositive ? '✓ Strong Move' : '💡 Learning Moment';
+        document.getElementById('feedbackText').textContent = text;
+        const impact = document.getElementById('skillImpact');
+        if (changes.length) {
+            impact.innerHTML = '<strong>Skill Impact:</strong><br>';
+            changes.forEach(c => {
+                const chip = document.createElement('span');
+                chip.className = c.change > 0 ? 'skill-change positive' : 'skill-change negative';
+                chip.textContent = c.skill + ' ' + (c.change > 0 ? '+' : '') + c.change;
+                impact.appendChild(chip);
+            });
+        } else {
+            impact.innerHTML = '';
+        }
+        fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('continueBtn').classList.add('show');
+        document.getElementById('continueBtn').onclick = () => {
+             if (shouldFinish()) {
+                showCompletionScreen();
+             } else {
+                state.currentScenario = getNextScenario();
+                loadScenario();
+             }
+        };
+    }
+    
+    function awardBadge(skill) {
+      const badgeData = BADGE_CATALOG[skill];
+      if(!badgeData || state.badges.find(b => b.skill === skill)) return;
+      state.badges.push({ ...badgeData, skill });
+      renderBadges();
+
+      reportInteraction({
+          id: 'badge.' + skill,
+          type: 'other',
+          description: 'Badge Earned for ' + skill,
+          learnerResponse: badgeData.name,
+          result: 'neutral'
+      });
+    }
+
+    function renderBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = '';
+        if(state.badges.length === 0) return;
+        state.badges.forEach(b => {
+            const el = document.createElement('span');
+            el.className = 'badge';
+            el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+            bar.appendChild(el);
+        });
+    }
+
+    function updateSkillsDisplay() {
+        const panel = document.getElementById('skillsPanel');
+        panel.innerHTML = '';
+        Object.entries(state.skills).forEach(([k, v]) => {
+            const level = v >= MASTERY_THRESHOLD ? 'Mastery' : v >= 50 ? 'Advanced' : v >= 25 ? 'Developing' : 'Novice';
+            const box = document.createElement('div');
+            box.className = 'skill-box';
+            box.innerHTML = 
+              '<div class="skill-name">' + k + '</div>' +
+              '<div class="skill-bar"><div class="skill-fill" style="width:' + v + '%"></div></div>' +
+              '<div class="skill-level">' + level + ' (' + Math.round(v) + '%)</div>';
+            panel.appendChild(box);
+        });
+    }
+    
+    function showCompletionScreen() {
+        document.getElementById('learningContent').style.display = 'none';
+        const screen = document.getElementById('completionScreen');
+        screen.classList.add('show');
+        const avgScore = getAvgSkill();
+        const mastered = masteredCount();
+        const passed = avgScore >= TARGET_AVERAGE_SKILL || mastered >= TARGET_MASTERED_SKILLS;
+        const messageEl = document.getElementById('completionMessage');
+        messageEl.textContent = 'You have ' + (passed ? 'achieved mastery' : 'completed the course') + ' with a final score of ' + avgScore + '%.';
+        messageEl.style.color = passed ? 'var(--good)' : 'var(--ink)';
+        const grid = document.getElementById('masteryGrid');
+        grid.innerHTML = 
+            '<div class="mastery-item"><div class="mastery-label">Final Score</div><div class="mastery-value" style="color: ' + (passed ? 'var(--good)' : 'var(--ink)') + '">' + avgScore + '%</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Skills Mastered</div><div class="mastery-value">' + mastered + ' / ' + skills.length + '</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Scenarios Seen</div><div class="mastery-value">' + state.completedScenarios.size + '</div></div>';
+        
+        const skillsList = document.getElementById('finalSkillsList');
+        skillsList.innerHTML = Object.entries(state.skills).map(([name, value]) => 
+            '<li class="final-skill-item"><span class="final-skill-name">' + name + '</span><span class="final-skill-value">' + Math.round(value) + '%</span></li>'
+        ).join('');
+
+        const finalBadgeBar = document.getElementById('finalBadgeBar');
+        finalBadgeBar.innerHTML = '';
+        if (state.badges.length > 0) {
+            state.badges.forEach(b => {
+                const el = document.createElement('span');
+                el.className = 'badge';
+                el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+                finalBadgeBar.appendChild(el);
+            });
+        } else {
+            finalBadgeBar.innerHTML = '<p style="color: var(--muted); font-style: italic; font-size: 14px;">No badges earned this time. Keep practicing!</p>';
+        }
+        
+        reportInteraction({
+          id: 'course.mastery',
+          type: 'other',
+          description: 'Final course mastery status.',
+          learnerResponse: 'Score: ' + avgScore + '%, Mastered: ' + mastered,
+          result: 'neutral'
+        });
+        
+        document.getElementById('exitCourseBtn').onclick = () => {
+            const scorm = getScorm();
+            if(scorm) scorm.quit();
+            try { window.close(); } catch(e) {}
+        };
+        saveState(true); 
+    }
+
+    // ===== TOUR LOGIC =====
+    let tourState = { active: false, currentStep: 0 };
+    let originalScenarioId = null;
+
+    const tourScenario = {
+        id: 'tour-scenario', title: 'How This Course Works', difficulty: 'foundation', skills: ['Adaptive Learning', 'Decision Making'],
+        context: 'This is an example of how a scenario is presented. Read the context, text, and question.',
+        text: 'Your goal is to make the best choice in each situation to improve your skills.',
+        question: 'Based on the tour, how does this course help you learn?',
+        options: [
+            { text: 'By adapting to my weak spots.' },
+            { text: 'By tracking my skills visually.' },
+            { text: 'All of the above.' }
+        ]
+    };
+    const tourBadges = [
+        { name: 'Critical Thinker', icon: '🤔' },
+        { name: 'Agile Strategist', icon: '⚡️' },
+    ];
+    const tourSteps = [
+        { target: '#scenarioContainer', title: '🧠 Real-World Scenarios', text: 'Each step presents a situation. Your choices determine your path and affect your skill levels.' },
+        { target: '.skills-below', title: '📊 Your Skills', text: 'Watch your skills grow in real-time. The course adapts to focus on areas where you need practice.' },
+        { target: '.badges-section', title: '⭐ Badges Earned', text: 'As you master skills, you will earn badges to recognize your achievement.' }
+    ];
+
+    function initTour() {
+        document.getElementById('startTourBtn').addEventListener('click', startTour);
+        document.getElementById('skipTourBtn').addEventListener('click', endTour);
+        document.getElementById('tourNextBtn').addEventListener('click', () => {
+            if (tourState.currentStep < tourSteps.length - 1) showTourStep(tourState.currentStep + 1);
+            else endTour();
+        });
+        document.getElementById('tourPrevBtn').addEventListener('click', () => {
+            if (tourState.currentStep > 0) showTourStep(tourState.currentStep - 1);
+        });
+    }
+    
+    function replayTour() {
+        if(tourState.active) return;
+        startTour();
+    }
+
+    function startTour() {
+        document.getElementById('welcomeModal').classList.remove('show');
+        document.getElementById('tourOverlay').classList.add('show');
+        
+        originalScenarioId = state.currentScenario;
+        renderMockScenario();
+        renderMockBadges();
+
+        tourState.active = true;
+        tourState.currentStep = 0;
+        showTourStep(0);
+        window.addEventListener('scroll', updateTourPositions, true);
+    }
+
+    function endTour() {
+        tourState.active = false;
+        window.removeEventListener('scroll', updateTourPositions, true);
+        document.getElementById('tourOverlay').classList.remove('show');
+        document.getElementById('tourSpotlight').style.display = 'none';
+        document.getElementById('tourTooltip').style.display = 'none';
+        localStorage.setItem(TOUR_SEEN_KEY, '1');
+        
+        state.currentScenario = originalScenarioId;
+        loadScenario();
+        renderBadges();
+
+        setTimeout(() => {
+            const scenarioEl = document.getElementById('scenarioContainer');
+            if (scenarioEl) {
+                scenarioEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+
+    function renderMockScenario() {
+        const data = tourScenario;
+        const container = document.getElementById('scenarioContainer');
+        container.className = 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        const contextHint = document.getElementById('contextHint');
+        contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+        contextHint.style.display = 'block';
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = data.skills.map(sk => '<span class="tag">' + sk + '</span>').join('');
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        data.options.forEach((opt, i) => {
+            const el = document.createElement('div');
+            el.className = 'option disabled';
+            if(i === 2) el.classList.add('correct');
+            el.textContent = opt.text;
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+    }
+
+    function renderMockBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = tourBadges.map(b =>
+            '<span class="badge"><span class="emoji">' + b.icon + '</span>' + b.name + '</span>'
+        ).join('');
+    }
+
+    function updateTourPositions() {
+        if (!tourState.active) return;
+        const stepData = tourSteps[tourState.currentStep];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+
+        const rect = target.getBoundingClientRect();
+        const spotlight = document.getElementById('tourSpotlight');
+        spotlight.style.top = (rect.top - 8) + 'px';
+        spotlight.style.left = (rect.left - 8) + 'px';
+        spotlight.style.width = (rect.width + 16) + 'px';
+        spotlight.style.height = (rect.height + 16) + 'px';
+
+        const tooltip = document.getElementById('tourTooltip');
+        const tooltipHeight = tooltip.offsetHeight;
+        const tooltipWidth = tooltip.offsetWidth;
+
+        let tooltipTop = rect.bottom + 20;
+        if (tooltipTop + tooltipHeight > window.innerHeight - 20) {
+            tooltipTop = rect.top - tooltipHeight - 20;
+        }
+        tooltip.style.top = Math.max(10, tooltipTop) + 'px';
+
+        let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+        tooltipLeft = Math.max(10, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 10));
+        tooltip.style.left = tooltipLeft + 'px';
+    }
+
+    function showTourStep(step) {
+        if (step < 0 || step >= tourSteps.length) return;
+        tourState.currentStep = step;
+        const stepData = tourSteps[step];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+        
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        setTimeout(() => {
+            document.getElementById('tourTitle').textContent = stepData.title;
+            document.getElementById('tourText').textContent = stepData.text;
+            
+            const dotsContainer = document.getElementById('tourDots');
+            dotsContainer.innerHTML = tourSteps.map((_, i) => '<div class="tour-dot ' + (i === step ? 'active' : '') + '" onclick="showTourStep(' + i + ')"></div>').join('');
+            document.getElementById('tourPrevBtn').style.display = step === 0 ? 'none' : 'inline-block';
+            document.getElementById('tourNextBtn').textContent = step === tourSteps.length - 1 ? 'Got It! ✓' : 'Next →';
+            
+            updateTourPositions();
+            
+            document.getElementById('tourSpotlight').style.display = 'block';
+            document.getElementById('tourTooltip').style.display = 'block';
+        }, 300); // Wait for scroll to finish
+    }
+
+    window.addEventListener('load', init);
+    window.addEventListener('beforeunload', () => {
+        if(!shouldFinish()) saveState(false);
+        const scorm = getScorm();
+        if(scorm) scorm.quit();
+    });
+    
+  </script>
+</body>
+</html>

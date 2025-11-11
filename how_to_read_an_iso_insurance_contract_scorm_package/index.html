@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>How to Read an ISO insurance Contract</title>
+  
+  <script src="scorm-api-wrapper.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --good: #16a34a;
+      --warn: #f59e0b;
+      --bad: #dc2626;
+      --shadow:0 20px 60px rgba(2,6,23,.18);
+      --grad: linear-gradient(135deg, #1f3b73 0%, #2d6cdf 100%);
+      --softgrad: linear-gradient(135deg, #c7d2fe 0%, #93c5fd 100%);
+    }
+    body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--grad);min-height:100vh;padding:20px;padding-bottom:40px;display:flex;justify-content:center;align-items:flex-start;}
+    .container{background:var(--panel);border-radius:20px;box-shadow:var(--shadow);max-width:960px;width:100%;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+    .skills-panel{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:14px;animation:fadeInUp .5s ease-out .2s both;}
+    .skill-box{background:var(--softgrad);color:#0b1733;padding:14px;border-radius:12px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(0.4, 0, 0.2, 1);}
+    .skill-box.updated{animation:skillPulse .6s ease-out;box-shadow:0 0 20px rgba(37, 99, 235, 0.3);}
+    @keyframes skillPulse{0%{transform:scale(1);box-shadow:0 0 30px rgba(37, 99, 235, 0.5);} 50%{transform:scale(1.02);} 100%{transform:scale(1);box-shadow:0 0 10px rgba(37, 99, 235, 0.2);}}
+    .skill-name{font-weight:700;margin-bottom:8px;font-size:14px}
+    .skill-bar{background:rgba(255,255,255,.5);height:8px;border-radius:4px;overflow:hidden}
+    .skill-fill{background:#fff;height:100%;transition:width .6s cubic-bezier(0.4, 0, 0.2, 1);border-radius:4px}
+    .skill-level{font-size:12px;margin-top:6px;opacity:.9}
+    .badge-bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 22px;animation:fadeInUp .5s ease-out .3s both; min-height: 34px;}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#e2e8f0;border:1px solid #cbd5e1;color:#0f172a;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .badge .emoji{font-size:14px}
+    @keyframes scaleIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .main-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;animation:fadeInUp .5s ease-out both;}
+    .replay-tour-btn{background:transparent;border:1px solid #e2e8f0;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;}
+    .replay-tour-btn:hover{background:var(--bg);color:var(--ink)}
+    h1{color:var(--ink);margin-bottom:6px;font-size:28px;}
+    .sub{color:var(--muted);margin-bottom:14px;}
+    .status-badge{display:inline-block;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:10px;}
+    .status-badge.learning{background:#dbeafe;color:#1d4ed8}
+    .status-badge.remedial{background:#fff7ed;color:#b45309}
+    .status-badge.mastery{background:#dcfce7;color:#166534}
+    .scenario{background:var(--bg);padding:22px;border-radius:12px;margin-bottom:24px;border-left:4px solid var(--accent);animation:scenarioFadeIn .5s ease-out;scroll-margin-top:20px;}
+    .scenario.remedial{border-left-color:var(--warn);background:#fff8ee}
+    /* FIX: Improve contrast for elements within remedial scenarios */
+    .scenario.remedial .context-hint {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    .scenario.remedial .feedback.incorrect {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    @keyframes scenarioFadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .scenario-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .scenario-title{font-size:18px;font-weight:800;color:var(--ink)}
+    .scenario-tags{display:flex;gap:8px}
+    .tag{background:var(--accent);color:#fff;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .tag.remedial{background:var(--warn)}
+    .context-hint{background:#fffbea;border-left:3px solid #facc15;padding:12px;margin: 16px 0;border-radius:6px;font-size:14px;color:#4b5563;line-height:1.6;}
+    .scenario-text{color:#334155;line-height:1.6;margin-bottom:16px;white-space:pre-wrap}
+    .question{font-weight:800;color:var(--ink);margin-bottom:16px}
+    .options{display:flex;flex-direction:column;gap:12px}
+    .option{background:#fff;border:2px solid #e5e7eb;padding:16px;border-radius:10px;cursor:pointer;transition:.25s ease;position:relative;animation:optionSlideIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);white-space:pre-wrap;}
+    @keyframes optionSlideIn{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+    .option:hover{border-color:var(--accent);transform:translateX(5px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
+    .option.selected{border-color:var(--accent);background:#eef2ff}
+    .option.correct{border-color:var(--good);background:#ecfdf5}
+    .option.incorrect{border-color:var(--bad);background:#fee2e2}
+    .option.disabled{cursor:not-allowed;opacity:.6;pointer-events:none}
+    .feedback{margin-top:16px;padding:16px;border-radius:10px;display:none;animation:feedbackSlideUp .5s cubic-bezier(0.34, 1.56, 0.64, 1);scroll-margin-top:20px;}
+    @keyframes feedbackSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .feedback.show{display:block}
+    .feedback.correct{background:#ecfdf5;border-left:4px solid var(--good);color:#14532d}
+    .feedback.incorrect{background:#fff7ed;border-left:4px solid var(--warn);color:#7c2d12}
+    .feedback-title{font-weight:800;margin-bottom:6px;font-size:16px}
+    .skill-impact{margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);font-size:13px}
+    .skill-change{display:inline-block;margin:0 8px 6px 0;padding:2px 8px;border-radius:4px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .skill-change.positive{background:rgba(22,163,74,.18);color:#166534}
+    .skill-change.negative{background:rgba(220,38,38,.18);color:#7f1d1d}
+    .continue-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;transition:.25s;display:none;animation:buttonFadeIn .5s ease-out;align-self:flex-start;}
+    .scenario .continue-btn { margin-top: 20px; }
+    .continue-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35)}
+    .continue-btn.show{display:inline-block}
+    .completion-screen{text-align:center;display:none;animation:fadeIn .6s}
+    .completion-screen.show{display:block}
+    .completion-icon{font-size:80px;margin-bottom:10px;animation:bounce 1s ease-in-out}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    .completion-title{font-size:30px;color:var(--ink);margin-bottom:6px}
+    .completion-message{color: var(--muted); margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;}
+    .mastery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:24px 0}
+    .mastery-item{background:var(--bg);padding:16px;border-radius:10px;text-align:center;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .mastery-label{font-size:12px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+    .mastery-value{font-size:22px;font-weight:800;color:var(--accent)}
+    .journey-summary{background:var(--bg);padding:20px;border-radius:12px;margin-top:20px;text-align:left}
+    .final-skills-list{list-style:none;padding:0;margin:12px 0}
+    .final-skill-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}
+    .final-skill-item:last-child{border-bottom:none}
+    .final-skill-name{font-weight:600;color:var(--ink)}
+    .final-skill-value{font-weight:700;color:var(--accent);font-size:1.1rem;}
+    .restart-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px}
+    .secondary-btn{background:transparent;color:var(--muted);border:1px solid #cbd5e1;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px;margin-left:12px}
+    .secondary-btn:hover{background:var(--bg);color:var(--ink)}
+    
+    /* ===== WELCOME TOUR ===== */
+    .tour-overlay, .welcome-modal { display: none; }
+    .tour-overlay.show, .welcome-modal.show { display: block; }
+    .tour-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;opacity:1;transition:opacity .4s ease-out;animation:fadeIn .3s ease-out;}
+    .welcome-modal{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);z-index:303;animation:modalSlideIn .5s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    @keyframes modalSlideIn{from{opacity:0;transform:translate(-50%, -50%) scale(0.9);}to{opacity:1;transform:translate(-50%, -50%) scale(1);}}
+    .welcome-content{background:var(--panel);border-radius:20px;padding:40px;max-width:500px;width:calc(100% - 40px);text-align:center;box-shadow:0 25px 50px rgba(2,6,23,.3);}
+    .welcome-content h2{font-size:28px;color:var(--ink);margin:0 0 12px;}
+    .welcome-content p{font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 28px;}
+    .welcome-buttons{display:flex;gap:12px;justify-content:center;}
+    .welcome-btn{background:var(--grad);color:#fff;border:none;padding:12px 28px;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;flex:1;}
+    .welcome-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35);}
+    .welcome-btn.secondary{background:transparent;color:var(--muted);border:1px solid #cbd5e1;}
+    .welcome-btn.secondary:hover{background:var(--bg);color:var(--ink);}
+    .tour-spotlight{position:fixed;border:3px solid var(--accent);box-shadow:0 0 0 9999px rgba(15, 23, 42, 0.85);border-radius:12px;z-index:301;pointer-events:none;transition: all .4s cubic-bezier(0.4, 0, 0.2, 1); display:none;}
+    .tour-tooltip{position:fixed;background:var(--panel);border-radius:12px;padding:20px;max-width:340px;z-index:302;box-shadow:0 25px 50px rgba(2,6,23,.3);animation:tooltipSlide .4s cubic-bezier(0.34, 1.56, 0.64, 1);display:none; transition: top .4s, left .4s;}
+    @keyframes tooltipSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .tour-tooltip h3{font-size:18px;font-weight:800;color:var(--ink);margin:0 0 10px;}
+    .tour-tooltip p{font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 16px;}
+    .tour-controls{display:flex;gap:12px;justify-content:space-between;align-items:center;}
+    .tour-dots{display:flex;gap:6px;}
+    .tour-dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:.2s;}
+    .tour-dot.active{background:var(--accent);transform:scale(1.3);}
+    .tour-btn{background:var(--grad);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+    .tour-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3);}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="learningContent">
+        <div class="main-header">
+            <div>
+                <span class="status-badge learning" id="statusBadge" aria-live="polite">📚 Adaptive Learning</span>
+                <h1 id="courseTitle"></h1>
+                <div class="sub">An adaptive learning experience.</div>
+            </div>
+            <button id="replayTourBtn" class="replay-tour-btn">🎬 Replay Tour</button>
+        </div>
+      <div class="scenario" id="scenarioContainer">
+        <div class="scenario-header">
+          <div class="scenario-title" id="scenarioTitle"></div>
+          <div class="scenario-tags" id="scenarioTags"></div>
+        </div>
+        <div class="context-hint" id="contextHint" style="display:none;"></div>
+        <div class="scenario-text" id="scenarioText"></div>
+        <div class="question" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedbackContainer">
+            <div class="feedback-title" id="feedbackTitle"></div>
+            <div id="feedbackText"></div>
+            <div class="skill-impact" id="skillImpact"></div>
+        </div>
+        <button class="continue-btn" id="continueBtn">Continue →</button>
+      </div>
+      <div class="skills-below">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Your Skills</h3>
+        <div class="skills-panel" id="skillsPanel"></div>
+      </div>
+      <div class="badges-section">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Badges Earned</h3>
+        <div class="badge-bar" id="badgeBar"></div>
+      </div>
+    </div>
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-icon">🎓</div>
+      <h2 class="completion-title">Learning Journey Complete!</h2>
+      <p class="completion-message" id="completionMessage"></p>
+      <div class="mastery-grid" id="masteryGrid"></div>
+      <div class="journey-summary">
+        <h3>Final Skill Levels</h3>
+        <ul class="final-skills-list" id="finalSkillsList"></ul>
+        <h3 style="margin-top:14px;">Badges Earned</h3>
+        <div class="badge-bar" id="finalBadgeBar"></div>
+      </div>
+      <button class="restart-btn" id="restartBtn">Start New Journey</button>
+      <button class="secondary-btn" id="exitCourseBtn">Exit Course</button>
+    </div>
+  </div>
+
+  <!-- Welcome Tour Elements -->
+  <div class="tour-overlay" id="tourOverlay"></div>
+  <div class="welcome-modal" id="welcomeModal">
+    <div class="welcome-content">
+      <h2>Welcome to Your Adaptive Course!</h2>
+      <p>This isn't a typical click-through course. Your journey will adapt based on your choices. Take a quick tour to see how it works.</p>
+      <div class="welcome-buttons">
+        <button class="welcome-btn secondary" id="skipTourBtn">Skip Tour</button>
+        <button class="welcome-btn" id="startTourBtn">Start Tour →</button>
+      </div>
+    </div>
+  </div>
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div class="tour-controls">
+      <div class="tour-dots" id="tourDots"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="tour-btn secondary" id="tourPrevBtn">← Back</button>
+        <button class="tour-btn" id="tourNextBtn">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script id="course-data" type="application/json">
+    {"courseData":{"title":"How to Read an ISO insurance Contract","content":"by the end of this course learners should be able to navigation an ISO insurance contract for property. ","skills":["Navigate ISO property insurance contracts","Identify key sections of ISO property contracts","Interpret policy language in ISO property contracts","Locate specific clauses within ISO property contracts","Differentiate between common ISO property contract forms","Analyze coverage provisions in ISO property contracts","Identify exclusions in ISO property contracts"],"theme":"blue"},"generatedContent":{"scenarios":{"identify-property-coverage-section":{"id":"identify-property-coverage-section","title":"Identifying Property Coverage Sections","difficulty":"foundation","skills":["Identify key sections of ISO property contracts","Navigate ISO property insurance contracts"],"text":"A new client wants to understand what types of property their commercial policy covers. You are reviewing a standard ISO Commercial Property Coverage Form (CP 00 10) to assist them.","question":"Which section would you first consult to understand the specific categories of property intended for coverage?","options":[{"text":"The Declarations Page.","feedback":"While the Declarations Page provides an overview, including the Named Insured and policy limits, it does not detail the specific categories of covered property. The Coverage Form itself holds this detailed information.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Navigate ISO property insurance contracts","change":-5}]},{"text":"Coverage A - Buildings or Coverage B - Business Personal Property within the Coverage Form.","feedback":"Correct. The Coverage Form, specifically sections like Coverage A (Buildings) and Coverage B (Business Personal Property), explicitly lists and defines the types of property covered under the policy.","skills":[{"skill":"Identify key sections of ISO property contracts","change":20},{"skill":"Navigate ISO property insurance contracts","change":15}]},{"text":"The Definitions section.","feedback":"The Definitions section is crucial for understanding specific terms used in the policy, but it doesn't outline the categories of covered property itself. It clarifies terms like 'insured premises' or 'occurrence'.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-5},{"skill":"Interpret policy language in ISO property contracts","change":-5}]},{"text":"The Exclusions section.","feedback":"The Exclusions section specifies what is *not* covered. While important, it is not the primary place to start when determining what *is* covered under the policy.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-15},{"skill":"Identify exclusions in ISO property contracts","change":-5}]}]},"differentiate-commercial-property-forms":{"id":"differentiate-commercial-property-forms","title":"Differentiating Commercial Property Forms","difficulty":"foundation","skills":["Differentiate between common ISO property contract forms","Navigate ISO property insurance contracts"],"text":"Your underwriting team is evaluating two new applications: one for a small retail store and another for a light manufacturing plant. Both require standard commercial property coverage.","question":"Which ISO Commercial Property form is most commonly used as the foundation for covering buildings and business personal property for a wide range of commercial businesses?","options":[{"text":"CP 00 10 (Building and Personal Property Coverage Form).","feedback":"Correct. The CP 00 10 is the foundational ISO form designed to cover a wide range of commercial buildings and their contents, making it suitable for most commercial property needs.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":20},{"skill":"Analyze coverage provisions in ISO property contracts","change":15}]},{"text":"CP 00 17 (Business Income (and Extra Expense) Coverage Form).","feedback":"The CP 00 17 form is for business income and extra expense coverage, not for the physical property itself. While often purchased with property coverage, it serves a different purpose.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]},{"text":"CP 00 30 (Causes of Loss - Special Form).","feedback":"The CP 00 30 (or other Causes of Loss forms) describes the *perils* covered (e.g., fire, wind, vandalism), but it does not define the property itself. It's an important component but not the base property form.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"CP 00 90 (Ordinance or Law Coverage).","feedback":"The CP 00 90 is an endorsement that adds coverage for increased costs due to building code enforcement after a loss. It is not the primary form for covering physical property.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]}]},"locating-perils-in-iso-policy":{"id":"locating-perils-in-iso-policy","title":"Locating Perils in ISO Policy","difficulty":"foundation","skills":["Locate specific clauses within ISO property contracts","Identify key sections of ISO property contracts"],"text":"A policyholder contacts you to confirm if their commercial property policy covers damage caused by a recent, unexpected event, such as a burst pipe. They need to understand what types of events are covered.","question":"Where in a standard ISO Commercial Property policy would you typically find the specific list of covered perils (causes of loss)?","options":[{"text":"The Conditions section of the policy.","feedback":"The Conditions section outlines the duties and responsibilities of the insured and insurer, such as reporting losses or subrogation. It does not list the covered perils.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"The Causes of Loss form (e.g., Basic, Broad, or Special Form).","feedback":"Correct. The Causes of Loss form is specifically designed to enumerate the perils (like fire, lightning, windstorm, vandalism, or water damage from burst pipes) that the policy will cover. This is where you determine if the specific event is a covered loss.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":20},{"skill":"Analyze coverage provisions in ISO property contracts","change":15}]},{"text":"The Endorsements section.","feedback":"Endorsements modify the policy, potentially adding or removing coverage for certain perils. However, the primary list of perils is found in the Causes of Loss form itself, which the endorsements then alter.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-5},{"skill":"Analyze coverage provisions in ISO property contracts","change":-5}]},{"text":"The Declarations Page.","feedback":"The Declarations Page summarizes policy details like limits, premiums, and the named insured, but it does not provide a detailed list of covered perils. This information is found within the policy forms.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-10},{"skill":"Identify key sections of ISO property contracts","change":-5}]}]},"interpreting-named-insured-property":{"id":"interpreting-named-insured-property","title":"Interpreting Named Insured Property","difficulty":"foundation","skills":["Interpret policy language in ISO property contracts","Analyze coverage provisions in ISO property contracts"],"text":"The Declarations Page of a commercial property policy lists 'XYZ Corporation' as the Named Insured. An employee of XYZ Corporation asks if their personal laptop, used for work and stored at the office, is covered under the company's policy.","question":"Based on standard ISO Commercial Property policy language, is the employee's personal laptop typically covered under XYZ Corporation's policy?","options":[{"text":"Yes, if the laptop is used for business purposes by the Named Insured's employee.","feedback":"Standard ISO commercial property policies primarily cover property owned by the Named Insured. Usage for business purposes by an employee does not automatically extend coverage to personally owned items.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-20},{"skill":"Analyze coverage provisions in ISO property contracts","change":-15}]},{"text":"No, because the laptop is not owned by the Named Insured (XYZ Corporation).","feedback":"Correct. Unless specifically endorsed to cover property of others or property of employees, ISO commercial property policies are designed to cover property owned by the Named Insured. The employee's personal laptop would generally not be covered.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":25},{"skill":"Analyze coverage provisions in ISO property contracts","change":20}]},{"text":"Yes, as long as the laptop is located on the insured premises at the time of loss.","feedback":"While location is a factor for covered property, ownership is a more fundamental criterion for standard commercial property policies. Property must generally be owned by the Named Insured to be covered.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]},{"text":"Only if the employee has a separate personal property endorsement on the company policy.","feedback":"A separate endorsement *could* add this coverage, but this isn't standard. The question asks about *typical* coverage. Without such an endorsement, the answer is no based on standard policy language regarding ownership.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-5},{"skill":"Analyze coverage provisions in ISO property contracts","change":-5}]}]},"identifying-core-policy-components":{"id":"identifying-core-policy-components","title":"Identifying Core Policy Components","difficulty":"foundation","skills":["Navigate ISO property insurance contracts","Identify key sections of ISO property contracts"],"text":"You are auditing a newly issued ISO Commercial Property policy to ensure it is complete and properly constructed for a client. You need to verify all essential elements are present.","question":"Which of the following is NOT typically considered a core component of a standard ISO commercial property insurance policy?","options":[{"text":"The Declarations Page.","feedback":"The Declarations Page is a core component, providing critical summary information like the named insured, policy period, limits, and premium. It is essential for every policy.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"The Coverage Form (e.g., Building and Personal Property Coverage Form).","feedback":"The Coverage Form is a core component, detailing what property is covered, how it's covered, and the scope of coverage. It's fundamental to the policy.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"The Conditions section.","feedback":"The Conditions section is a core component, outlining the responsibilities and obligations of both the insured and the insurer. It sets the ground rules for how the policy operates.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"A Surety Bond.","feedback":"Correct. A Surety Bond is a three-party agreement that guarantees an obligation, typically in construction or business operations. It is a distinct financial instrument and not a standard component of an ISO commercial property insurance policy.","skills":[{"skill":"Navigate ISO property insurance contracts","change":25},{"skill":"Differentiate between common ISO property contract forms","change":20}]}]},"identify-declarations-page":{"id":"identify-declarations-page","title":"Locating Policy Information","difficulty":"remedial","skills":["Identify key sections of ISO property contracts","Navigate ISO property insurance contracts"],"text":"A new policyholder calls, asking to confirm their dwelling coverage amount. You open their ISO Homeowners Policy, Form HO 3. You need to quickly find the summary of their specific coverage.","question":"Where would you look first to find the dwelling coverage limit?","options":[{"text":"The Declarations Page.","feedback":"Correct. The Declarations Page provides a personalized summary of the policy, including coverage limits, deductibles, and the policy period.","skills":[{"skill":"Identify key sections of ISO property contracts","change":20},{"skill":"Navigate ISO property insurance contracts","change":15}]},{"text":"Section I - Property Coverages.","feedback":"While Section I details *what* is covered, the specific *amount* for this policyholder is found on the Declarations Page.","skills":[{"skill":"Identify key sections of ISO property contracts","change":5},{"skill":"Navigate ISO property insurance contracts","change":-5}]},{"text":"The Conditions Section.","feedback":"The Conditions section outlines the responsibilities of both the insurer and the insured, but it won't list specific coverage amounts for a policyholder.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"The Exclusions Section.","feedback":"The Exclusions section specifies what is *not* covered. This is not where you'd find a coverage limit.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-15}]}]},"differentiate-ho3-ho5":{"id":"differentiate-ho3-ho5","title":"Understanding Perils Coverage","difficulty":"remedial","skills":["Differentiate between common ISO property contract forms","Analyze coverage provisions in ISO property contracts"],"text":"A client asks about the difference between 'named perils' and 'open perils' coverage for their home. They want to know which one offers broader protection.","question":"Which common ISO Homeowners form typically provides 'open perils' coverage for both the dwelling and personal property?","options":[{"text":"ISO Homeowners Form HO 2 (Broad Form).","feedback":"The HO 2 form provides named perils coverage, meaning only perils specifically listed are covered. This is not open perils.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-10},{"skill":"Analyze coverage provisions in ISO property contracts","change":-5}]},{"text":"ISO Homeowners Form HO 3 (Special Form).","feedback":"The HO 3 form typically provides open perils coverage for the dwelling, but named perils for personal property. While broad, HO 5 offers open perils for both.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":5},{"skill":"Analyze coverage provisions in ISO property contracts","change":10}]},{"text":"ISO Homeowners Form HO 5 (Comprehensive Form).","feedback":"Correct. The HO 5 form provides open perils coverage for *both* the dwelling and personal property, offering the broadest coverage among standard forms.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":20},{"skill":"Analyze coverage provisions in ISO property contracts","change":15}]},{"text":"ISO Homeowners Form HO 8 (Modified Coverage Form).","feedback":"The HO 8 form provides very limited named perils coverage and is designed for older homes where replacement cost is impractical. It does not offer open perils.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]}]},"locate-definition-occurrence":{"id":"locate-definition-occurrence","title":"Understanding Key Terms","difficulty":"remedial","skills":["Locate specific clauses within ISO property contracts","Interpret policy language in ISO property contracts"],"text":"During a claims review, you encounter the term 'occurrence' in an ISO Commercial Property policy. To ensure accurate interpretation, you need to understand its precise meaning within this contract.","question":"In which section of the ISO commercial property policy would you typically find the definition of 'occurrence'?","options":[{"text":"The Declarations Page.","feedback":"The Declarations Page provides specific policy data but does not contain general definitions of policy terms.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-10},{"skill":"Interpret policy language in ISO property contracts","change":-5}]},{"text":"The Conditions Section.","feedback":"The Conditions section outlines obligations and rules, but policy definitions are usually found elsewhere.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"The Definitions Section.","feedback":"Correct. ISO policies typically have a dedicated 'Definitions' section or a subsection where key terms are explicitly defined to avoid ambiguity.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":20},{"skill":"Interpret policy language in ISO property contracts","change":15}]},{"text":"The Coverage A - Building and Personal Property Section.","feedback":"While 'occurrence' might be referenced here, the formal definition will be in a specific Definitions section, not embedded within the coverage description itself.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":-5},{"skill":"Interpret policy language in ISO property contracts","change":0}]}]},"identify-flood-exclusion":{"id":"identify-flood-exclusion","title":"Checking for Common Exclusions","difficulty":"remedial","skills":["Identify exclusions in ISO property contracts","Analyze coverage provisions in ISO property contracts"],"text":"A policyholder files a claim for water damage to their home's basement after heavy rains caused a nearby river to overflow its banks. You're reviewing their ISO Homeowners Form HO 3.","question":"What is a common exclusion you would immediately look for in this type of claim?","options":[{"text":"Vandalism and Malicious Mischief.","feedback":"Vandalism is an exclusion unrelated to water damage from a natural flood event. This is not the primary exclusion to check here.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-15}]},{"text":"Collapse.","feedback":"Collapse coverage relates to structural failure, not typically the cause of water damage from an overflowing river.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-10}]},{"text":"Flood.","feedback":"Correct. Flood is a standard exclusion in most ISO Homeowners policies, requiring separate flood insurance (e.g., NFIP) for coverage. This is the first exclusion to verify.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":20},{"skill":"Analyze coverage provisions in ISO property contracts","change":15}]},{"text":"Freezing of Plumbing.","feedback":"While freezing pipes cause water damage, this scenario describes an external river overflow, which falls under a different exclusion category.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-5}]}]},"understand-personal-property-off-premises":{"id":"understand-personal-property-off-premises","title":"Clarifying Personal Property Coverage","difficulty":"remedial","skills":["Analyze coverage provisions in ISO property contracts","Interpret policy language in ISO property contracts"],"text":"Your client, an HO 3 policyholder, asks if their personal belongings are covered if they take them on vacation out of state. They are concerned about theft from their hotel room.","question":"Does an ISO HO 3 policy typically provide coverage for personal property away from the insured premises?","options":[{"text":"No, personal property is only covered at the primary residence.","feedback":"This is incorrect. Most ISO Homeowners policies extend coverage for personal property even when it's temporarily away from the insured location.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":-20},{"skill":"Interpret policy language in ISO property contracts","change":-15}]},{"text":"Yes, but usually for a limited percentage of the personal property coverage limit.","feedback":"Correct. ISO HO 3 policies typically extend Coverage C (Personal Property) worldwide, but often limit coverage for property 'away from the residence premises' to a percentage (e.g., 10%) of the total Coverage C limit.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":20},{"skill":"Interpret policy language in ISO property contracts","change":15}]},{"text":"Only if the property is in a locked safe.","feedback":"While securing items is wise, the policy's extension of coverage for off-premises personal property is not conditional on being in a safe.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":-10},{"skill":"Interpret policy language in ISO property contracts","change":-5}]},{"text":"Only if a specific endorsement is added.","feedback":"While endorsements can broaden or modify coverage, basic off-premises personal property coverage is usually included by default in HO 3, albeit with limits.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":-5},{"skill":"Interpret policy language in ISO property contracts","change":0}]}]},"commercial-building-fire-claim":{"id":"commercial-building-fire-claim","title":"Commercial Building Fire Claim","difficulty":"intermediate","skills":["Differentiate between common ISO property contract forms","Navigate ISO property insurance contracts","Identify key sections of ISO property contracts"],"text":"A fire significantly damaged a small manufacturing facility. The client holds both a Building and Personal Property Coverage Form (CP 00 10) and a Commercial Property Conditions Form (CP 00 90).","question":"Which form primarily defines the scope of property covered and the perils insured against for the building itself?","options":[{"text":"CP 00 10","feedback":"Correct. The CP 00 10 is the core coverage form that defines the property insured and, in conjunction with a Causes of Loss form, the perils.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":20},{"skill":"Identify key sections of ISO property contracts","change":15},{"skill":"Analyze coverage provisions in ISO property contracts","change":15}]},{"text":"CP 00 90","feedback":"Incorrect. The CP 00 90 is the Commercial Property Conditions Form, which outlines general conditions applicable to all commercial property coverage forms, such as concealment, misrepresentation, fraud, and subrogation, but not the specific property or perils.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-10},{"skill":"Navigate ISO property insurance contracts","change":-5}]},{"text":"Commercial General Liability Form","feedback":"Incorrect. A Commercial General Liability (CGL) form provides coverage for third-party bodily injury and property damage, not direct property damage to the insured's own building.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-20},{"skill":"Analyze coverage provisions in ISO property contracts","change":-15}]},{"text":"Businessowners Policy","feedback":"Incorrect. While a BOP bundles property and liability, it's a distinct package policy. The question refers to separate ISO commercial property forms (CP 00 10 and CP 00 90) which are components of a commercial package policy or monoline policy.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-15},{"skill":"Navigate ISO property insurance contracts","change":-10}]}]},"locating-deductible-information":{"id":"locating-deductible-information","title":"Locating Deductible Information","difficulty":"intermediate","skills":["Identify key sections of ISO property contracts","Locate specific clauses within ISO property contracts","Navigate ISO property insurance contracts"],"text":"A client wants to confirm the deductible for a recent claim on their commercial property policy. You have the standard ISO Commercial Property Policy.","question":"In which section would you primarily expect to find the specific deductible amount applicable to the claim?","options":[{"text":"Declarations Page","feedback":"Correct. The Declarations Page is the summary of the policy and specifies the deductible amount that applies.","skills":[{"skill":"Identify key sections of ISO property contracts","change":20},{"skill":"Locate specific clauses within ISO property contracts","change":15},{"skill":"Navigate ISO property insurance contracts","change":15}]},{"text":"Exclusions Section","feedback":"Incorrect. The Exclusions section outlines what is not covered by the policy, not the specific financial responsibility of the insured for covered losses.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"Conditions Section","feedback":"Incorrect. The Conditions section details the duties and obligations of both the insured and insurer, as well as general rules governing the policy, but typically not the specific deductible amount.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"Endorsements","feedback":"Incorrect. While an endorsement could modify a deductible, the base deductible amount for the policy is specified on the Declarations Page. Endorsements are used for specific alterations, not for the primary policy data.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]}]},"vacancy-clause-interpretation":{"id":"vacancy-clause-interpretation","title":"Vacancy Clause Interpretation","difficulty":"intermediate","skills":["Interpret policy language in ISO property contracts","Identify exclusions in ISO property contracts","Analyze coverage provisions in ISO property contracts"],"text":"A commercial property insured suffered a theft loss. The building had been mostly empty for 70 days prior to the loss, with only some office furniture remaining. The policy includes the standard ISO Vacancy Condition.","question":"How does the vacancy clause likely affect coverage for this theft loss?","options":[{"text":"The loss is fully covered as some property remained.","feedback":"Incorrect. For most ISO forms, a building is considered vacant if less than 31% of the total square footage is used to conduct customary operations or if it contains insufficient business personal property to conduct customary operations. The presence of 'some office furniture' often doesn't meet the occupancy threshold.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]},{"text":"Coverage for the theft loss is likely excluded or reduced due to vacancy.","feedback":"Correct. The standard ISO Vacancy Condition typically excludes coverage for certain perils (like vandalism, sprinkler leakage, glass breakage, theft, etc.) if the building has been vacant for more than 60 consecutive days. For other covered perils, the amount otherwise payable is reduced by 15%.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":20},{"skill":"Identify exclusions in ISO property contracts","change":20},{"skill":"Analyze coverage provisions in ISO property contracts","change":20}]},{"text":"The vacancy clause only applies to fire losses, not theft.","feedback":"Incorrect. While vacancy can impact fire losses (e.g., reduce payment by 15%), it often completely excludes certain specific perils, including theft, if vacant for more than 60 days.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-15},{"skill":"Identify exclusions in ISO property contracts","change":-10}]},{"text":"The clause requires 90 days of vacancy to be active.","feedback":"Incorrect. The standard ISO Vacancy Condition usually specifies a 60-day period.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-10}]}]},"business-personal-property-coverage":{"id":"business-personal-property-coverage","title":"Business Personal Property Coverage","difficulty":"intermediate","skills":["Analyze coverage provisions in ISO property contracts","Identify key sections of ISO property contracts","Locate specific clauses within ISO property contracts"],"text":"A retail store owner wants to confirm if their inventory stored off-premises in a leased warehouse is covered under their standard ISO Building and Personal Property Coverage Form.","question":"Under which coverage category within the CP 00 10 form would you expect to find provisions for off-premises personal property?","options":[{"text":"Coverage A - Buildings","feedback":"Incorrect. Coverage A is specifically for the building structure and its permanently installed fixtures.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]},{"text":"Coverage B - Business Personal Property","feedback":"Correct. Coverage B, Business Personal Property, includes a sub-section for 'Your Business Personal Property Located Off-Premises,' typically with a specific sub-limit, providing coverage for inventory in transit or at other locations.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":20},{"skill":"Identify key sections of ISO property contracts","change":15},{"skill":"Locate specific clauses within ISO property contracts","change":15}]},{"text":"Coverage C - Personal Property of Others","feedback":"Incorrect. Coverage C is for property belonging to others that is in the insured's care, custody, or control. The inventory belongs to the retail store owner.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"Additional Coverages","feedback":"Incorrect. While Additional Coverages provide extra benefits (like Debris Removal, Fire Department Service Charge), specific provisions for off-premises Business Personal Property are found within the main Coverage B section itself.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]}]},"coinsurance-clause-location":{"id":"coinsurance-clause-location","title":"Coinsurance Clause Location","difficulty":"intermediate","skills":["Locate specific clauses within ISO property contracts","Identify key sections of ISO property contracts","Interpret policy language in ISO property contracts"],"text":"An underwriter needs to review the coinsurance requirements for a renewal policy. They have the client's current ISO Building and Personal Property Coverage Form (CP 00 10).","question":"In which main section of the CP 00 10 form would you typically find the Coinsurance Clause?","options":[{"text":"Coverage Extensions","feedback":"Incorrect. Coverage Extensions provide additional, limited coverage for specific situations (e.g., newly acquired property, property off-premises), not the coinsurance requirements.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"Loss Conditions","feedback":"Correct. The Coinsurance Clause is a critical 'Loss Condition' that outlines how the insurer will calculate payment for a covered loss if the insured has not maintained adequate insurance to value.","skills":[{"skill":"Locate specific clauses within ISO property contracts","change":20},{"skill":"Identify key sections of ISO property contracts","change":20},{"skill":"Interpret policy language in ISO property contracts","change":15}]},{"text":"Optional Coverages","feedback":"Incorrect. Optional Coverages are elections the insured can make for additional coverage, often for an extra premium (e.g., Replacement Cost, Agreed Value). Coinsurance is a standard condition unless specifically modified.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]},{"text":"Additional Coverages","feedback":"Incorrect. Additional Coverages provide automatic, often limited, extra coverages (e.g., Debris Removal, Fire Department Service Charge) and are distinct from Loss Conditions.","skills":[{"skill":"Identify key sections of ISO property contracts","change":-10},{"skill":"Locate specific clauses within ISO property contracts","change":-5}]}]},"ordinance-or-law-exclusion-analysis":{"id":"ordinance-or-law-exclusion-analysis","title":"Ordinance or Law Exclusion Analysis","difficulty":"advanced","skills":["Analyze coverage provisions in ISO property contracts","Identify exclusions in ISO property contracts","Interpret policy language in ISO property contracts"],"text":"A client's building was partially damaged by a fire. Due to updated city codes, they are now required to demolish the undamaged portion and rebuild to current standards, significantly increasing costs. The standard ISO Basic Form (CP 10 10) is in place, without the Ordinance or Law endorsement.","question":"How would the standard Ordinance or Law exclusion likely impact coverage for the increased rebuilding costs due to code changes?","options":[{"text":"The standard policy would fully cover the increased costs for demolition and rebuilding.","feedback":"Incorrect. Without the Ordinance or Law endorsement, the standard ISO property policy explicitly excludes losses resulting from enforcement of any ordinance or law requiring demolition, repair, or reconstruction of property.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-20},{"skill":"Analyze coverage provisions in ISO property contracts","change":-15},{"skill":"Interpret policy language in ISO property contracts","change":-15}]},{"text":"The increased costs due to ordinance or law would generally be excluded.","feedback":"Correct. The standard ISO commercial property forms contain an 'Ordinance or Law' exclusion. This exclusion removes coverage for the increased cost of repairs or demolition necessitated by building codes, zoning laws, or other governmental regulations, unless the Ordinance or Law endorsement (e.g., CP 04 05) is specifically added.","skills":[{"skill":"Analyze coverage provisions in ISO property contracts","change":25},{"skill":"Identify exclusions in ISO property contracts","change":25},{"skill":"Interpret policy language in ISO property contracts","change":20}]},{"text":"Only the demolition costs would be covered, not the upgrade costs.","feedback":"Incorrect. The exclusion typically applies to all increased costs associated with complying with the ordinance or law, including demolition of an undamaged portion and upgrading to new codes.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-15},{"skill":"Interpret policy language in ISO property contracts","change":-10}]},{"text":"This exclusion only applies to damages from natural disasters.","feedback":"Incorrect. The Ordinance or Law exclusion is generally applicable regardless of the cause of the initial damage (e.g., fire, windstorm) if a governmental authority mandates changes based on codes.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-15}]}]},"loss-payment-condition-timing":{"id":"loss-payment-condition-timing","title":"Loss Payment Condition Timing","difficulty":"advanced","skills":["Interpret policy language in ISO property contracts","Navigate ISO property insurance contracts","Locate specific clauses within ISO property contracts"],"text":"Following a covered property loss, an adjuster has completed their investigation and agreed on the amount of loss with the insured. The insured is eager to receive payment.","question":"According to the standard ISO Commercial Property Conditions (CP 00 90) Loss Payment condition, what is the typical timeframe for the insurer to pay after receiving proof of loss and reaching agreement?","options":[{"text":"15 days","feedback":"Incorrect. While some states have shorter statutory periods for certain types of claims, the standard ISO policy condition specifies a different timeframe.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-10},{"skill":"Navigate ISO property insurance contracts","change":-5}]},{"text":"30 days","feedback":"Incorrect. This is not the standard timeframe stipulated in the ISO CP 00 90.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-10}]},{"text":"60 days","feedback":"Correct. The standard Loss Payment condition in the ISO CP 00 90 states that the insurer will pay 60 days after receiving the sworn statement of loss, and a) they have reached agreement with the insured, b) entry of final judgment, or c) filing of an appraisal award.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":25},{"skill":"Navigate ISO property insurance contracts","change":20},{"skill":"Locate specific clauses within ISO property contracts","change":20}]},{"text":"90 days","feedback":"Incorrect. This period is longer than the standard ISO condition, though some state regulations might extend payment periods in specific circumstances.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-10}]}]},"builders-risk-coverage-selection":{"id":"builders-risk-coverage-selection","title":"Builders Risk Coverage Selection","difficulty":"advanced","skills":["Differentiate between common ISO property contract forms","Analyze coverage provisions in ISO property contracts","Navigate ISO property insurance contracts"],"text":"A developer is starting construction on a new commercial office building. They need comprehensive property coverage for the structure during the construction phase, including materials and equipment at the site.","question":"Which ISO form or combination of forms and endorsements is most appropriate to provide this specific construction-phase coverage?","options":[{"text":"Standard Building and Personal Property Coverage Form (CP 00 10).","feedback":"Incorrect. While the CP 00 10 covers buildings, it's designed for completed structures and has limitations for property under construction, requiring significant modification or endorsements to serve as primary builders risk coverage.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-15},{"skill":"Analyze coverage provisions in ISO property contracts","change":-10}]},{"text":"Builders Risk Coverage Form (CP 00 20).","feedback":"Correct. The ISO Builders Risk Coverage Form (CP 00 20) is specifically designed to provide coverage for buildings or structures, including foundations, fixtures, machinery, equipment, and materials, while under construction.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":25},{"skill":"Analyze coverage provisions in ISO property contracts","change":25},{"skill":"Navigate ISO property insurance contracts","change":20}]},{"text":"Causes of Loss - Special Form (CP 10 30) attached to a Businessowners Policy.","feedback":"Incorrect. The Causes of Loss - Special Form defines perils but doesn't, by itself, create the coverage for a building under construction. A Businessowners Policy (BOP) is typically for smaller, completed businesses, and not designed for large-scale construction projects.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-20},{"skill":"Analyze coverage provisions in ISO property contracts","change":-15}]},{"text":"Commercial General Liability policy with an added property endorsement.","feedback":"Incorrect. A Commercial General Liability (CGL) policy covers third-party liability. While some property-related endorsements exist, it is not the primary mechanism for insuring the actual building and materials during construction.","skills":[{"skill":"Differentiate between common ISO property contract forms","change":-20},{"skill":"Analyze coverage provisions in ISO property contracts","change":-15}]}]},"earth-movement-exclusion-applicability":{"id":"earth-movement-exclusion-applicability","title":"Earth Movement Exclusion Applicability","difficulty":"advanced","skills":["Identify exclusions in ISO property contracts","Interpret policy language in ISO property contracts","Analyze coverage provisions in ISO property contracts"],"text":"A commercial building suffers significant structural damage due to a slow, gradual sinking of the ground over several months, resulting from shifting soil conditions. The insured holds an ISO Special Form (CP 10 30) policy.","question":"How would the standard Earth Movement exclusion typically apply to this loss?","options":[{"text":"The loss would be fully covered as it's not an earthquake.","feedback":"Incorrect. The Earth Movement exclusion is broad and includes more than just earthquakes.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":-20},{"skill":"Interpret policy language in ISO property contracts","change":-15}]},{"text":"The loss would be excluded under the earth movement provision, which includes subsidence.","feedback":"Correct. The ISO Earth Movement exclusion is comprehensive, specifically stating that it applies to 'earthquake, landslide, mine subsidence or any other earth movement including any earth sinking, rising or shifting.' This broadly covers gradual ground movement.","skills":[{"skill":"Identify exclusions in ISO property contracts","change":25},{"skill":"Interpret policy language in ISO property contracts","change":25},{"skill":"Analyze coverage provisions in ISO property contracts","change":20}]},{"text":"Coverage would depend on whether the shifting was sudden and accidental.","feedback":"Incorrect. While 'sudden and accidental' is a common criterion for some coverages, the Earth Movement exclusion typically applies regardless of the suddenness, explicitly including gradual processes like subsidence.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-15},{"skill":"Identify exclusions in ISO property contracts","change":-10}]},{"text":"Only damage from seismic activity is excluded under Earth Movement.","feedback":"Incorrect. The exclusion's language is much broader than just seismic activity (earthquakes), encompassing various forms of earth movement, including the sinking or shifting of earth.","skills":[{"skill":"Interpret policy language in ISO property contracts","change":-15},{"skill":"Identify exclusions in ISO property contracts","change":-10}]}]},"additional-coverages-vs-extensions":{"id":"additional-coverages-vs-extensions","title":"Additional Coverages vs. Extensions","difficulty":"advanced","skills":["Navigate ISO property insurance contracts","Interpret policy language in ISO property contracts","Identify key sections of ISO property contracts"],"text":"A client asks about coverage for debris removal and property in transit under their ISO Building and Personal Property Coverage Form (CP 00 10).","question":"Which part of the CP 00 10 form primarily describes Debris Removal, and which describes Property Off-Premises (for property in transit)?","options":[{"text":"Both are under Coverage Extensions.","feedback":"Incorrect. While Property Off-Premises (for property in transit) is a Coverage Extension, Debris Removal is typically listed as an Additional Coverage.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"Debris Removal is an Additional Coverage, while Property Off-Premises is a Coverage Extension.","feedback":"Correct. In the CP 00 10 form, Debris Removal is listed under 'Additional Coverages,' and Property Off-Premises (with specific limits and conditions) is listed under 'Coverage Extensions.' Understanding this distinction is key to navigating the policy.","skills":[{"skill":"Navigate ISO property insurance contracts","change":25},{"skill":"Interpret policy language in ISO property contracts","change":20},{"skill":"Identify key sections of ISO property contracts","change":20}]},{"text":"Both are under Additional Coverages.","feedback":"Incorrect. Property Off-Premises is a Coverage Extension, not an Additional Coverage.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-15},{"skill":"Identify key sections of ISO property contracts","change":-10}]},{"text":"Debris Removal is a Coverage Extension, and Property Off-Premises is an Additional Coverage.","feedback":"Incorrect. The roles are reversed. Debris Removal is an Additional Coverage, and Property Off-Premises is a Coverage Extension.","skills":[{"skill":"Navigate ISO property insurance contracts","change":-20},{"skill":"Identify key sections of ISO property contracts","change":-15}]}]}},"badges":{"Navigate ISO property insurance contracts":{"name":"Contract Navigation Master","icon":"🧭"},"Identify key sections of ISO property contracts":{"name":"Core Section Identifier","icon":"🔑"},"Interpret policy language in ISO property contracts":{"name":"Policy Language Luminary","icon":"💡"},"Locate specific clauses within ISO property contracts":{"name":"Clause Precision Finder","icon":"🎯"},"Differentiate between common ISO property contract forms":{"name":"Form Distinction Expert","icon":"⚖️"},"Analyze coverage provisions in ISO property contracts":{"name":"Coverage Provisions Analyst","icon":"📈"},"Identify exclusions in ISO property contracts":{"name":"Exclusion Vigilance","icon":"🚫"}}}}
+  </script>
+
+  <script>
+    
+    const COURSE_DATA = JSON.parse(document.getElementById('course-data').textContent);
+    const scenarios = COURSE_DATA.generatedContent.scenarios;
+    const skills = COURSE_DATA.courseData.skills;
+    const BADGE_CATALOG = COURSE_DATA.generatedContent.badges;
+    const TOUR_SEEN_KEY = 'adaptiveCourseTourSeen-' + COURSE_DATA.courseData.title.replace(/[^a-zA-Z0-9]/g, '');
+
+    const state = {
+        skills: {},
+        badges: [],
+        completedScenarios: new Set(),
+        currentScenario: null,
+        totalDecisions: 0,
+        interactionCount: 0,
+    };
+
+    // Constants based on the job aid
+    const MIN_SCENARIOS_TO_FINISH = 6;
+    const MASTERY_THRESHOLD = 70;
+    const REMEDIATION_THRESHOLD = 30;
+    const TARGET_MASTERED_SKILLS = 3;
+    const TARGET_AVERAGE_SKILL = 60;
+    
+    // --- SCORM HELPER FUNCTIONS ---
+    function getScorm() {
+        return window.pipwerks && window.pipwerks.SCORM ? window.pipwerks.SCORM : null;
+    }
+
+    function toIso8601(date) { // SCORM 2004 requires ISO 8601 format
+        return date.toISOString();
+    }
+    
+    function reportInteraction(details) {
+        const scorm = getScorm();
+        if (!scorm || scorm.version !== "2004") return;
+        
+        const n = state.interactionCount;
+        const root = 'cmi.interactions.' + n + '.';
+        
+        // Sanitize ID to be a valid SCORM identifier (no spaces, etc.)
+        const sanitizedId = details.id.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-._]/g, '').toLowerCase();
+
+        scorm.set(root + 'id', sanitizedId);
+        scorm.set(root + 'type', details.type);
+        scorm.set(root + 'timestamp', toIso8601(new Date()));
+        if(details.description) scorm.set(root + 'description', details.description.substring(0, 255));
+        if(details.learnerResponse) scorm.set(root + 'learner_response', details.learnerResponse.substring(0, 4000));
+        if(details.result) scorm.set(root + 'result', details.result);
+        if(details.correctResponse) scorm.set(root + 'correct_responses.0.pattern', details.correctResponse.substring(0, 4000));
+        
+        state.interactionCount++;
+    }
+
+    // --- CORE LOGIC ---
+    function getAvgSkill() {
+        const vals = Object.values(state.skills);
+        return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
+    }
+
+    function masteredCount() {
+        return Object.values(state.skills).filter(v => v >= MASTERY_THRESHOLD).length;
+    }
+
+    function shouldFinish() {
+        const hasMetMinScenarios = state.completedScenarios.size >= MIN_SCENARIOS_TO_FINISH;
+        if (!hasMetMinScenarios) return false;
+        
+        const hasMasteredEnough = masteredCount() >= TARGET_MASTERED_SKILLS;
+        const hasHighAverage = getAvgSkill() >= TARGET_AVERAGE_SKILL;
+
+        return hasMasteredEnough || hasHighAverage;
+    }
+
+    function init() {
+        const scorm = getScorm();
+        if(scorm && scorm.init()){
+            const suspendData = scorm.get('cmi.suspend_data');
+            if(suspendData && suspendData !== '""' && suspendData !== "''"){
+                try {
+                    const loadedState = JSON.parse(suspendData);
+                    Object.assign(state, loadedState);
+                    state.completedScenarios = new Set(state.completedScenarios);
+                } catch(e) {
+                    resetState();
+                }
+            } else {
+               resetState();
+            }
+        } else {
+            console.warn('SCORM API not found or failed to initialize.');
+            resetState();
+        }
+
+        document.getElementById('courseTitle').textContent = COURSE_DATA.courseData.title;
+        document.getElementById('restartBtn').addEventListener('click', () => {
+             resetState();
+             saveState();
+             localStorage.removeItem(TOUR_SEEN_KEY);
+             location.reload();
+        });
+        document.getElementById('replayTourBtn').addEventListener('click', replayTour);
+        
+        initTour();
+
+        if (!state.currentScenario || !scenarios[state.currentScenario]) {
+           state.currentScenario = getNextScenario();
+        }
+
+        if (state.currentScenario === null || shouldFinish()) {
+            showCompletionScreen();
+        } else {
+            updateSkillsDisplay();
+            renderBadges();
+            loadScenario(); 
+            
+            if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+                setTimeout(() => {
+                    document.getElementById('welcomeModal').classList.add('show');
+                    document.getElementById('tourOverlay').classList.add('show');
+                }, 300);
+            }
+        }
+    }
+
+    function resetState() {
+        state.skills = skills.reduce((acc, skill) => ({ ...acc, [skill]: 0 }), {});
+        state.badges = [];
+        state.completedScenarios = new Set();
+        state.totalDecisions = 0;
+        state.interactionCount = 0;
+        const foundationScenarioId = Object.keys(scenarios).find(id => scenarios[id].difficulty === 'foundation');
+        state.currentScenario = foundationScenarioId || Object.keys(scenarios)[0] || null;
+    }
+
+    function saveState(isFinal = false) {
+        const scorm = getScorm();
+        if (scorm && scorm.connection.isActive) {
+            scorm.set('cmi.suspend_data', JSON.stringify({ ...state, completedScenarios: Array.from(state.completedScenarios) }));
+            const score = getAvgSkill();
+            scorm.set('cmi.score.raw', score);
+            scorm.set('cmi.score.min', 0);
+            scorm.set('cmi.score.max', 100);
+            const totalScenariosForProgress = Math.max(MIN_SCENARIOS_TO_FINISH, Object.keys(scenarios).length);
+            scorm.set('cmi.progress_measure', (state.completedScenarios.size / totalScenariosForProgress).toFixed(2));
+            
+            if(shouldFinish() || isFinal){
+                 scorm.set('cmi.completion_status', 'completed');
+                 if(score >= 60){
+                     scorm.set('cmi.success_status', 'passed');
+                 } else {
+                     scorm.set('cmi.success_status', 'failed');
+                 }
+            } else {
+                 scorm.set('cmi.completion_status', 'incomplete');
+            }
+
+            if (isFinal) {
+                scorm.set('cmi.exit', '');
+            } else {
+                scorm.set('cmi.exit', 'suspend');
+            }
+            scorm.save();
+        }
+    }
+    
+    function getNextScenario() {
+        // Helper to find the best scenario from a given pool of IDs
+        const findBestCandidate = (idPool) => {
+            if (idPool.length === 0) return null;
+
+            const skillEntries = Object.entries(state.skills).sort((a, b) => a[1] - b[1]); // Sort weakest to strongest
+            
+            // Priority 1: Find a remedial scenario for the weakest skill below the remediation threshold.
+            for (const [weakSkill, score] of skillEntries) {
+                if (score < REMEDIATION_THRESHOLD) {
+                    const remedialCandidate = idPool.find(id => 
+                        scenarios[id].difficulty === 'remedial' && 
+                        scenarios[id].skills.includes(weakSkill)
+                    );
+                    if (remedialCandidate) return remedialCandidate;
+                }
+            }
+
+            // Priority 2: Find any non-remedial scenario that targets the weakest overall skill.
+            for (const [weakestSkill] of skillEntries) {
+                 const coreCandidate = idPool.find(id =>
+                    scenarios[id].difficulty !== 'remedial' &&
+                    scenarios[id].skills.includes(weakestSkill)
+                );
+                if (coreCandidate) return coreCandidate;
+            }
+            
+            // Fallback: if no targeted scenarios are found, return any non-remedial, then any.
+            const anyCore = idPool.find(id => scenarios[id].difficulty !== 'remedial');
+            if (anyCore) return anyCore;
+            
+            return idPool[0];
+        };
+
+        // Main logic starts here
+        const unseenIds = Object.keys(scenarios).filter(id => !state.completedScenarios.has(id));
+
+        if (unseenIds.length > 0) {
+            return findBestCandidate(unseenIds);
+        } else {
+            // No unseen scenarios left. We must recycle one to allow the learner to continue practicing.
+            const allScenarioIds = Object.keys(scenarios);
+            return findBestCandidate(allScenarioIds);
+        }
+    }
+
+    function loadScenario() {
+        if (!state.currentScenario) {
+            showCompletionScreen();
+            return;
+        }
+        renderScenario(state.currentScenario);
+    }
+    
+    function renderScenario(scenarioId) {
+        if (!scenarioId || !scenarios[scenarioId]) {
+            showCompletionScreen();
+            return;
+        }
+
+        const data = scenarios[scenarioId];
+        const container = document.getElementById('scenarioContainer');
+        container.className = data.difficulty === 'remedial' ? 'scenario remedial' : 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        
+        const contextHint = document.getElementById('contextHint');
+        if (data.context) {
+            contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+            contextHint.style.display = 'block';
+        } else {
+            contextHint.style.display = 'none';
+        }
+
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = '';
+        data.skills.forEach(sk => {
+            const skillTag = document.createElement('span');
+            skillTag.className = 'tag';
+            skillTag.textContent = sk;
+            tags.appendChild(skillTag);
+        });
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        
+        // Randomize option order for better learning
+        const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach((opt) => {
+            const el = document.createElement('div');
+            el.className = 'option';
+            el.textContent = opt.text;
+            el.onclick = () => selectOption(shuffledOptions.indexOf(opt), opt, data);
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+        setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function selectOption(selectedIndex, option, scenarioData) {
+        const options = document.querySelectorAll('.option');
+        options.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+        
+        const originalOrder = scenarioData.options;
+        const shuffledElements = Array.from(options);
+        const originalIndexOfSelected = originalOrder.findIndex(o => o.text === option.text);
+        
+        // Find the clicked element in the DOM to apply styles
+        const clickedEl = shuffledElements.find(el => el.textContent === option.text);
+        if(clickedEl) {
+          clickedEl.classList.add('selected');
+        }
+
+        const sum = option.skills.reduce((s, impact) => s + impact.change, 0);
+        const isPositive = sum >= 0;
+        if(clickedEl) {
+            clickedEl.classList.add(isPositive ? 'correct' : 'incorrect');
+        }
+        
+        const changes = [];
+        option.skills.forEach(impact => {
+            if(state.skills.hasOwnProperty(impact.skill)){
+              state.skills[impact.skill] = Math.max(0, Math.min(100, (state.skills[impact.skill] || 0) + impact.change));
+              changes.push({ skill: impact.skill, change: impact.change });
+              if(state.skills[impact.skill] >= MASTERY_THRESHOLD) awardBadge(impact.skill);
+            }
+        });
+
+        state.totalDecisions++;
+        state.completedScenarios.add(state.currentScenario);
+
+        const bestOption = scenarioData.options.reduce((best, current) => {
+            const bestSum = best.skills.reduce((s, imp) => s + imp.change, 0);
+            const currentSum = current.skills.reduce((s, imp) => s + imp.change, 0);
+            return currentSum > bestSum ? current : best;
+        });
+        reportInteraction({
+            id: scenarioData.id,
+            type: 'choice',
+            description: scenarioData.question,
+            learnerResponse: option.text,
+            result: isPositive ? 'correct' : 'incorrect',
+            correctResponse: bestOption.text
+        });
+        
+        showFeedback(isPositive, option.feedback, changes);
+        updateSkillsDisplay();
+        saveState();
+    }
+    
+    function showFeedback(isPositive, text, changes) {
+        const fb = document.getElementById('feedbackContainer');
+        fb.className = 'feedback show ' + (isPositive ? 'correct' : 'incorrect');
+        document.getElementById('feedbackTitle').textContent = isPositive ? '✓ Strong Move' : '💡 Learning Moment';
+        document.getElementById('feedbackText').textContent = text;
+        const impact = document.getElementById('skillImpact');
+        if (changes.length) {
+            impact.innerHTML = '<strong>Skill Impact:</strong><br>';
+            changes.forEach(c => {
+                const chip = document.createElement('span');
+                chip.className = c.change > 0 ? 'skill-change positive' : 'skill-change negative';
+                chip.textContent = c.skill + ' ' + (c.change > 0 ? '+' : '') + c.change;
+                impact.appendChild(chip);
+            });
+        } else {
+            impact.innerHTML = '';
+        }
+        fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('continueBtn').classList.add('show');
+        document.getElementById('continueBtn').onclick = () => {
+             if (shouldFinish()) {
+                showCompletionScreen();
+             } else {
+                state.currentScenario = getNextScenario();
+                loadScenario();
+             }
+        };
+    }
+    
+    function awardBadge(skill) {
+      const badgeData = BADGE_CATALOG[skill];
+      if(!badgeData || state.badges.find(b => b.skill === skill)) return;
+      state.badges.push({ ...badgeData, skill });
+      renderBadges();
+
+      reportInteraction({
+          id: 'badge.' + skill,
+          type: 'other',
+          description: 'Badge Earned for ' + skill,
+          learnerResponse: badgeData.name,
+          result: 'neutral'
+      });
+    }
+
+    function renderBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = '';
+        if(state.badges.length === 0) return;
+        state.badges.forEach(b => {
+            const el = document.createElement('span');
+            el.className = 'badge';
+            el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+            bar.appendChild(el);
+        });
+    }
+
+    function updateSkillsDisplay() {
+        const panel = document.getElementById('skillsPanel');
+        panel.innerHTML = '';
+        Object.entries(state.skills).forEach(([k, v]) => {
+            const level = v >= MASTERY_THRESHOLD ? 'Mastery' : v >= 50 ? 'Advanced' : v >= 25 ? 'Developing' : 'Novice';
+            const box = document.createElement('div');
+            box.className = 'skill-box';
+            box.innerHTML = 
+              '<div class="skill-name">' + k + '</div>' +
+              '<div class="skill-bar"><div class="skill-fill" style="width:' + v + '%"></div></div>' +
+              '<div class="skill-level">' + level + ' (' + Math.round(v) + '%)</div>';
+            panel.appendChild(box);
+        });
+    }
+    
+    function showCompletionScreen() {
+        document.getElementById('learningContent').style.display = 'none';
+        const screen = document.getElementById('completionScreen');
+        screen.classList.add('show');
+        const avgScore = getAvgSkill();
+        const mastered = masteredCount();
+        const passed = avgScore >= TARGET_AVERAGE_SKILL || mastered >= TARGET_MASTERED_SKILLS;
+        const messageEl = document.getElementById('completionMessage');
+        messageEl.textContent = 'You have ' + (passed ? 'achieved mastery' : 'completed the course') + ' with a final score of ' + avgScore + '%.';
+        messageEl.style.color = passed ? 'var(--good)' : 'var(--ink)';
+        const grid = document.getElementById('masteryGrid');
+        grid.innerHTML = 
+            '<div class="mastery-item"><div class="mastery-label">Final Score</div><div class="mastery-value" style="color: ' + (passed ? 'var(--good)' : 'var(--ink)') + '">' + avgScore + '%</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Skills Mastered</div><div class="mastery-value">' + mastered + ' / ' + skills.length + '</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Scenarios Seen</div><div class="mastery-value">' + state.completedScenarios.size + '</div></div>';
+        
+        const skillsList = document.getElementById('finalSkillsList');
+        skillsList.innerHTML = Object.entries(state.skills).map(([name, value]) => 
+            '<li class="final-skill-item"><span class="final-skill-name">' + name + '</span><span class="final-skill-value">' + Math.round(value) + '%</span></li>'
+        ).join('');
+
+        const finalBadgeBar = document.getElementById('finalBadgeBar');
+        finalBadgeBar.innerHTML = '';
+        if (state.badges.length > 0) {
+            state.badges.forEach(b => {
+                const el = document.createElement('span');
+                el.className = 'badge';
+                el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+                finalBadgeBar.appendChild(el);
+            });
+        } else {
+            finalBadgeBar.innerHTML = '<p style="color: var(--muted); font-style: italic; font-size: 14px;">No badges earned this time. Keep practicing!</p>';
+        }
+        
+        reportInteraction({
+          id: 'course.mastery',
+          type: 'other',
+          description: 'Final course mastery status.',
+          learnerResponse: 'Score: ' + avgScore + '%, Mastered: ' + mastered,
+          result: 'neutral'
+        });
+        
+        document.getElementById('exitCourseBtn').onclick = () => {
+            const scorm = getScorm();
+            if(scorm) scorm.quit();
+            try { window.close(); } catch(e) {}
+        };
+        saveState(true); 
+    }
+
+    // ===== TOUR LOGIC =====
+    let tourState = { active: false, currentStep: 0 };
+    let originalScenarioId = null;
+
+    const tourScenario = {
+        id: 'tour-scenario', title: 'How This Course Works', difficulty: 'foundation', skills: ['Adaptive Learning', 'Decision Making'],
+        context: 'This is an example of how a scenario is presented. Read the context, text, and question.',
+        text: 'Your goal is to make the best choice in each situation to improve your skills.',
+        question: 'Based on the tour, how does this course help you learn?',
+        options: [
+            { text: 'By adapting to my weak spots.' },
+            { text: 'By tracking my skills visually.' },
+            { text: 'All of the above.' }
+        ]
+    };
+    const tourBadges = [
+        { name: 'Critical Thinker', icon: '🤔' },
+        { name: 'Agile Strategist', icon: '⚡️' },
+    ];
+    const tourSteps = [
+        { target: '#scenarioContainer', title: '🧠 Real-World Scenarios', text: 'Each step presents a situation. Your choices determine your path and affect your skill levels.' },
+        { target: '.skills-below', title: '📊 Your Skills', text: 'Watch your skills grow in real-time. The course adapts to focus on areas where you need practice.' },
+        { target: '.badges-section', title: '⭐ Badges Earned', text: 'As you master skills, you will earn badges to recognize your achievement.' }
+    ];
+
+    function initTour() {
+        document.getElementById('startTourBtn').addEventListener('click', startTour);
+        document.getElementById('skipTourBtn').addEventListener('click', endTour);
+        document.getElementById('tourNextBtn').addEventListener('click', () => {
+            if (tourState.currentStep < tourSteps.length - 1) showTourStep(tourState.currentStep + 1);
+            else endTour();
+        });
+        document.getElementById('tourPrevBtn').addEventListener('click', () => {
+            if (tourState.currentStep > 0) showTourStep(tourState.currentStep - 1);
+        });
+    }
+    
+    function replayTour() {
+        if(tourState.active) return;
+        startTour();
+    }
+
+    function startTour() {
+        document.getElementById('welcomeModal').classList.remove('show');
+        document.getElementById('tourOverlay').classList.add('show');
+        
+        originalScenarioId = state.currentScenario;
+        renderMockScenario();
+        renderMockBadges();
+
+        tourState.active = true;
+        tourState.currentStep = 0;
+        showTourStep(0);
+        window.addEventListener('scroll', updateTourPositions, true);
+    }
+
+    function endTour() {
+        tourState.active = false;
+        window.removeEventListener('scroll', updateTourPositions, true);
+        document.getElementById('tourOverlay').classList.remove('show');
+        document.getElementById('tourSpotlight').style.display = 'none';
+        document.getElementById('tourTooltip').style.display = 'none';
+        localStorage.setItem(TOUR_SEEN_KEY, '1');
+        
+        state.currentScenario = originalScenarioId;
+        loadScenario();
+        renderBadges();
+
+        setTimeout(() => {
+            const scenarioEl = document.getElementById('scenarioContainer');
+            if (scenarioEl) {
+                scenarioEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+
+    function renderMockScenario() {
+        const data = tourScenario;
+        const container = document.getElementById('scenarioContainer');
+        container.className = 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        const contextHint = document.getElementById('contextHint');
+        contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+        contextHint.style.display = 'block';
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = data.skills.map(sk => '<span class="tag">' + sk + '</span>').join('');
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        data.options.forEach((opt, i) => {
+            const el = document.createElement('div');
+            el.className = 'option disabled';
+            if(i === 2) el.classList.add('correct');
+            el.textContent = opt.text;
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+    }
+
+    function renderMockBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = tourBadges.map(b =>
+            '<span class="badge"><span class="emoji">' + b.icon + '</span>' + b.name + '</span>'
+        ).join('');
+    }
+
+    function updateTourPositions() {
+        if (!tourState.active) return;
+        const stepData = tourSteps[tourState.currentStep];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+
+        const rect = target.getBoundingClientRect();
+        const spotlight = document.getElementById('tourSpotlight');
+        spotlight.style.top = (rect.top - 8) + 'px';
+        spotlight.style.left = (rect.left - 8) + 'px';
+        spotlight.style.width = (rect.width + 16) + 'px';
+        spotlight.style.height = (rect.height + 16) + 'px';
+
+        const tooltip = document.getElementById('tourTooltip');
+        const tooltipHeight = tooltip.offsetHeight;
+        const tooltipWidth = tooltip.offsetWidth;
+
+        let tooltipTop = rect.bottom + 20;
+        if (tooltipTop + tooltipHeight > window.innerHeight - 20) {
+            tooltipTop = rect.top - tooltipHeight - 20;
+        }
+        tooltip.style.top = Math.max(10, tooltipTop) + 'px';
+
+        let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+        tooltipLeft = Math.max(10, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 10));
+        tooltip.style.left = tooltipLeft + 'px';
+    }
+
+    function showTourStep(step) {
+        if (step < 0 || step >= tourSteps.length) return;
+        tourState.currentStep = step;
+        const stepData = tourSteps[step];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+        
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        setTimeout(() => {
+            document.getElementById('tourTitle').textContent = stepData.title;
+            document.getElementById('tourText').textContent = stepData.text;
+            
+            const dotsContainer = document.getElementById('tourDots');
+            dotsContainer.innerHTML = tourSteps.map((_, i) => '<div class="tour-dot ' + (i === step ? 'active' : '') + '" onclick="showTourStep(' + i + ')"></div>').join('');
+            document.getElementById('tourPrevBtn').style.display = step === 0 ? 'none' : 'inline-block';
+            document.getElementById('tourNextBtn').textContent = step === tourSteps.length - 1 ? 'Got It! ✓' : 'Next →';
+            
+            updateTourPositions();
+            
+            document.getElementById('tourSpotlight').style.display = 'block';
+            document.getElementById('tourTooltip').style.display = 'block';
+        }, 300); // Wait for scroll to finish
+    }
+
+    window.addEventListener('load', init);
+    window.addEventListener('beforeunload', () => {
+        if(!shouldFinish()) saveState(false);
+        const scorm = getScorm();
+        if(scorm) scorm.quit();
+    });
+    
+  </script>
+</body>
+</html>
