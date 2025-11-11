@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Introduction to Commercial Property & Casualty Insurance</title>
+  
+  <script src="scorm-api-wrapper.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #16a34a;
+      --good: #16a34a;
+      --warn: #f59e0b;
+      --bad: #dc2626;
+      --shadow:0 20px 60px rgba(2,6,23,.18);
+      --grad: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
+      --softgrad: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    }
+    body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--grad);min-height:100vh;padding:20px;padding-bottom:40px;display:flex;justify-content:center;align-items:flex-start;}
+    .container{background:var(--panel);border-radius:20px;box-shadow:var(--shadow);max-width:960px;width:100%;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+    .skills-panel{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:14px;animation:fadeInUp .5s ease-out .2s both;}
+    .skill-box{background:var(--softgrad);color:#0b1733;padding:14px;border-radius:12px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(0.4, 0, 0.2, 1);}
+    .skill-box.updated{animation:skillPulse .6s ease-out;box-shadow:0 0 20px rgba(37, 99, 235, 0.3);}
+    @keyframes skillPulse{0%{transform:scale(1);box-shadow:0 0 30px rgba(37, 99, 235, 0.5);} 50%{transform:scale(1.02);} 100%{transform:scale(1);box-shadow:0 0 10px rgba(37, 99, 235, 0.2);}}
+    .skill-name{font-weight:700;margin-bottom:8px;font-size:14px}
+    .skill-bar{background:rgba(255,255,255,.5);height:8px;border-radius:4px;overflow:hidden}
+    .skill-fill{background:#fff;height:100%;transition:width .6s cubic-bezier(0.4, 0, 0.2, 1);border-radius:4px}
+    .skill-level{font-size:12px;margin-top:6px;opacity:.9}
+    .badge-bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 22px;animation:fadeInUp .5s ease-out .3s both; min-height: 34px;}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#e2e8f0;border:1px solid #cbd5e1;color:#0f172a;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .badge .emoji{font-size:14px}
+    @keyframes scaleIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .main-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;animation:fadeInUp .5s ease-out both;}
+    .replay-tour-btn{background:transparent;border:1px solid #e2e8f0;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;}
+    .replay-tour-btn:hover{background:var(--bg);color:var(--ink)}
+    h1{color:var(--ink);margin-bottom:6px;font-size:28px;}
+    .sub{color:var(--muted);margin-bottom:14px;}
+    .status-badge{display:inline-block;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:10px;}
+    .status-badge.learning{background:#dbeafe;color:#1d4ed8}
+    .status-badge.remedial{background:#fff7ed;color:#b45309}
+    .status-badge.mastery{background:#dcfce7;color:#166534}
+    .scenario{background:var(--bg);padding:22px;border-radius:12px;margin-bottom:24px;border-left:4px solid var(--accent);animation:scenarioFadeIn .5s ease-out;scroll-margin-top:20px;}
+    .scenario.remedial{border-left-color:var(--warn);background:#fff8ee}
+    /* FIX: Improve contrast for elements within remedial scenarios */
+    .scenario.remedial .context-hint {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    .scenario.remedial .feedback.incorrect {
+        background: #f1f5f9; /* slate-100 */
+        border-left-color: #94a3b8; /* slate-400 */
+        color: #334155; /* slate-700 */
+    }
+    @keyframes scenarioFadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .scenario-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .scenario-title{font-size:18px;font-weight:800;color:var(--ink)}
+    .scenario-tags{display:flex;gap:8px}
+    .tag{background:var(--accent);color:#fff;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .tag.remedial{background:var(--warn)}
+    .context-hint{background:#fffbea;border-left:3px solid #facc15;padding:12px;margin: 16px 0;border-radius:6px;font-size:14px;color:#4b5563;line-height:1.6;}
+    .scenario-text{color:#334155;line-height:1.6;margin-bottom:16px;white-space:pre-wrap}
+    .question{font-weight:800;color:var(--ink);margin-bottom:16px}
+    .options{display:flex;flex-direction:column;gap:12px}
+    .option{background:#fff;border:2px solid #e5e7eb;padding:16px;border-radius:10px;cursor:pointer;transition:.25s ease;position:relative;animation:optionSlideIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);white-space:pre-wrap;}
+    @keyframes optionSlideIn{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+    .option:hover{border-color:var(--accent);transform:translateX(5px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
+    .option.selected{border-color:var(--accent);background:#eef2ff}
+    .option.correct{border-color:var(--good);background:#ecfdf5}
+    .option.incorrect{border-color:var(--bad);background:#fee2e2}
+    .option.disabled{cursor:not-allowed;opacity:.6;pointer-events:none}
+    .feedback{margin-top:16px;padding:16px;border-radius:10px;display:none;animation:feedbackSlideUp .5s cubic-bezier(0.34, 1.56, 0.64, 1);scroll-margin-top:20px;}
+    @keyframes feedbackSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .feedback.show{display:block}
+    .feedback.correct{background:#ecfdf5;border-left:4px solid var(--good);color:#14532d}
+    .feedback.incorrect{background:#fff7ed;border-left:4px solid var(--warn);color:#7c2d12}
+    .feedback-title{font-weight:800;margin-bottom:6px;font-size:16px}
+    .skill-impact{margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);font-size:13px}
+    .skill-change{display:inline-block;margin:0 8px 6px 0;padding:2px 8px;border-radius:4px;font-weight:700;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .skill-change.positive{background:rgba(22,163,74,.18);color:#166534}
+    .skill-change.negative{background:rgba(220,38,38,.18);color:#7f1d1d}
+    .continue-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;transition:.25s;display:none;animation:buttonFadeIn .5s ease-out;align-self:flex-start;}
+    .scenario .continue-btn { margin-top: 20px; }
+    .continue-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35)}
+    .continue-btn.show{display:inline-block}
+    .completion-screen{text-align:center;display:none;animation:fadeIn .6s}
+    .completion-screen.show{display:block}
+    .completion-icon{font-size:80px;margin-bottom:10px;animation:bounce 1s ease-in-out}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    .completion-title{font-size:30px;color:var(--ink);margin-bottom:6px}
+    .completion-message{color: var(--muted); margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;}
+    .mastery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:24px 0}
+    .mastery-item{background:var(--bg);padding:16px;border-radius:10px;text-align:center;animation:scaleIn .4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .mastery-label{font-size:12px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+    .mastery-value{font-size:22px;font-weight:800;color:var(--accent)}
+    .journey-summary{background:var(--bg);padding:20px;border-radius:12px;margin-top:20px;text-align:left}
+    .final-skills-list{list-style:none;padding:0;margin:12px 0}
+    .final-skill-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}
+    .final-skill-item:last-child{border-bottom:none}
+    .final-skill-name{font-weight:600;color:var(--ink)}
+    .final-skill-value{font-weight:700;color:var(--accent);font-size:1.1rem;}
+    .restart-btn{background:var(--grad);color:#fff;border:none;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px}
+    .secondary-btn{background:transparent;color:var(--muted);border:1px solid #cbd5e1;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:800;cursor:pointer;margin-top:18px;margin-left:12px}
+    .secondary-btn:hover{background:var(--bg);color:var(--ink)}
+    
+    /* ===== WELCOME TOUR ===== */
+    .tour-overlay, .welcome-modal { display: none; }
+    .tour-overlay.show, .welcome-modal.show { display: block; }
+    .tour-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;opacity:1;transition:opacity .4s ease-out;animation:fadeIn .3s ease-out;}
+    .welcome-modal{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);z-index:303;animation:modalSlideIn .5s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    @keyframes modalSlideIn{from{opacity:0;transform:translate(-50%, -50%) scale(0.9);}to{opacity:1;transform:translate(-50%, -50%) scale(1);}}
+    .welcome-content{background:var(--panel);border-radius:20px;padding:40px;max-width:500px;width:calc(100% - 40px);text-align:center;box-shadow:0 25px 50px rgba(2,6,23,.3);}
+    .welcome-content h2{font-size:28px;color:var(--ink);margin:0 0 12px;}
+    .welcome-content p{font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 28px;}
+    .welcome-buttons{display:flex;gap:12px;justify-content:center;}
+    .welcome-btn{background:var(--grad);color:#fff;border:none;padding:12px 28px;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;flex:1;}
+    .welcome-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35);}
+    .welcome-btn.secondary{background:transparent;color:var(--muted);border:1px solid #cbd5e1;}
+    .welcome-btn.secondary:hover{background:var(--bg);color:var(--ink);}
+    .tour-spotlight{position:fixed;border:3px solid var(--accent);box-shadow:0 0 0 9999px rgba(15, 23, 42, 0.85);border-radius:12px;z-index:301;pointer-events:none;transition: all .4s cubic-bezier(0.4, 0, 0.2, 1); display:none;}
+    .tour-tooltip{position:fixed;background:var(--panel);border-radius:12px;padding:20px;max-width:340px;z-index:302;box-shadow:0 25px 50px rgba(2,6,23,.3);animation:tooltipSlide .4s cubic-bezier(0.34, 1.56, 0.64, 1);display:none; transition: top .4s, left .4s;}
+    @keyframes tooltipSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .tour-tooltip h3{font-size:18px;font-weight:800;color:var(--ink);margin:0 0 10px;}
+    .tour-tooltip p{font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 16px;}
+    .tour-controls{display:flex;gap:12px;justify-content:space-between;align-items:center;}
+    .tour-dots{display:flex;gap:6px;}
+    .tour-dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:.2s;}
+    .tour-dot.active{background:var(--accent);transform:scale(1.3);}
+    .tour-btn{background:var(--grad);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+    .tour-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3);}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="learningContent">
+        <div class="main-header">
+            <div>
+                <span class="status-badge learning" id="statusBadge" aria-live="polite">📚 Adaptive Learning</span>
+                <h1 id="courseTitle"></h1>
+                <div class="sub">An adaptive learning experience.</div>
+            </div>
+            <button id="replayTourBtn" class="replay-tour-btn">🎬 Replay Tour</button>
+        </div>
+      <div class="scenario" id="scenarioContainer">
+        <div class="scenario-header">
+          <div class="scenario-title" id="scenarioTitle"></div>
+          <div class="scenario-tags" id="scenarioTags"></div>
+        </div>
+        <div class="context-hint" id="contextHint" style="display:none;"></div>
+        <div class="scenario-text" id="scenarioText"></div>
+        <div class="question" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedbackContainer">
+            <div class="feedback-title" id="feedbackTitle"></div>
+            <div id="feedbackText"></div>
+            <div class="skill-impact" id="skillImpact"></div>
+        </div>
+        <button class="continue-btn" id="continueBtn">Continue →</button>
+      </div>
+      <div class="skills-below">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Your Skills</h3>
+        <div class="skills-panel" id="skillsPanel"></div>
+      </div>
+      <div class="badges-section">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Badges Earned</h3>
+        <div class="badge-bar" id="badgeBar"></div>
+      </div>
+    </div>
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-icon">🎓</div>
+      <h2 class="completion-title">Learning Journey Complete!</h2>
+      <p class="completion-message" id="completionMessage"></p>
+      <div class="mastery-grid" id="masteryGrid"></div>
+      <div class="journey-summary">
+        <h3>Final Skill Levels</h3>
+        <ul class="final-skills-list" id="finalSkillsList"></ul>
+        <h3 style="margin-top:14px;">Badges Earned</h3>
+        <div class="badge-bar" id="finalBadgeBar"></div>
+      </div>
+      <button class="restart-btn" id="restartBtn">Start New Journey</button>
+      <button class="secondary-btn" id="exitCourseBtn">Exit Course</button>
+    </div>
+  </div>
+
+  <!-- Welcome Tour Elements -->
+  <div class="tour-overlay" id="tourOverlay"></div>
+  <div class="welcome-modal" id="welcomeModal">
+    <div class="welcome-content">
+      <h2>Welcome to Your Adaptive Course!</h2>
+      <p>This isn't a typical click-through course. Your journey will adapt based on your choices. Take a quick tour to see how it works.</p>
+      <div class="welcome-buttons">
+        <button class="welcome-btn secondary" id="skipTourBtn">Skip Tour</button>
+        <button class="welcome-btn" id="startTourBtn">Start Tour →</button>
+      </div>
+    </div>
+  </div>
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div class="tour-controls">
+      <div class="tour-dots" id="tourDots"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="tour-btn secondary" id="tourPrevBtn">← Back</button>
+        <button class="tour-btn" id="tourNextBtn">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script id="course-data" type="application/json">
+    {"courseData":{"title":"Introduction to Commercial Property & Casualty Insurance","content":"This course provides a comprehensive foundation in commercial property and casualty insurance, covering essential concepts from policy structures and coverage types to underwriting, claims management, and regulatory compliance. Learners will develop practical skills in analyzing coverage needs, assessing risks, and navigating the commercial insurance landscape.","skills":["Policy Coverage Analysis","Risk Assessment","Claims Processing","Regulatory Compliance","Underwriting Principles","Insurance Terminology"],"theme":"green"},"generatedContent":{"scenarios":{"foundation-commercial-vs-personal":{"id":"foundation-commercial-vs-personal","title":"Understanding the Basics","difficulty":"foundation","skills":["Insurance Terminology"],"context":"A small business owner asks you to explain the difference between their personal homeowners policy and the commercial policy they need.","text":"The owner says, 'I have great coverage on my house. Why can't I just use that for my home-based consulting business?'","question":"What is the most accurate explanation?","options":[{"text":"Personal policies exclude business activities and professional liability, which commercial policies are designed to cover.","feedback":"Correct. Personal policies typically exclude business exposures, making commercial coverage essential for business operations and professional services.","skills":[{"skill":"Insurance Terminology","change":15},{"skill":"Policy Coverage Analysis","change":10}]},{"text":"Commercial policies are just more expensive versions of personal policies with higher limits.","feedback":"This oversimplifies the distinction. Commercial policies are fundamentally different, covering unique business exposures not addressed in personal lines.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Policy Coverage Analysis","change":-8}]},{"text":"You can use your homeowners policy, but you'll need to add an endorsement.","feedback":"While some homeowners policies offer limited business endorsements, they typically don't provide adequate coverage for professional services or business operations.","skills":[{"skill":"Insurance Terminology","change":-10},{"skill":"Risk Assessment","change":-8}]},{"text":"The main difference is that commercial policies cover buildings while personal policies cover contents.","feedback":"This is inaccurate. Both policy types can cover buildings and contents, but the key distinction is business versus personal exposures.","skills":[{"skill":"Insurance Terminology","change":-15}]}]},"foundation-property-coverage-types":{"id":"foundation-property-coverage-types","title":"Identifying Property Exposures","difficulty":"foundation","skills":["Policy Coverage Analysis"],"context":"A restaurant owner experienced a kitchen fire that forced them to close for two weeks during repairs.","text":"The building and equipment damage totaled $50,000. The owner also lost $30,000 in revenue during the closure.","question":"Which coverage would address the lost revenue?","options":[{"text":"Business Income coverage, which compensates for lost revenue during necessary suspension of operations.","feedback":"Excellent. Business Income (Business Interruption) coverage is specifically designed to replace lost revenue when a covered loss forces business closure.","skills":[{"skill":"Policy Coverage Analysis","change":18},{"skill":"Insurance Terminology","change":12}]},{"text":"Building coverage, since the fire damaged the physical structure.","feedback":"Building coverage addresses physical damage to the structure, not the financial consequences of business interruption.","skills":[{"skill":"Policy Coverage Analysis","change":-15}]},{"text":"Business Personal Property coverage, which covers all business assets.","feedback":"Business Personal Property covers physical items like equipment and inventory, not lost income or revenue.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-8}]},{"text":"Extra Expense coverage, which pays for additional costs during restoration.","feedback":"Extra Expense covers additional costs to minimize the suspension period, not the lost revenue itself.","skills":[{"skill":"Policy Coverage Analysis","change":-8},{"skill":"Insurance Terminology","change":-5}]}]},"foundation-cgl-basics":{"id":"foundation-cgl-basics","title":"Liability Fundamentals","difficulty":"foundation","skills":["Insurance Terminology","Policy Coverage Analysis"],"context":"A customer slips on a wet floor in a retail store and breaks their arm, requiring medical treatment.","text":"The customer is threatening to sue for medical expenses and lost wages.","question":"Which coverage would typically respond to this claim?","options":[{"text":"Commercial General Liability bodily injury coverage.","feedback":"Correct. CGL bodily injury coverage is designed for exactly this situation—customer injuries occurring on business premises.","skills":[{"skill":"Policy Coverage Analysis","change":15},{"skill":"Insurance Terminology","change":12}]},{"text":"Workers Compensation coverage.","feedback":"Workers Compensation covers employees, not customers or other third parties. This is a CGL situation.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-8}]},{"text":"Property damage coverage under the business owner's policy.","feedback":"Property damage coverage addresses damage to physical property, not bodily injury to people.","skills":[{"skill":"Policy Coverage Analysis","change":-15}]},{"text":"Professional Liability coverage.","feedback":"Professional Liability covers errors and omissions in professional services, not premises liability for customer injuries.","skills":[{"skill":"Policy Coverage Analysis","change":-10},{"skill":"Insurance Terminology","change":-8}]}]},"foundation-policy-structure":{"id":"foundation-policy-structure","title":"Reading a Policy","difficulty":"foundation","skills":["Insurance Terminology"],"context":"You're reviewing a commercial policy with a client and need to explain where to find specific information.","text":"The client asks, 'Where can I see exactly what my business is called, my policy period, and my premium amount?'","question":"Which section contains this information?","options":[{"text":"The Declarations page, which summarizes key policy details including the named insured, coverage period, and premium.","feedback":"Perfect. The Declarations page is the policy summary that contains all essential identifying information and coverage limits.","skills":[{"skill":"Insurance Terminology","change":15},{"skill":"Policy Coverage Analysis","change":8}]},{"text":"The Insuring Agreement, which defines what the policy covers.","feedback":"The Insuring Agreement explains coverage promises but doesn't contain specific policyholder information or premium details.","skills":[{"skill":"Insurance Terminology","change":-10}]},{"text":"The Conditions section, which outlines policyholder responsibilities.","feedback":"Conditions describe duties and obligations, not specific policy identification information.","skills":[{"skill":"Insurance Terminology","change":-12}]},{"text":"The Exclusions section, which lists what isn't covered.","feedback":"Exclusions clarify coverage limitations, not policy identification details or premium amounts.","skills":[{"skill":"Insurance Terminology","change":-15}]}]},"foundation-stakeholders":{"id":"foundation-stakeholders","title":"Understanding Roles","difficulty":"foundation","skills":["Insurance Terminology"],"context":"A business owner is confused about who to contact regarding their policy.","text":"They ask, 'What's the difference between my agent and the insurance company? Who do I call when I have a claim?'","question":"What is the best explanation?","options":[{"text":"Your agent represents you in dealing with the insurance company, but claims should be reported to both the agent and insurer promptly.","feedback":"Excellent. This clarifies the agent's role as your representative while emphasizing the importance of prompt claim notification to all parties.","skills":[{"skill":"Insurance Terminology","change":15},{"skill":"Claims Processing","change":8}]},{"text":"Your agent is the insurance company, so just call them for everything.","feedback":"This is incorrect. Agents typically represent multiple insurers and act as intermediaries, not as the insurance company itself.","skills":[{"skill":"Insurance Terminology","change":-15}]},{"text":"Only contact the insurance company directly; your agent is just a salesperson.","feedback":"This undervalues the agent's role in policy service, claims assistance, and advocacy for the insured.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Claims Processing","change":-8}]},{"text":"Wait to see if the insurance company contacts you first after a loss.","feedback":"Insureds have a duty to promptly notify the insurer of claims. Waiting could jeopardize coverage.","skills":[{"skill":"Claims Processing","change":-15},{"skill":"Insurance Terminology","change":-8}]}]},"intermediate-coinsurance-penalty":{"id":"intermediate-coinsurance-penalty","title":"The Coinsurance Trap","difficulty":"intermediate","skills":["Policy Coverage Analysis","Underwriting Principles"],"context":"A manufacturing facility valued at $2 million has an 80% coinsurance clause but is insured for only $1.2 million.","text":"A fire causes $800,000 in damage. The owner expects full payment but learns they'll receive less due to coinsurance.","question":"How should you explain the penalty?","options":[{"text":"They're underinsured at 75% of the required amount, so they'll receive 75% of the loss minus the deductible—about $600,000.","feedback":"Correct. Coinsurance penalizes underinsurance. They needed $1.6M (80% × $2M) but carried only $1.2M (75%), so they collect 75% of covered losses.","skills":[{"skill":"Policy Coverage Analysis","change":20},{"skill":"Underwriting Principles","change":15},{"skill":"Insurance Terminology","change":10}]},{"text":"They'll receive the full $800,000 since it's below their $1.2 million policy limit.","feedback":"This ignores the coinsurance penalty. When underinsured, the policyholder becomes a co-insurer for the deficiency.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Underwriting Principles","change":-12}]},{"text":"They'll receive $1.2 million minus the deductible, which is their policy limit.","feedback":"The loss is below the policy limit, but coinsurance still applies because they didn't maintain adequate coverage relative to property value.","skills":[{"skill":"Policy Coverage Analysis","change":-10},{"skill":"Insurance Terminology","change":-8}]},{"text":"They'll receive nothing because they violated the coinsurance requirement.","feedback":"Coinsurance reduces payment proportionally; it doesn't eliminate coverage entirely. They'll receive a reduced payment.","skills":[{"skill":"Policy Coverage Analysis","change":-18},{"skill":"Underwriting Principles","change":-12}]}]},"intermediate-occurrence-vs-claims":{"id":"intermediate-occurrence-vs-claims","title":"Timing Matters","difficulty":"intermediate","skills":["Policy Coverage Analysis","Insurance Terminology"],"context":"A contractor completed a renovation in 2022. In 2024, the client discovers defective work and files suit.","text":"The contractor had an occurrence policy in 2022 but switched to claims-made in 2023. The current claims-made policy has a retroactive date of January 1, 2023.","question":"Which policy responds to this claim?","options":[{"text":"The 2022 occurrence policy, because the work and injury occurred while that policy was in force.","feedback":"Correct. Occurrence policies cover incidents that happen during the policy period, regardless of when the claim is filed.","skills":[{"skill":"Policy Coverage Analysis","change":20},{"skill":"Insurance Terminology","change":15}]},{"text":"The 2024 claims-made policy, because that's when the claim was filed.","feedback":"The retroactive date of 1/1/2023 excludes this incident from 2022. Claims-made requires both the incident and claim to occur during or after the retroactive date.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Insurance Terminology","change":-10}]},{"text":"Both policies share the claim since it spans multiple policy periods.","feedback":"Insurance policies don't typically share claims. The policy structure and trigger dates determine which single policy responds.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-8}]},{"text":"Neither policy covers it due to the gap in claims-made coverage.","feedback":"While there's a coverage gap concern, the 2022 occurrence policy should respond since the work occurred during that period.","skills":[{"skill":"Policy Coverage Analysis","change":-10}]}]},"intermediate-products-liability":{"id":"intermediate-products-liability","title":"Products After Sale","difficulty":"intermediate","skills":["Policy Coverage Analysis","Risk Assessment"],"context":"A small manufacturer's product malfunctions two years after sale, causing property damage at a customer's facility.","text":"The manufacturer's CGL policy includes products-completed operations coverage with a $1 million aggregate limit. They've already paid $800,000 in other claims this year.","question":"What coverage consideration is most critical?","options":[{"text":"The aggregate limit may be insufficient; only $200,000 remains for this and any other products claims this policy period.","feedback":"Excellent analysis. Aggregate limits apply per policy period, and with $800K already paid, remaining capacity is a critical concern.","skills":[{"skill":"Policy Coverage Analysis","change":18},{"skill":"Risk Assessment","change":15},{"skill":"Underwriting Principles","change":10}]},{"text":"The claim won't be covered because products liability requires injury, not just property damage.","feedback":"Products liability covers both bodily injury and property damage caused by defective products.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Insurance Terminology","change":-10}]},{"text":"The two-year delay disqualifies coverage under products-completed operations.","feedback":"Products-completed operations coverage typically has no time limit. Claims can arise years after sale or completion.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-8}]},{"text":"Full coverage is guaranteed since the loss is under the $1 million limit.","feedback":"This overlooks that $800K in claims have already eroded the aggregate limit. Policy capacity, not per-occurrence limits, is the issue.","skills":[{"skill":"Policy Coverage Analysis","change":-18},{"skill":"Risk Assessment","change":-10}]}]},"intermediate-cyber-emerging-risk":{"id":"intermediate-cyber-emerging-risk","title":"Digital Exposures","difficulty":"intermediate","skills":["Risk Assessment","Policy Coverage Analysis"],"context":"A healthcare provider's patient database is breached, exposing 10,000 patient records with personal health information.","text":"The provider has CGL and property coverage but no cyber policy. They face notification costs, credit monitoring, regulatory fines, and potential lawsuits.","question":"How would traditional commercial policies likely respond?","options":[{"text":"Traditional policies provide minimal coverage; most cyber losses require specialized cyber liability coverage.","feedback":"Correct. CGL and property policies have limited or no coverage for cyber events. Cyber liability policies are essential for digital age exposures.","skills":[{"skill":"Risk Assessment","change":20},{"skill":"Policy Coverage Analysis","change":18},{"skill":"Insurance Terminology","change":12}]},{"text":"CGL covers all these losses as advertising injury since personal information was involved.","feedback":"Advertising injury has specific triggers and typically doesn't cover data breach scenarios or privacy violations from system failures.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Risk Assessment","change":-10}]},{"text":"Property coverage applies because electronic data is considered business property.","feedback":"Most property policies have limited or excluded coverage for electronic data and related cyber losses.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-8}]},{"text":"Professional liability covers this since healthcare involves professional services.","feedback":"Professional liability covers errors in professional services, not data breach and cyber security incidents.","skills":[{"skill":"Policy Coverage Analysis","change":-18},{"skill":"Risk Assessment","change":-12}]}]},"advanced-umbrella-drop-down":{"id":"advanced-umbrella-drop-down","title":"Umbrella Complexity","difficulty":"advanced","skills":["Policy Coverage Analysis","Risk Assessment"],"context":"A business has $1M CGL coverage and a $5M umbrella with a $10K self-insured retention.","text":"A lawsuit results in a $2.5M judgment. However, the CGL insurer denies coverage based on a policy exclusion that doesn't exist in the umbrella.","question":"How does the umbrella respond?","options":[{"text":"The umbrella drops down to primary for the entire $2.5M, minus the $10K retention, providing $2.49M.","feedback":"Excellent understanding. When underlying coverage is excluded, umbrellas often drop down to primary, subject only to the SIR.","skills":[{"skill":"Policy Coverage Analysis","change":22},{"skill":"Risk Assessment","change":18},{"skill":"Insurance Terminology","change":12}]},{"text":"The umbrella provides $1.5M excess coverage after assuming a $1M underlying payment.","feedback":"When the underlying policy doesn't pay due to exclusions, the umbrella typically drops down rather than assuming phantom underlying coverage.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-10}]},{"text":"The umbrella doesn't cover losses excluded by the primary policy.","feedback":"Umbrellas often provide broader coverage than underlying policies, including drop-down provisions for gaps in underlying coverage.","skills":[{"skill":"Policy Coverage Analysis","change":-18},{"skill":"Risk Assessment","change":-12}]},{"text":"The insured pays the first $1M out-of-pocket, then the umbrella pays $1.5M.","feedback":"This misapplies the self-insured retention. The SIR is typically much smaller and replaces the underlying policy when it doesn't respond.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Insurance Terminology","change":-10}]}]},"advanced-underwriting-risk-class":{"id":"advanced-underwriting-risk-class","title":"Risk Classification","difficulty":"advanced","skills":["Underwriting Principles","Risk Assessment"],"context":"An underwriter receives an application from a five-year-old roofing contractor with $3M in annual revenue.","text":"The company has three claims in three years totaling $250K, an experience mod of 1.35, and operates in a litigious jurisdiction.","question":"What is the most appropriate underwriting decision?","options":[{"text":"Decline or offer heavily modified terms; the frequency, mod, and class create unacceptable risk.","feedback":"Sound underwriting. Multiple red flags—high-hazard class, unfavorable loss history, elevated mod, and jurisdiction—justify restrictive action.","skills":[{"skill":"Underwriting Principles","change":22},{"skill":"Risk Assessment","change":20},{"skill":"Policy Coverage Analysis","change":10}]},{"text":"Accept at standard rates; three claims over three years is reasonable for this industry.","feedback":"This underestimates the risk. Roofing is high-hazard, the mod is significantly elevated, and the loss frequency suggests systemic issues.","skills":[{"skill":"Underwriting Principles","change":-18},{"skill":"Risk Assessment","change":-15}]},{"text":"Accept but exclude completed operations coverage to limit exposure.","feedback":"This doesn't address the underlying risk concerns. Loss frequency suggests operational issues that coverage restrictions won't fix.","skills":[{"skill":"Underwriting Principles","change":-12},{"skill":"Risk Assessment","change":-10}]},{"text":"Accept with a 25% rate increase to offset the poor loss history.","feedback":"While risk-based pricing is appropriate, simply charging more doesn't make a fundamentally poor risk acceptable.","skills":[{"skill":"Underwriting Principles","change":-8},{"skill":"Risk Assessment","change":-12}]}]},"advanced-subrogation-decision":{"id":"advanced-subrogation-decision","title":"Recovery Rights","difficulty":"advanced","skills":["Claims Processing","Risk Assessment"],"context":"An insurer paid $400K for fire damage caused by a subcontractor's negligent welding at the insured's warehouse.","text":"The subcontractor is a small operation with minimal assets and a $300K liability policy. Pursuing subrogation would cost $50K in legal fees with uncertain recovery.","question":"What is the most strategic subrogation decision?","options":[{"text":"Pursue the subcontractor's insurer for the policy limit, then evaluate pursuing the subcontractor personally based on cost-benefit.","feedback":"Strong strategy. Pursuing the available insurance is cost-effective, then reassess whether individual recovery justifies additional expense.","skills":[{"skill":"Claims Processing","change":20},{"skill":"Risk Assessment","change":18},{"skill":"Underwriting Principles","change":10}]},{"text":"Aggressively pursue full recovery regardless of cost; insurers must always seek subrogation.","feedback":"While subrogation is important, economic reality matters. Spending $50K+ to potentially recover little from a judgment-proof party is poor stewardship.","skills":[{"skill":"Risk Assessment","change":-15},{"skill":"Claims Processing","change":-10}]},{"text":"Waive subrogation entirely to avoid legal costs and maintain business relationships.","feedback":"This leaves $300K+ on the table unnecessarily. At minimum, pursuing the available insurance coverage is economically justified.","skills":[{"skill":"Claims Processing","change":-18},{"skill":"Risk Assessment","change":-12}]},{"text":"Settle with the subcontractor's insurer for $200K to avoid litigation costs.","feedback":"This premature compromise undervalues the claim. Clear liability and available policy limits of $300K suggest pursuing full policy limits first.","skills":[{"skill":"Claims Processing","change":-12},{"skill":"Risk Assessment","change":-10}]}]},"advanced-regulatory-compliance":{"id":"advanced-regulatory-compliance","title":"Multi-State Operations","difficulty":"advanced","skills":["Regulatory Compliance","Risk Assessment"],"context":"A regional construction company expands from its home state into three additional states with different insurance requirements.","text":"Each state has different minimum workers' comp requirements, certificate of insurance rules, and admitted vs. non-admitted carrier restrictions.","question":"What is the priority compliance concern?","options":[{"text":"Ensure all policies meet or exceed each state's statutory requirements and carriers are properly licensed in all jurisdictions.","feedback":"Correct. Multi-state compliance requires meeting varying state requirements and ensuring carrier authorization. Non-compliance can void coverage.","skills":[{"skill":"Regulatory Compliance","change":22},{"skill":"Risk Assessment","change":15},{"skill":"Policy Coverage Analysis","change":10}]},{"text":"The home state policy automatically extends to all states, so no action is needed.","feedback":"This is a dangerous assumption. Most states require compliance with local laws, and some require specific endorsements or separate policies.","skills":[{"skill":"Regulatory Compliance","change":-20},{"skill":"Risk Assessment","change":-15}]},{"text":"Focus only on obtaining certificates of insurance for the new state clients.","feedback":"Certificates are important but secondary. The fundamental issue is ensuring actual coverage compliance with each state's requirements.","skills":[{"skill":"Regulatory Compliance","change":-12},{"skill":"Risk Assessment","change":-10}]},{"text":"Use non-admitted carriers in all states to avoid state-specific regulations.","feedback":"Some states prohibit non-admitted coverage when admitted markets are available, and workers' comp generally requires state-approved carriers.","skills":[{"skill":"Regulatory Compliance","change":-18},{"skill":"Risk Assessment","change":-12}]}]},"advanced-loss-adjustment":{"id":"advanced-loss-adjustment","title":"Complex Valuation","difficulty":"advanced","skills":["Claims Processing","Policy Coverage Analysis"],"context":"A 20-year-old commercial building suffers 60% structural damage from a tornado. The policy provides Replacement Cost coverage.","text":"Replacement cost is $1.2M but the building's actual cash value is only $500K due to depreciation. The insured wants full replacement cost paid immediately.","question":"How should the claim be adjusted?","options":[{"text":"Pay ACV of $500K initially; pay the remaining $700K when repairs are completed and documented.","feedback":"Perfect. Standard replacement cost provisions require initial ACV payment, with depreciation recovered only upon actual replacement.","skills":[{"skill":"Claims Processing","change":22},{"skill":"Policy Coverage Analysis","change":18},{"skill":"Insurance Terminology","change":12}]},{"text":"Pay the full $1.2M immediately since the policy provides replacement cost coverage.","feedback":"This violates standard replacement cost provisions, which require actual replacement before depreciation is recoverable.","skills":[{"skill":"Claims Processing","change":-18},{"skill":"Policy Coverage Analysis","change":-15}]},{"text":"Pay only $500K ACV; the insured must decide whether to actually replace the building.","feedback":"This is partially correct but incomplete. If the insured does replace, they're entitled to recover the depreciation up to the replacement cost.","skills":[{"skill":"Claims Processing","change":-10},{"skill":"Policy Coverage Analysis","change":-8}]},{"text":"Average the ACV and replacement cost and pay $850K as a compromise.","feedback":"Insurance adjustments follow policy provisions, not arbitrary averaging. Replacement cost provisions have specific payment triggers.","skills":[{"skill":"Claims Processing","change":-20},{"skill":"Policy Coverage Analysis","change":-15}]}]},"advanced-professional-liability":{"id":"advanced-professional-liability","title":"Errors & Omissions","difficulty":"advanced","skills":["Policy Coverage Analysis","Risk Assessment"],"context":"An IT consultant provided cybersecurity recommendations to a client who subsequently suffered a data breach.","text":"The client claims the consultant's advice was inadequate. The consultant has E&O coverage but also sold the client security software, which malfunctioned.","question":"What coverage issues arise?","options":[{"text":"Potential coverage under both E&O for negligent advice and products liability for the software malfunction; determine primary cause.","feedback":"Excellent analysis. This hybrid situation involves both professional services and product elements, requiring careful coverage analysis.","skills":[{"skill":"Policy Coverage Analysis","change":20},{"skill":"Risk Assessment","change":18},{"skill":"Claims Processing","change":12}]},{"text":"E&O covers everything since the consultant is a professional and this arose from client engagement.","feedback":"E&O typically covers professional services, not product defects. The product element may require separate products liability coverage.","skills":[{"skill":"Policy Coverage Analysis","change":-15},{"skill":"Risk Assessment","change":-12}]},{"text":"No coverage exists because the consultant mixed services with product sales.","feedback":"While complex, coverage likely exists under one or both policies. The key is determining which policy responds to which aspect.","skills":[{"skill":"Policy Coverage Analysis","change":-18},{"skill":"Risk Assessment","change":-12}]},{"text":"Only CGL products liability applies; professional liability only covers pure consulting services.","feedback":"This oversimplifies. The advice component has professional liability elements even if product issues exist. Both coverages may be implicated.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-10}]}]},"mastery-multi-faceted-crisis":{"id":"mastery-multi-faceted-crisis","title":"The Perfect Storm","difficulty":"mastery","skills":["Policy Coverage Analysis","Claims Processing","Risk Assessment","Regulatory Compliance"],"context":"A food manufacturer faces a crisis: their product caused 200 illnesses across 15 states due to contamination.","text":"They have $2M CGL with products aggregate, $1M umbrella, and product recall coverage with $500K limit. They face: $3M in injury claims, $5M recall costs, $2M business interruption, regulatory fines, and criminal investigation. Three underlying aggregate limits are 80% depleted from prior claims.","question":"What is the most critical coverage and risk management priority?","options":[{"text":"Immediately engage all insurers, assess remaining aggregate capacity, activate recall coverage, and retain regulatory counsel given multi-state and criminal exposure.","feedback":"Outstanding. This recognizes the multi-faceted crisis requiring immediate insurer notification, capacity analysis, specialized coverage activation, and regulatory expertise.","skills":[{"skill":"Claims Processing","change":25},{"skill":"Risk Assessment","change":25},{"skill":"Policy Coverage Analysis","change":20},{"skill":"Regulatory Compliance","change":20}]},{"text":"Focus on settling injury claims quickly to avoid excess verdicts and preserve the company's reputation.","feedback":"While claim management is important, this ignores critical aggregate capacity issues, recall coverage, regulatory exposure, and multi-state compliance.","skills":[{"skill":"Claims Processing","change":-15},{"skill":"Risk Assessment","change":-20},{"skill":"Regulatory Compliance","change":-15}]},{"text":"The CGL and umbrella will cover everything; proceed with normal claims handling and let insurers manage it.","feedback":"This dramatically underestimates the situation. Aggregate limits are nearly exhausted, recall isn't covered by CGL, and regulatory exposure is enormous.","skills":[{"skill":"Policy Coverage Analysis","change":-25},{"skill":"Risk Assessment","change":-20},{"skill":"Claims Processing","change":-15}]},{"text":"Deny all claims pending investigation to preserve coverage and avoid admitting liability.","feedback":"This violates policy duties to cooperate, potentially waives coverage, ignores business survival needs, and misunderstands crisis management fundamentals.","skills":[{"skill":"Claims Processing","change":-25},{"skill":"Risk Assessment","change":-20},{"skill":"Regulatory Compliance","change":-18}]}]},"remedial-property-basics":{"id":"remedial-property-basics","title":"Property Coverage Review","difficulty":"remedial","skills":["Policy Coverage Analysis"],"context":"Let's review the fundamental types of property coverage in commercial policies.","text":"Commercial property insurance typically includes three main coverage areas: coverage for the building itself, coverage for the contents and equipment inside, and coverage for lost income when business operations are interrupted.","question":"Which coverage would pay for damaged office furniture and computers?","options":[{"text":"Business Personal Property coverage, which insures contents, furniture, equipment, and inventory.","feedback":"Exactly right. Business Personal Property (BPP) covers the contents of a business, including furniture, equipment, inventory, and supplies.","skills":[{"skill":"Policy Coverage Analysis","change":15},{"skill":"Insurance Terminology","change":10}]},{"text":"Building coverage, since the items are inside the building.","feedback":"Building coverage only addresses the structure itself—walls, roof, foundation, etc. Contents require separate Business Personal Property coverage.","skills":[{"skill":"Policy Coverage Analysis","change":-12}]},{"text":"Business Income coverage, which covers all business assets.","feedback":"Business Income coverage addresses lost revenue during business interruption, not physical property damage to contents.","skills":[{"skill":"Policy Coverage Analysis","change":-10},{"skill":"Insurance Terminology","change":-8}]},{"text":"Extra Expense coverage pays for replacing damaged items.","feedback":"Extra Expense covers additional costs to continue operations during restoration, not the cost to replace damaged physical property.","skills":[{"skill":"Policy Coverage Analysis","change":-12},{"skill":"Insurance Terminology","change":-10}]}]},"remedial-liability-basics":{"id":"remedial-liability-basics","title":"Understanding Liability","difficulty":"remedial","skills":["Insurance Terminology"],"context":"Liability insurance protects businesses when they are legally responsible for harm to others.","text":"Commercial General Liability (CGL) is the foundation of most business liability programs. It covers legal liability for bodily injury and property damage caused by business operations, premises, or products.","question":"What does CGL bodily injury coverage protect against?","options":[{"text":"Legal liability when the business's operations cause physical injury to customers or other third parties.","feedback":"Correct. CGL bodily injury coverage responds when your business is legally liable for causing physical harm to others.","skills":[{"skill":"Insurance Terminology","change":15},{"skill":"Policy Coverage Analysis","change":10}]},{"text":"Medical costs for injured employees, which is covered by CGL.","feedback":"Injured employees are covered by Workers Compensation insurance, not CGL. CGL covers third parties like customers and visitors.","skills":[{"skill":"Insurance Terminology","change":-15},{"skill":"Policy Coverage Analysis","change":-10}]},{"text":"Damage to the business owner's own property and buildings.","feedback":"CGL covers damage you cause to others' property, not your own. Your property is covered by commercial property insurance.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Policy Coverage Analysis","change":-10}]},{"text":"Financial losses when customers sue for professional mistakes.","feedback":"Professional errors and omissions require Professional Liability insurance, not CGL. CGL covers bodily injury and property damage, not professional services.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Policy Coverage Analysis","change":-8}]}]},"remedial-policy-parts":{"id":"remedial-policy-parts","title":"Policy Components","difficulty":"remedial","skills":["Insurance Terminology"],"context":"Commercial insurance policies have a standard structure that helps organize information.","text":"Every policy contains several key sections: Declarations (summary of key details), Insuring Agreement (what's covered), Exclusions (what's not covered), and Conditions (obligations of both parties).","question":"Where would you look to find what events or circumstances are NOT covered?","options":[{"text":"The Exclusions section, which lists specific situations, causes, or types of losses the policy doesn't cover.","feedback":"Perfect. Exclusions clearly identify what isn't covered, helping both insurers and insureds understand policy limitations.","skills":[{"skill":"Insurance Terminology","change":15},{"skill":"Policy Coverage Analysis","change":10}]},{"text":"The Declarations page, which lists all policy details.","feedback":"The Declarations summarize key policy information like limits and premiums, but don't detail what's excluded from coverage.","skills":[{"skill":"Insurance Terminology","change":-10}]},{"text":"The Insuring Agreement, which defines coverage.","feedback":"The Insuring Agreement explains what IS covered, not what's excluded. Exclusions are in a separate section.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Policy Coverage Analysis","change":-8}]},{"text":"The Conditions section, which explains policyholder duties.","feedback":"Conditions outline obligations like payment and reporting duties, not coverage exclusions.","skills":[{"skill":"Insurance Terminology","change":-12},{"skill":"Policy Coverage Analysis","change":-8}]}]},"remedial-claims-reporting":{"id":"remedial-claims-reporting","title":"Reporting Claims Properly","difficulty":"remedial","skills":["Claims Processing"],"context":"When a loss occurs, prompt notification to the insurance company is critical.","text":"Most policies require the insured to notify the insurer 'as soon as practicable' after a loss. Delayed reporting can complicate investigation and, in extreme cases, jeopardize coverage.","question":"When should you report a potential claim to your insurer?","options":[{"text":"As soon as possible after becoming aware of an incident that might result in a claim, even if details are incomplete.","feedback":"Excellent. Prompt reporting protects coverage and enables early investigation. It's better to report early than risk late reporting issues.","skills":[{"skill":"Claims Processing","change":15},{"skill":"Regulatory Compliance","change":8}]},{"text":"Only after you've been formally sued or received a written demand letter.","feedback":"This is too late. Most policies require notice of potential claims or circumstances that might lead to claims, not just actual suits.","skills":[{"skill":"Claims Processing","change":-15}]},{"text":"After you've fully investigated the incident and determined you're definitely liable.","feedback":"Don't delay reporting to conduct your own investigation. Insurers need to be notified promptly so they can participate in investigation and defense.","skills":[{"skill":"Claims Processing","change":-12},{"skill":"Risk Assessment","change":-8}]},{"text":"Wait to see if the situation develops into an actual claim before bothering the insurer.","feedback":"This violates the duty to promptly notify. Waiting increases the risk of coverage denial for late reporting.","skills":[{"skill":"Claims Processing","change":-18},{"skill":"Regulatory Compliance","change":-10}]}]},"remedial-underwriting-basics":{"id":"remedial-underwriting-basics","title":"How Underwriting Works","difficulty":"remedial","skills":["Underwriting Principles"],"context":"Underwriting is the process insurers use to evaluate risk and determine whether to provide coverage.","text":"Underwriters assess factors like industry type, loss history, business operations, and risk management practices. These factors help determine if coverage will be offered and at what price.","question":"Why do underwriters carefully review an applicant's prior loss history?","options":[{"text":"Past losses are strong predictors of future losses, helping underwriters assess the likelihood of future claims.","feedback":"Exactly. Loss history is one of the most reliable indicators of risk. Frequent past losses suggest higher probability of future claims.","skills":[{"skill":"Underwriting Principles","change":15},{"skill":"Risk Assessment","change":12}]},{"text":"To punish businesses that have had claims by charging them higher rates unfairly.","feedback":"Underwriting isn't punishment—it's risk-based pricing. Businesses with more losses represent higher risk and require higher premiums to maintain actuarial soundness.","skills":[{"skill":"Underwriting Principles","change":-15}]},{"text":"Loss history doesn't matter; all businesses in the same industry pay the same rates.","feedback":"Individual loss experience significantly impacts pricing. Two businesses in the same industry can have very different rates based on their loss histories.","skills":[{"skill":"Underwriting Principles","change":-15},{"skill":"Risk Assessment","change":-10}]},{"text":"It's a formality; underwriters mostly focus on the amount of premium the business can pay.","feedback":"Underwriting is about risk assessment, not just premium collection. Underwriters must ensure risks are acceptable before considering pricing.","skills":[{"skill":"Underwriting Principles","change":-12},{"skill":"Risk Assessment","change":-10}]}]}},"badges":{"Policy Coverage Analysis":{"name":"Coverage Expert","icon":"📋"},"Risk Assessment":{"name":"Risk Navigator","icon":"🎯"},"Claims Processing":{"name":"Claims Champion","icon":"⚖️"},"Regulatory Compliance":{"name":"Compliance Guardian","icon":"🛡️"},"Underwriting Principles":{"name":"Underwriting Ace","icon":"📊"},"Insurance Terminology":{"name":"Terminology Master","icon":"📚"}}}}
+  </script>
+
+  <script>
+    
+    const COURSE_DATA = JSON.parse(document.getElementById('course-data').textContent);
+    const scenarios = COURSE_DATA.generatedContent.scenarios;
+    const skills = COURSE_DATA.courseData.skills;
+    const BADGE_CATALOG = COURSE_DATA.generatedContent.badges;
+    const TOUR_SEEN_KEY = 'adaptiveCourseTourSeen-' + COURSE_DATA.courseData.title.replace(/[^a-zA-Z0-9]/g, '');
+
+    const state = {
+        skills: {},
+        badges: [],
+        completedScenarios: new Set(),
+        currentScenario: null,
+        totalDecisions: 0,
+        interactionCount: 0,
+    };
+
+    // Constants based on the job aid
+    const MIN_SCENARIOS_TO_FINISH = 6;
+    const MASTERY_THRESHOLD = 70;
+    const REMEDIATION_THRESHOLD = 30;
+    const TARGET_MASTERED_SKILLS = 3;
+    const TARGET_AVERAGE_SKILL = 60;
+    
+    // --- SCORM HELPER FUNCTIONS ---
+    function getScorm() {
+        return window.pipwerks && window.pipwerks.SCORM ? window.pipwerks.SCORM : null;
+    }
+
+    function toIso8601(date) { // SCORM 2004 requires ISO 8601 format
+        return date.toISOString();
+    }
+    
+    function reportInteraction(details) {
+        const scorm = getScorm();
+        if (!scorm || scorm.version !== "2004") return;
+        
+        const n = state.interactionCount;
+        const root = 'cmi.interactions.' + n + '.';
+        
+        // Sanitize ID to be a valid SCORM identifier (no spaces, etc.)
+        const sanitizedId = details.id.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-._]/g, '').toLowerCase();
+
+        scorm.set(root + 'id', sanitizedId);
+        scorm.set(root + 'type', details.type);
+        scorm.set(root + 'timestamp', toIso8601(new Date()));
+        if(details.description) scorm.set(root + 'description', details.description.substring(0, 255));
+        if(details.learnerResponse) scorm.set(root + 'learner_response', details.learnerResponse.substring(0, 4000));
+        if(details.result) scorm.set(root + 'result', details.result);
+        if(details.correctResponse) scorm.set(root + 'correct_responses.0.pattern', details.correctResponse.substring(0, 4000));
+        
+        state.interactionCount++;
+    }
+
+    // --- CORE LOGIC ---
+    function getAvgSkill() {
+        const vals = Object.values(state.skills);
+        return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
+    }
+
+    function masteredCount() {
+        return Object.values(state.skills).filter(v => v >= MASTERY_THRESHOLD).length;
+    }
+
+    function shouldFinish() {
+        const hasMetMinScenarios = state.completedScenarios.size >= MIN_SCENARIOS_TO_FINISH;
+        if (!hasMetMinScenarios) return false;
+        
+        const hasMasteredEnough = masteredCount() >= TARGET_MASTERED_SKILLS;
+        const hasHighAverage = getAvgSkill() >= TARGET_AVERAGE_SKILL;
+
+        return hasMasteredEnough || hasHighAverage;
+    }
+
+    function init() {
+        const scorm = getScorm();
+        if(scorm && scorm.init()){
+            const suspendData = scorm.get('cmi.suspend_data');
+            if(suspendData && suspendData !== '""' && suspendData !== "''"){
+                try {
+                    const loadedState = JSON.parse(suspendData);
+                    Object.assign(state, loadedState);
+                    state.completedScenarios = new Set(state.completedScenarios);
+                } catch(e) {
+                    resetState();
+                }
+            } else {
+               resetState();
+            }
+        } else {
+            console.warn('SCORM API not found or failed to initialize.');
+            resetState();
+        }
+
+        document.getElementById('courseTitle').textContent = COURSE_DATA.courseData.title;
+        document.getElementById('restartBtn').addEventListener('click', () => {
+             resetState();
+             saveState();
+             localStorage.removeItem(TOUR_SEEN_KEY);
+             location.reload();
+        });
+        document.getElementById('replayTourBtn').addEventListener('click', replayTour);
+        
+        initTour();
+
+        if (!state.currentScenario || !scenarios[state.currentScenario]) {
+           state.currentScenario = getNextScenario();
+        }
+
+        if (state.currentScenario === null || shouldFinish()) {
+            showCompletionScreen();
+        } else {
+            updateSkillsDisplay();
+            renderBadges();
+            loadScenario(); 
+            
+            if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+                setTimeout(() => {
+                    document.getElementById('welcomeModal').classList.add('show');
+                    document.getElementById('tourOverlay').classList.add('show');
+                }, 300);
+            }
+        }
+    }
+
+    function resetState() {
+        state.skills = skills.reduce((acc, skill) => ({ ...acc, [skill]: 0 }), {});
+        state.badges = [];
+        state.completedScenarios = new Set();
+        state.totalDecisions = 0;
+        state.interactionCount = 0;
+        const foundationScenarioId = Object.keys(scenarios).find(id => scenarios[id].difficulty === 'foundation');
+        state.currentScenario = foundationScenarioId || Object.keys(scenarios)[0] || null;
+    }
+
+    function saveState(isFinal = false) {
+        const scorm = getScorm();
+        if (scorm && scorm.connection.isActive) {
+            scorm.set('cmi.suspend_data', JSON.stringify({ ...state, completedScenarios: Array.from(state.completedScenarios) }));
+            const score = getAvgSkill();
+            scorm.set('cmi.score.raw', score);
+            scorm.set('cmi.score.min', 0);
+            scorm.set('cmi.score.max', 100);
+            const totalScenariosForProgress = Math.max(MIN_SCENARIOS_TO_FINISH, Object.keys(scenarios).length);
+            scorm.set('cmi.progress_measure', (state.completedScenarios.size / totalScenariosForProgress).toFixed(2));
+            
+            if(shouldFinish() || isFinal){
+                 scorm.set('cmi.completion_status', 'completed');
+                 if(score >= 60){
+                     scorm.set('cmi.success_status', 'passed');
+                 } else {
+                     scorm.set('cmi.success_status', 'failed');
+                 }
+            } else {
+                 scorm.set('cmi.completion_status', 'incomplete');
+            }
+
+            if (isFinal) {
+                scorm.set('cmi.exit', '');
+            } else {
+                scorm.set('cmi.exit', 'suspend');
+            }
+            scorm.save();
+        }
+    }
+    
+    function getNextScenario() {
+        // Helper to find the best scenario from a given pool of IDs
+        const findBestCandidate = (idPool) => {
+            if (idPool.length === 0) return null;
+
+            const skillEntries = Object.entries(state.skills).sort((a, b) => a[1] - b[1]); // Sort weakest to strongest
+            
+            // Priority 1: Find a remedial scenario for the weakest skill below the remediation threshold.
+            for (const [weakSkill, score] of skillEntries) {
+                if (score < REMEDIATION_THRESHOLD) {
+                    const remedialCandidate = idPool.find(id => 
+                        scenarios[id].difficulty === 'remedial' && 
+                        scenarios[id].skills.includes(weakSkill)
+                    );
+                    if (remedialCandidate) return remedialCandidate;
+                }
+            }
+
+            // Priority 2: Find any non-remedial scenario that targets the weakest overall skill.
+            for (const [weakestSkill] of skillEntries) {
+                 const coreCandidate = idPool.find(id =>
+                    scenarios[id].difficulty !== 'remedial' &&
+                    scenarios[id].skills.includes(weakestSkill)
+                );
+                if (coreCandidate) return coreCandidate;
+            }
+            
+            // Fallback: if no targeted scenarios are found, return any non-remedial, then any.
+            const anyCore = idPool.find(id => scenarios[id].difficulty !== 'remedial');
+            if (anyCore) return anyCore;
+            
+            return idPool[0];
+        };
+
+        // Main logic starts here
+        const unseenIds = Object.keys(scenarios).filter(id => !state.completedScenarios.has(id));
+
+        if (unseenIds.length > 0) {
+            return findBestCandidate(unseenIds);
+        } else {
+            // No unseen scenarios left. We must recycle one to allow the learner to continue practicing.
+            const allScenarioIds = Object.keys(scenarios);
+            return findBestCandidate(allScenarioIds);
+        }
+    }
+
+    function loadScenario() {
+        if (!state.currentScenario) {
+            showCompletionScreen();
+            return;
+        }
+        renderScenario(state.currentScenario);
+    }
+    
+    function renderScenario(scenarioId) {
+        if (!scenarioId || !scenarios[scenarioId]) {
+            showCompletionScreen();
+            return;
+        }
+
+        const data = scenarios[scenarioId];
+        const container = document.getElementById('scenarioContainer');
+        container.className = data.difficulty === 'remedial' ? 'scenario remedial' : 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        
+        const contextHint = document.getElementById('contextHint');
+        if (data.context) {
+            contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+            contextHint.style.display = 'block';
+        } else {
+            contextHint.style.display = 'none';
+        }
+
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = '';
+        data.skills.forEach(sk => {
+            const skillTag = document.createElement('span');
+            skillTag.className = 'tag';
+            skillTag.textContent = sk;
+            tags.appendChild(skillTag);
+        });
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        
+        // Randomize option order for better learning
+        const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach((opt) => {
+            const el = document.createElement('div');
+            el.className = 'option';
+            el.textContent = opt.text;
+            el.onclick = () => selectOption(shuffledOptions.indexOf(opt), opt, data);
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+        setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function selectOption(selectedIndex, option, scenarioData) {
+        const options = document.querySelectorAll('.option');
+        options.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+        
+        const originalOrder = scenarioData.options;
+        const shuffledElements = Array.from(options);
+        const originalIndexOfSelected = originalOrder.findIndex(o => o.text === option.text);
+        
+        // Find the clicked element in the DOM to apply styles
+        const clickedEl = shuffledElements.find(el => el.textContent === option.text);
+        if(clickedEl) {
+          clickedEl.classList.add('selected');
+        }
+
+        const sum = option.skills.reduce((s, impact) => s + impact.change, 0);
+        const isPositive = sum >= 0;
+        if(clickedEl) {
+            clickedEl.classList.add(isPositive ? 'correct' : 'incorrect');
+        }
+        
+        const changes = [];
+        option.skills.forEach(impact => {
+            if(state.skills.hasOwnProperty(impact.skill)){
+              state.skills[impact.skill] = Math.max(0, Math.min(100, (state.skills[impact.skill] || 0) + impact.change));
+              changes.push({ skill: impact.skill, change: impact.change });
+              if(state.skills[impact.skill] >= MASTERY_THRESHOLD) awardBadge(impact.skill);
+            }
+        });
+
+        state.totalDecisions++;
+        state.completedScenarios.add(state.currentScenario);
+
+        const bestOption = scenarioData.options.reduce((best, current) => {
+            const bestSum = best.skills.reduce((s, imp) => s + imp.change, 0);
+            const currentSum = current.skills.reduce((s, imp) => s + imp.change, 0);
+            return currentSum > bestSum ? current : best;
+        });
+        reportInteraction({
+            id: scenarioData.id,
+            type: 'choice',
+            description: scenarioData.question,
+            learnerResponse: option.text,
+            result: isPositive ? 'correct' : 'incorrect',
+            correctResponse: bestOption.text
+        });
+        
+        showFeedback(isPositive, option.feedback, changes);
+        updateSkillsDisplay();
+        saveState();
+    }
+    
+    function showFeedback(isPositive, text, changes) {
+        const fb = document.getElementById('feedbackContainer');
+        fb.className = 'feedback show ' + (isPositive ? 'correct' : 'incorrect');
+        document.getElementById('feedbackTitle').textContent = isPositive ? '✓ Strong Move' : '💡 Learning Moment';
+        document.getElementById('feedbackText').textContent = text;
+        const impact = document.getElementById('skillImpact');
+        if (changes.length) {
+            impact.innerHTML = '<strong>Skill Impact:</strong><br>';
+            changes.forEach(c => {
+                const chip = document.createElement('span');
+                chip.className = c.change > 0 ? 'skill-change positive' : 'skill-change negative';
+                chip.textContent = c.skill + ' ' + (c.change > 0 ? '+' : '') + c.change;
+                impact.appendChild(chip);
+            });
+        } else {
+            impact.innerHTML = '';
+        }
+        fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('continueBtn').classList.add('show');
+        document.getElementById('continueBtn').onclick = () => {
+             if (shouldFinish()) {
+                showCompletionScreen();
+             } else {
+                state.currentScenario = getNextScenario();
+                loadScenario();
+             }
+        };
+    }
+    
+    function awardBadge(skill) {
+      const badgeData = BADGE_CATALOG[skill];
+      if(!badgeData || state.badges.find(b => b.skill === skill)) return;
+      state.badges.push({ ...badgeData, skill });
+      renderBadges();
+
+      reportInteraction({
+          id: 'badge.' + skill,
+          type: 'other',
+          description: 'Badge Earned for ' + skill,
+          learnerResponse: badgeData.name,
+          result: 'neutral'
+      });
+    }
+
+    function renderBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = '';
+        if(state.badges.length === 0) return;
+        state.badges.forEach(b => {
+            const el = document.createElement('span');
+            el.className = 'badge';
+            el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+            bar.appendChild(el);
+        });
+    }
+
+    function updateSkillsDisplay() {
+        const panel = document.getElementById('skillsPanel');
+        panel.innerHTML = '';
+        Object.entries(state.skills).forEach(([k, v]) => {
+            const level = v >= MASTERY_THRESHOLD ? 'Mastery' : v >= 50 ? 'Advanced' : v >= 25 ? 'Developing' : 'Novice';
+            const box = document.createElement('div');
+            box.className = 'skill-box';
+            box.innerHTML = 
+              '<div class="skill-name">' + k + '</div>' +
+              '<div class="skill-bar"><div class="skill-fill" style="width:' + v + '%"></div></div>' +
+              '<div class="skill-level">' + level + ' (' + Math.round(v) + '%)</div>';
+            panel.appendChild(box);
+        });
+    }
+    
+    function showCompletionScreen() {
+        document.getElementById('learningContent').style.display = 'none';
+        const screen = document.getElementById('completionScreen');
+        screen.classList.add('show');
+        const avgScore = getAvgSkill();
+        const mastered = masteredCount();
+        const passed = avgScore >= TARGET_AVERAGE_SKILL || mastered >= TARGET_MASTERED_SKILLS;
+        const messageEl = document.getElementById('completionMessage');
+        messageEl.textContent = 'You have ' + (passed ? 'achieved mastery' : 'completed the course') + ' with a final score of ' + avgScore + '%.';
+        messageEl.style.color = passed ? 'var(--good)' : 'var(--ink)';
+        const grid = document.getElementById('masteryGrid');
+        grid.innerHTML = 
+            '<div class="mastery-item"><div class="mastery-label">Final Score</div><div class="mastery-value" style="color: ' + (passed ? 'var(--good)' : 'var(--ink)') + '">' + avgScore + '%</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Skills Mastered</div><div class="mastery-value">' + mastered + ' / ' + skills.length + '</div></div>' +
+            '<div class="mastery-item"><div class="mastery-label">Scenarios Seen</div><div class="mastery-value">' + state.completedScenarios.size + '</div></div>';
+        
+        const skillsList = document.getElementById('finalSkillsList');
+        skillsList.innerHTML = Object.entries(state.skills).map(([name, value]) => 
+            '<li class="final-skill-item"><span class="final-skill-name">' + name + '</span><span class="final-skill-value">' + Math.round(value) + '%</span></li>'
+        ).join('');
+
+        const finalBadgeBar = document.getElementById('finalBadgeBar');
+        finalBadgeBar.innerHTML = '';
+        if (state.badges.length > 0) {
+            state.badges.forEach(b => {
+                const el = document.createElement('span');
+                el.className = 'badge';
+                el.innerHTML = '<span class="emoji">' + b.icon + '</span>' + b.name;
+                finalBadgeBar.appendChild(el);
+            });
+        } else {
+            finalBadgeBar.innerHTML = '<p style="color: var(--muted); font-style: italic; font-size: 14px;">No badges earned this time. Keep practicing!</p>';
+        }
+        
+        reportInteraction({
+          id: 'course.mastery',
+          type: 'other',
+          description: 'Final course mastery status.',
+          learnerResponse: 'Score: ' + avgScore + '%, Mastered: ' + mastered,
+          result: 'neutral'
+        });
+        
+        document.getElementById('exitCourseBtn').onclick = () => {
+            const scorm = getScorm();
+            if(scorm) scorm.quit();
+            try { window.close(); } catch(e) {}
+        };
+        saveState(true); 
+    }
+
+    // ===== TOUR LOGIC =====
+    let tourState = { active: false, currentStep: 0 };
+    let originalScenarioId = null;
+
+    const tourScenario = {
+        id: 'tour-scenario', title: 'How This Course Works', difficulty: 'foundation', skills: ['Adaptive Learning', 'Decision Making'],
+        context: 'This is an example of how a scenario is presented. Read the context, text, and question.',
+        text: 'Your goal is to make the best choice in each situation to improve your skills.',
+        question: 'Based on the tour, how does this course help you learn?',
+        options: [
+            { text: 'By adapting to my weak spots.' },
+            { text: 'By tracking my skills visually.' },
+            { text: 'All of the above.' }
+        ]
+    };
+    const tourBadges = [
+        { name: 'Critical Thinker', icon: '🤔' },
+        { name: 'Agile Strategist', icon: '⚡️' },
+    ];
+    const tourSteps = [
+        { target: '#scenarioContainer', title: '🧠 Real-World Scenarios', text: 'Each step presents a situation. Your choices determine your path and affect your skill levels.' },
+        { target: '.skills-below', title: '📊 Your Skills', text: 'Watch your skills grow in real-time. The course adapts to focus on areas where you need practice.' },
+        { target: '.badges-section', title: '⭐ Badges Earned', text: 'As you master skills, you will earn badges to recognize your achievement.' }
+    ];
+
+    function initTour() {
+        document.getElementById('startTourBtn').addEventListener('click', startTour);
+        document.getElementById('skipTourBtn').addEventListener('click', endTour);
+        document.getElementById('tourNextBtn').addEventListener('click', () => {
+            if (tourState.currentStep < tourSteps.length - 1) showTourStep(tourState.currentStep + 1);
+            else endTour();
+        });
+        document.getElementById('tourPrevBtn').addEventListener('click', () => {
+            if (tourState.currentStep > 0) showTourStep(tourState.currentStep - 1);
+        });
+    }
+    
+    function replayTour() {
+        if(tourState.active) return;
+        startTour();
+    }
+
+    function startTour() {
+        document.getElementById('welcomeModal').classList.remove('show');
+        document.getElementById('tourOverlay').classList.add('show');
+        
+        originalScenarioId = state.currentScenario;
+        renderMockScenario();
+        renderMockBadges();
+
+        tourState.active = true;
+        tourState.currentStep = 0;
+        showTourStep(0);
+        window.addEventListener('scroll', updateTourPositions, true);
+    }
+
+    function endTour() {
+        tourState.active = false;
+        window.removeEventListener('scroll', updateTourPositions, true);
+        document.getElementById('tourOverlay').classList.remove('show');
+        document.getElementById('tourSpotlight').style.display = 'none';
+        document.getElementById('tourTooltip').style.display = 'none';
+        localStorage.setItem(TOUR_SEEN_KEY, '1');
+        
+        state.currentScenario = originalScenarioId;
+        loadScenario();
+        renderBadges();
+
+        setTimeout(() => {
+            const scenarioEl = document.getElementById('scenarioContainer');
+            if (scenarioEl) {
+                scenarioEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+
+    function renderMockScenario() {
+        const data = tourScenario;
+        const container = document.getElementById('scenarioContainer');
+        container.className = 'scenario';
+        document.getElementById('scenarioTitle').textContent = data.title;
+        const contextHint = document.getElementById('contextHint');
+        contextHint.innerHTML = '💡 <strong>Context:</strong> ' + data.context;
+        contextHint.style.display = 'block';
+        document.getElementById('scenarioText').textContent = data.text;
+        document.getElementById('questionText').textContent = data.question;
+        const tags = document.getElementById('scenarioTags');
+        tags.innerHTML = data.skills.map(sk => '<span class="tag">' + sk + '</span>').join('');
+        const opts = document.getElementById('optionsContainer');
+        opts.innerHTML = '';
+        data.options.forEach((opt, i) => {
+            const el = document.createElement('div');
+            el.className = 'option disabled';
+            if(i === 2) el.classList.add('correct');
+            el.textContent = opt.text;
+            opts.appendChild(el);
+        });
+        document.getElementById('feedbackContainer').classList.remove('show');
+        document.getElementById('continueBtn').classList.remove('show');
+    }
+
+    function renderMockBadges() {
+        const bar = document.getElementById('badgeBar');
+        bar.innerHTML = tourBadges.map(b =>
+            '<span class="badge"><span class="emoji">' + b.icon + '</span>' + b.name + '</span>'
+        ).join('');
+    }
+
+    function updateTourPositions() {
+        if (!tourState.active) return;
+        const stepData = tourSteps[tourState.currentStep];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+
+        const rect = target.getBoundingClientRect();
+        const spotlight = document.getElementById('tourSpotlight');
+        spotlight.style.top = (rect.top - 8) + 'px';
+        spotlight.style.left = (rect.left - 8) + 'px';
+        spotlight.style.width = (rect.width + 16) + 'px';
+        spotlight.style.height = (rect.height + 16) + 'px';
+
+        const tooltip = document.getElementById('tourTooltip');
+        const tooltipHeight = tooltip.offsetHeight;
+        const tooltipWidth = tooltip.offsetWidth;
+
+        let tooltipTop = rect.bottom + 20;
+        if (tooltipTop + tooltipHeight > window.innerHeight - 20) {
+            tooltipTop = rect.top - tooltipHeight - 20;
+        }
+        tooltip.style.top = Math.max(10, tooltipTop) + 'px';
+
+        let tooltipLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+        tooltipLeft = Math.max(10, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 10));
+        tooltip.style.left = tooltipLeft + 'px';
+    }
+
+    function showTourStep(step) {
+        if (step < 0 || step >= tourSteps.length) return;
+        tourState.currentStep = step;
+        const stepData = tourSteps[step];
+        const target = document.querySelector(stepData.target);
+        if (!target) { endTour(); return; }
+        
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        setTimeout(() => {
+            document.getElementById('tourTitle').textContent = stepData.title;
+            document.getElementById('tourText').textContent = stepData.text;
+            
+            const dotsContainer = document.getElementById('tourDots');
+            dotsContainer.innerHTML = tourSteps.map((_, i) => '<div class="tour-dot ' + (i === step ? 'active' : '') + '" onclick="showTourStep(' + i + ')"></div>').join('');
+            document.getElementById('tourPrevBtn').style.display = step === 0 ? 'none' : 'inline-block';
+            document.getElementById('tourNextBtn').textContent = step === tourSteps.length - 1 ? 'Got It! ✓' : 'Next →';
+            
+            updateTourPositions();
+            
+            document.getElementById('tourSpotlight').style.display = 'block';
+            document.getElementById('tourTooltip').style.display = 'block';
+        }, 300); // Wait for scroll to finish
+    }
+
+    window.addEventListener('load', init);
+    window.addEventListener('beforeunload', () => {
+        if(!shouldFinish()) saveState(false);
+        const scorm = getScorm();
+        if(scorm) scorm.quit();
+    });
+    
+  </script>
+</body>
+</html>
