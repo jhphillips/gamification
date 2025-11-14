@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>scope creeper</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; animation: slideDown 0.6s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .header h1 { font-size: 2.8em; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); color: #fbbf24; }
+        .header .subtitle { font-size: 1.3em; color: #fff; opacity: 0.95; }
+        .track-record-meter { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; margin: 30px 0; text-align: center; }
+        .track-record-label { font-size: 1.3em; margin-bottom: 10px; color: #fbbf24; }
+        .track-record-bar { background: rgba(0,0,0,0.3); height: 40px; border-radius: 20px; overflow: hidden; margin: 15px 0; position: relative; }
+        .track-record-fill { background: linear-gradient(90deg, #fb923c, #fbbf24, #34d399); height: 100%; width: 0%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 1.1em; }
+        .reputation-tags { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .reputation-tag { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; font-size: 0.9em; display: none; }
+        .reputation-tag.active { display: inline-block; animation: popIn 0.3s ease-out; }
+        @keyframes popIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .tag-good { background: rgba(52, 211, 153, 0.3); border: 2px solid #34d399; }
+        .tag-bad { background: rgba(251, 146, 60, 0.3); border: 2px solid #fb923c; }
+        .scenario-counter { text-align: center; font-size: 1.2em; margin: 20px 0; color: #fbbf24; }
+        .scene { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; margin-bottom: 30px; border: 2px solid rgba(255,255,255,0.2); display: none; animation: fadeIn 0.5s ease-out; }
+        .scene.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .scene h2 { font-size: 2em; margin-bottom: 20px; color: #fbbf24; }
+        .scene h3 { font-size: 1.5em; margin: 20px 0 15px 0; color: #22d3ee; }
+        .scene p { font-size: 1.1em; line-height: 1.8; margin-bottom: 15px; }
+        .scenario-box { background: rgba(0,0,0,0.4); padding: 25px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #fbbf24; }
+        .choice-container { margin: 30px 0; }
+        .choice-btn { display: block; width: 100%; padding: 20px; margin: 15px 0; font-size: 1.1em; background: rgba(34, 211, 238, 0.15); border: 2px solid #22d3ee; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .choice-btn:hover { background: rgba(34, 211, 238, 0.25); transform: translateX(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .result-box { margin-top: 30px; padding: 30px; border-radius: 15px; display: none; }
+        .result-box.show { display: block; animation: fadeIn 0.5s ease-out; }
+        .result-good { background: rgba(52, 211, 153, 0.2); border: 3px solid #34d399; }
+        .result-bad { background: rgba(251, 146, 60, 0.2); border: 3px solid #fb923c; }
+        .result-box h3 { font-size: 1.8em; margin-bottom: 20px; }
+        .result-good h3 { color: #34d399; }
+        .result-bad h3 { color: #fb923c; }
+        .data-impact { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #fbbf24; }
+        .data-impact h4 { color: #fbbf24; margin-bottom: 10px; font-size: 1.2em; }
+        .btn { padding: 15px 35px; font-size: 1.1em; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; font-weight: bold; text-transform: uppercase; margin: 10px 5px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+        .btn-continue { background: #34d399; color: white; }
+        .btn-retry { background: #fb923c; color: white; }
+        .btn-start { background: #fbbf24; color: #1e293b; }
+        .intro-box { background: rgba(34, 211, 238, 0.15); padding: 30px; border-radius: 15px; margin: 30px 0; border: 3px solid #22d3ee; }
+        .stakes { font-size: 1.3em; color: #fbbf24; font-weight: bold; margin: 20px 0; text-align: center; }
+        .emphasis { color: #fbbf24; font-weight: bold; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 scope creeper</h1>
+            <div class="subtitle">Build Your Track Record</div>
+        </div>
+
+        <div class="track-record-meter">
+            <div class="track-record-label">capacity</div>
+            <div class="track-record-bar">
+                <div class="track-record-fill" id="track-record">0%</div>
+            </div>
+            <div class="reputation-tags" id="reputation-tags">
+                <!-- Tags will be added dynamically -->
+            </div>
+            <div class="scenario-counter" id="scenario-counter">Scenario 0 of 8</div>
+        </div>
+
+        <!-- INTRO SCENE -->
+        <div class="scene active" id="scene-intro">
+            <h2>Welcome to Your Journey</h2>
+            
+            <div class="intro-box">
+                <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>Here's the truth:</strong></p>
+                <p style="font-size: 1.1em; line-height: 1.8;">Your choices create your professional reputation. Let's see what happens when you face real challenges.</p>
+            </div>
+
+            <div class="stakes">
+                READY TO SEE WHAT YOUR CHOICES SAY ABOUT YOU?
+            </div>
+
+            <div style="background: rgba(251, 191, 36, 0.15); padding: 25px; border-radius: 10px; margin: 30px 0; border: 2px solid #fbbf24;">
+                <h4 style="color: #fbbf24; margin-bottom: 15px; font-size: 1.3em;">⚡ CRITICAL: ANSWER HONESTLY</h4>
+                <p style="font-size: 1.1em; line-height: 1.8;">Don't pick what you THINK you should say. Pick what you would ACTUALLY do TODAY.</p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 10px;">That's where the learning happens. See your real patterns. Feel the consequences. THEN decide if you want to change.</p>
+                <p style="font-size: 1.1em; margin-top: 10px; color: #fbbf24;"><strong>This only works if you're honest with yourself. Try it.</strong></p>
+            </div>
+
+            <p style="font-size: 1.3em; margin-top: 30px; text-align: center;"><strong>Ready to begin?</strong></p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-start" onclick="startChallenge()">LET'S GO</button>
+            </div>
+        </div>
+
+        
+        <!-- SCENARIO 1: THE SNEAKY SLACK REQUEST -->
+        <div class="scene" id="scene-1">
+            <h2>The Sneaky Slack Request</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A stakeholder DMs you in Slack asking if you can 'quickly add a new reporting view' to the dashboard you already finalized.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> The request sounds tiny, but you know it’s actually a pile of hidden work.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you protect the scope without looking unhelpful?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(1, 'a')">
+                    <strong>A)</strong> Sure, I can squeeze it in today.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'b')">
+                    <strong>B)</strong> I can take a look, but I need to understand the full scope before confirming timeline.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'c')">
+                    <strong>C)</strong> This wasn’t part of the original plan. Can we add it to next sprint instead?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'd')">
+                    <strong>D)</strong> I really don’t have time for this right now.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-1"></div>
+        </div>
+
+
+        <!-- SCENARIO 2: THE SURPRISE MEETING ADD-ON -->
+        <div class="scene" id="scene-2">
+            <h2>The Surprise Meeting Add-On</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You're in a project meeting when someone suggests adding a bonus feature 'while you're already in the code.' Everyone looks at you.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> Social pressure is high and saying no feels awkward.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you hold the line without derailing the meeting?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(2, 'a')">
+                    <strong>A)</strong> Yeah, I can add that—shouldn’t take long.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'b')">
+                    <strong>B)</strong> Let me check the impact after the meeting and report back with options.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'c')">
+                    <strong>C)</strong> If this is important, we’ll need to adjust the timeline or deprioritize another item.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'd')">
+                    <strong>D)</strong> This is exactly why projects run late—we keep adding stuff.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-2"></div>
+        </div>
+
+
+        <!-- SCENARIO 3: THE LAST-MINUTE EMAIL -->
+        <div class="scene" id="scene-3">
+            <h2>The Last-Minute Email</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You get an email at 4:45 PM: ‘Can you update the training by tomorrow morning? Just a few small tweaks.’</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> It’s absolutely not a small tweak—you know this.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you push back gracefully under time pressure?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(3, 'a')">
+                    <strong>A)</strong> Sure, I'll stay late. I’ll get it done.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'b')">
+                    <strong>B)</strong> Can you clarify what updates are needed so I can estimate the time before confirming?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'c')">
+                    <strong>C)</strong> Given the time, the earliest realistic delivery is tomorrow afternoon. Does that work?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'd')">
+                    <strong>D)</strong> This request is unreasonable. I can’t do it.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-3"></div>
+        </div>
+
+
+        <!-- SCENARIO 4: THE “QUICK VISUAL REFRESH” TRAP -->
+        <div class="scene" id="scene-4">
+            <h2>The “Quick Visual Refresh” Trap</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A partner team wants you to ‘refresh’ the visuals on a module. You know that means rebuilding half the damn thing.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> They think it’s easy. You know it isn’t.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you educate without sounding defensive?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(4, 'a')">
+                    <strong>A)</strong> Yeah, I can probably get that done this week.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'b')">
+                    <strong>B)</strong> Can you share the exact elements you'd like refreshed so I can assess the impact?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'c')">
+                    <strong>C)</strong> A refresh requires more effort than it might seem—let me propose options with timelines.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'd')">
+                    <strong>D)</strong> I don’t think I can take this on. My plate is full.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-4"></div>
+        </div>
+
+
+        <!-- SCENARIO 5: THE UNDEFINED ‘TINY ENHANCEMENT’ -->
+        <div class="scene" id="scene-5">
+            <h2>The Undefined ‘Tiny Enhancement’</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Your SME asks if you can ‘just make the quiz a little more engaging.’ No examples. No specifics.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> Undefined requests breed scope monsters.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you force clarity before committing?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(5, 'a')">
+                    <strong>A)</strong> Sure! I’ll come up with something fun.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'b')">
+                    <strong>B)</strong> Can you share examples of what 'more engaging' looks like to you?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'c')">
+                    <strong>C)</strong> Let’s define the specific enhancements you want and estimate from there.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'd')">
+                    <strong>D)</strong> That request is too vague—I can’t do anything with it.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-5"></div>
+        </div>
+
+
+        <!-- SCENARIO 6: THE AUTO-ASSIGNED WORKLOAD -->
+        <div class="scene" id="scene-6">
+            <h2>The Auto-Assigned Workload</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Your boss casually mentions that you can take the new onboarding module since ‘you built the last one.’</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> They’re assuming capacity you do NOT have.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you reset expectations without sounding defensive?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(6, 'a')">
+                    <strong>A)</strong> Sure, I’ll take it. I’ll figure out the timing later.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'b')">
+                    <strong>B)</strong> I can take it, but we’ll need to revisit current priorities so I can make space.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'c')">
+                    <strong>C)</strong> Before confirming, can we review my current workload so we can plan the timeline accurately?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'd')">
+                    <strong>D)</strong> I really don’t have time for another project.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-6"></div>
+        </div>
+
+
+        <!-- SCENARIO 7: THE DOCUMENTATION DRIFT -->
+        <div class="scene" id="scene-7">
+            <h2>The Documentation Drift</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A team member asks if you can ‘quickly document the workflow’ since you know it best.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> Documentation is never quick. Ever.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you clarify expectations and prevent hidden time sinks?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(7, 'a')">
+                    <strong>A)</strong> Sure, I can throw something together.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'b')">
+                    <strong>B)</strong> Can you outline what sections you need and the purpose of the doc?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'c')">
+                    <strong>C)</strong> Happy to help. I'll need time for a proper version—let me propose a realistic timeline.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'd')">
+                    <strong>D)</strong> Documentation isn’t my responsibility.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-7"></div>
+        </div>
+
+
+        <!-- SCENARIO 8: THE ENDLESS REVIEW CYCLE -->
+        <div class="scene" id="scene-8">
+            <h2>The Endless Review Cycle</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Your SME sends ‘one tiny update’ after you’ve already delivered the final version for sign-off.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> If you accept this change, the project may never close.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you enforce finality without burning bridges?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(8, 'a')">
+                    <strong>A)</strong> Okay, I’ll make the update now.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'b')">
+                    <strong>B)</strong> This change came after final approval—can we log it for the next version?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'c')">
+                    <strong>C)</strong> I can make this update, but it will shift the delivery date. Want to proceed?
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'd')">
+                    <strong>D)</strong> We already finalized this. I’m not reopening the file.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-8"></div>
+        </div>
+
+        <!-- FINAL SCENE -->
+        <div class="scene" id="scene-final">
+            <h2 style="text-align: center; font-size: 2.5em;">🎯 CHALLENGE COMPLETE</h2>
+            <div style="text-align: center; margin: 40px 0;">
+                <div style="font-size: 3em; color: #fbbf24;" id="final-score">0%</div>
+                <p style="font-size: 1.3em; margin-top: 20px;">capacity</p>
+            </div>
+            <div id="final-message" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <!-- Final message based on score -->
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="btn btn-start" onclick="location.reload()">↻ TRY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trackRecord = 0;
+        let currentScenario = 0;
+        let reputationTags = [];
+
+        const responses = {
+            1: {
+                a: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["people-pleaser","unrealistic","overcommitted"],
+                    title: "🚨 The Instant Yes Spiral",
+                    message: "You just opened the floodgates. That ‘quick view’ becomes hours of logic, filters, QA, and edits. Now YOU look like the person who can’t estimate or manage workload. Your reputation dips—and your evening disappears.",
+                    data: "Stakeholder perception: Easy to pressure, unreliable with boundaries"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["professional","boundary-setter"],
+                    title: "✓ Smart Boundary Move",
+                    message: "Beautiful. You didn’t shut them down—but you didn’t fall for the trap either. You bought time to assess impact, and YOU stayed in control of the timeline. Stakeholder confidence goes UP.",
+                    data: "Stakeholder perception: Thoughtful and dependable"
+                },
+                c: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["structured","strategic"],
+                    title: "✓ Strategic Redirect",
+                    message: "Clean. Clear. Controlled. You anchored expectations to the official workflow. It signals maturity and protects your capacity without drama.",
+                    data: "Stakeholder perception: Respects process and delivers predictably"
+                },
+                d: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["abrupt","unhelpful"],
+                    title: "⚠️ The Hard Stop Backfire",
+                    message: "Your frustration landed louder than your point. Even though you’re not wrong, the tone creates friction and paints YOU as resistant instead of realistic.",
+                    data: "Stakeholder perception: Difficult to collaborate with"
+                }
+            },
+            2: {
+                a: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["over-promiser","people-pleaser"],
+                    title: "🚨 Social Pressure KO",
+                    message: "You folded. Now you're on the hook for a feature with unknown complexity. The team walks away thinking you're a superhero—until delivery slips and trust cracks.",
+                    data: "Stakeholder perception: Good intentions, unreliable timeline"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["professional","process-driven"],
+                    title: "✓ The Calm Deferral Win",
+                    message: "You kept the meeting moving AND protected your sanity. You didn’t commit—just committed to clarity. That’s expert-level scope protection.",
+                    data: "Stakeholder perception: Mature decision-maker"
+                },
+                c: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["strategic","truth-teller"],
+                    title: "⭐ Timeline Truth Bomb",
+                    message: "You connected the ask to real trade-offs. THAT is senior-level behavior. You show everyone the cost, and suddenly the room sees the feature differently.",
+                    data: "Stakeholder perception: Transparent and strategic thinker"
+                },
+                d: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["frustrated","abrasive"],
+                    title: "⚠️ Honesty With Sparks",
+                    message: "You’re not wrong, but the delivery stings. People hear attitude, not insight. You lose influence instead of gaining it.",
+                    data: "Stakeholder perception: Hard to collaborate with under pressure"
+                }
+            },
+            3: {
+                a: {
+                    type: 'bad',
+                    score: 6,
+                    tags: ["people-pleaser","burnout-risk"],
+                    title: "🚨 Burnout Bravery",
+                    message: "You just trained them to treat you like an always-available machine. Tomorrow you’ll be exhausted AND behind on your real work.",
+                    data: "Stakeholder perception: Always says yes, can be overloaded"
+                },
+                b: {
+                    type: 'good',
+                    score: 21,
+                    tags: ["professional","precise"],
+                    title: "✓ Scope First, Commitment Second",
+                    message: "You slowed the panic moment down and regained control. Now you can negotiate reality instead of reacting emotionally.",
+                    data: "Stakeholder perception: Level-headed and reliable"
+                },
+                c: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["assertive","clear"],
+                    title: "✓ Timelines With Boundaries",
+                    message: "You set expectations like a pro. No drama, no defensiveness—just truth delivered with confidence. Chef’s kiss.",
+                    data: "Stakeholder perception: Dependable and honest"
+                },
+                d: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["abrasive","shut-down"],
+                    title: "⚠️ The Hard No",
+                    message: "You protected your time, but the tone takes a chunk out of your professional image. The relationship takes a hit.",
+                    data: "Stakeholder perception: Resistant under pressure"
+                }
+            },
+            4: {
+                a: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["underestimation","scope-creeped"],
+                    title: "🚨 The Visual Refresh Sinkhole",
+                    message: "You’ve just volunteered for hours of layout changes, image sourcing, alignment fixes, and QA. They still think it was easy. You lose twice.",
+                    data: "Stakeholder perception: Doesn’t communicate complexity"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["detail-oriented","clear-communicator"],
+                    title: "✓ Precision Request Mastery",
+                    message: "Boom! You pushed the work back to clarity. No assumptions. No traps. You turned vague into concrete.",
+                    data: "Stakeholder perception: Smart and structured partner"
+                },
+                c: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["strategic","educator"],
+                    title: "⭐ Stakeholder Education Win",
+                    message: "YES. You elevated the whole conversation. You didn’t just say no—you reframed expectations. That’s reputation GOLD.",
+                    data: "Stakeholder perception: Expert who explains constraints clearly"
+                },
+                d: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["closed-off","unhelpful"],
+                    title: "⚠️ The Flat Decline",
+                    message: "You protected yourself, but left them with nowhere to go. It solves today’s problem but hurts long-term influence.",
+                    data: "Stakeholder perception: Not solution-oriented"
+                }
+            },
+            5: {
+                a: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["assumption-maker","risk-taker"],
+                    title: "🚨 The Creativity Trap",
+                    message: "You just signed up for a guessing game with no finish line. YOU will own every revision because they didn’t actually know what they wanted.",
+                    data: "Stakeholder perception: Makes commitments without clarity"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["clarity-seeker","collaborator"],
+                    title: "✓ The Alignment First Approach",
+                    message: "YES. You threw the confusion back upstream where it belongs. Now decisions are grounded in real expectations.",
+                    data: "Stakeholder perception: Thoughtful and efficient"
+                },
+                c: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["strategic","process-minded"],
+                    title: "⭐ Scope Definition Hero",
+                    message: "You just avoided 10 rounds of revisions. THAT is how pros prevent scope creep before it starts.",
+                    data: "Stakeholder perception: Structured thinker"
+                },
+                d: {
+                    type: 'bad',
+                    score: 11,
+                    tags: ["rigid","dismissive"],
+                    title: "⚠️ The Vague Shutdown",
+                    message: "You’re right, but it lands as unhelpful. The door closes fast—and so does collaboration.",
+                    data: "Stakeholder perception: Difficult communicator"
+                }
+            },
+            6: {
+                a: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["overloaded","passive"],
+                    title: "🚨 Silent Acceptance = Silent Suffering",
+                    message: "You just confirmed a workload myth: that you always have space. Now everything gets routed to you, and burnout creeps in quietly.",
+                    data: "Stakeholder perception: Always available, regardless of workload"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["assertive","clear"],
+                    title: "✓ Priority Reset Mastery",
+                    message: "YES. You didn’t say no—you said 'not without trade-offs.' That’s leadership energy.",
+                    data: "Stakeholder perception: Strategic thinker, manages bandwidth well"
+                },
+                c: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["transparent","organized"],
+                    title: "⭐ Capacity Alignment Hero",
+                    message: "This is gold. You bring visibility. You show discipline. You make better timelines possible. Your rep skyrockets.",
+                    data: "Stakeholder perception: Responsible steward of workload"
+                },
+                d: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["frustrated","shut-down"],
+                    title: "⚠️ The Wall",
+                    message: "You're not wrong, but the delivery turns a capacity talk into a tension moment. You lose influence.",
+                    data: "Stakeholder perception: Resistant, hard to assign projects to"
+                }
+            },
+            7: {
+                a: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["underestimator","overcommitted"],
+                    title: "🚨 The Quick Doc Mirage",
+                    message: "You’re now the unofficial documentation machine. Say hello to endless follow-ups and edits because 'this part wasn’t clear enough.'",
+                    data: "Stakeholder perception: Always says yes without thinking"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["clarity-seeker","efficient"],
+                    title: "✓ Scope Before Scribe",
+                    message: "Boom! You pushed the ambiguity away and pulled clarity closer. No wasted time, no unclear expectations.",
+                    data: "Stakeholder perception: Precise and focused"
+                },
+                c: {
+                    type: 'good',
+                    score: 21,
+                    tags: ["honest","professional"],
+                    title: "✓ Timeline Tactician",
+                    message: "You set expectations AND preserve quality. That’s senior-level behavior.",
+                    data: "Stakeholder perception: Dependable and thorough"
+                },
+                d: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["rigid","non-collaborative"],
+                    title: "⚠️ The Responsibility Grenade",
+                    message: "Even if true, the abrupt shutdown sends the message that you avoid team support.",
+                    data: "Stakeholder perception: Not a team player"
+                }
+            },
+            8: {
+                a: {
+                    type: 'bad',
+                    score: 6,
+                    tags: ["scope-creeped","over-accommodating"],
+                    title: "🚨 The Forever Project",
+                    message: "You just reset the sign-off clock. Next week? More tiny updates. You’ve lost all leverage to close the project cleanly.",
+                    data: "Stakeholder perception: Flexible to a fault"
+                },
+                b: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["strategic","boundaried"],
+                    title: "⭐ The Version Control Boss",
+                    message: "YES. You protected the finish line AND gave them a path forward. This is how pros stay sane and keep projects clean.",
+                    data: "Stakeholder perception: Organized and structured"
+                },
+                c: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["transparent","assertive"],
+                    title: "✓ The Trade-Off Truth Teller",
+                    message: "You tied the request to real consequences. Suddenly ‘tiny’ doesn’t look so tiny. You stayed calm and in control.",
+                    data: "Stakeholder perception: Fair and realistic"
+                },
+                d: {
+                    type: 'bad',
+                    score: 11,
+                    tags: ["abrupt","rigid"],
+                    title: "⚠️ The Door Slam",
+                    message: "Your boundary is valid, but the tone sparks friction. They’ll remember HOW you said it, not WHY.",
+                    data: "Stakeholder perception: Hard to approach"
+                }
+            }
+        };
+
+        function updateTrackRecord(points) {
+            trackRecord = Math.min(100, trackRecord + points);
+            const fill = document.getElementById('track-record');
+            fill.style.width = trackRecord + '%';
+            fill.textContent = trackRecord + '%';
+        }
+
+        function addReputationTag(tag) {
+            if (!reputationTags.includes(tag) && tag) {
+                reputationTags.push(tag);
+                const tagsContainer = document.getElementById('reputation-tags');
+                const tagEl = document.createElement('span');
+                tagEl.className = 'reputation-tag tag-' + responses[currentScenario][Object.keys(responses[currentScenario])[0]].type + ' active';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            }
+        }
+
+        function updateScenarioCounter() {
+            document.getElementById('scenario-counter').textContent = 'Scenario ' + currentScenario + ' of 8';
+        }
+
+        function showScene(sceneNum) {
+            document.querySelectorAll('.scene').forEach(scene => scene.classList.remove('active'));
+            const scene = document.getElementById('scene-' + sceneNum);
+            scene.classList.add('active');
+            
+            // Randomize choice buttons
+            const choiceContainer = scene.querySelector('.choice-container');
+            if (choiceContainer) {
+                const buttons = Array.from(choiceContainer.querySelectorAll('.choice-btn'));
+                for (let i = buttons.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+                }
+                buttons.forEach(button => choiceContainer.appendChild(button));
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startChallenge() {
+            currentScenario = 1;
+            updateScenarioCounter();
+            showScene(1);
+        }
+
+        function makeChoice(scenario, choice) {
+            const response = responses[scenario][choice];
+            const resultBox = document.getElementById('result-' + scenario);
+            
+            resultBox.className = 'result-box show result-' + response.type;
+            resultBox.innerHTML = 
+                '<h3>' + response.title + '</h3>' +
+                '<p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">' + response.message + '</p>' +
+                '<div class="data-impact">' +
+                    '<h4>📊 DATA IMPACT:</h4>' +
+                    '<p style="line-height: 1.6; margin-top: 10px;">' + response.data + '</p>' +
+                '</div>' +
+                (response.type === 'good' ? 
+                    '<button class="btn btn-continue" onclick="nextScenario()">NEXT SCENARIO →</button>' : 
+                    '<button class="btn btn-retry" onclick="retryScenario(' + scenario + ')">↻ TRY A DIFFERENT CHOICE</button>');
+
+            updateTrackRecord(response.score);
+            response.tags.forEach(tag => addReputationTag(tag));
+            document.querySelector('#scene-' + scenario + ' .choice-container').style.display = 'none';
+        }
+
+        function retryScenario(scenario) {
+            const resultBox = document.getElementById('result-' + scenario);
+            resultBox.className = 'result-box';
+            resultBox.innerHTML = '';
+            document.querySelector('#scene-' + scenario + ' .choice-container').style.display = 'block';
+        }
+
+        function nextScenario() {
+            currentScenario++;
+            if (currentScenario > 8) {
+                showFinal();
+            } else {
+                updateScenarioCounter();
+                showScene(currentScenario);
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('final-score').textContent = trackRecord + '%';
+            const messageDiv = document.getElementById('final-message');
+            
+            if (trackRecord >= 85) {
+                messageDiv.innerHTML = '<h3 style="color: #34d399;">🌟 EXCELLENT PERFORMANCE</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">You demonstrated strong decision-making throughout. Your choices show professional maturity and good judgment.</p>';
+            } else if (trackRecord >= 60) {
+                messageDiv.innerHTML = '<h3 style="color: #fbbf24;">📈 GOOD PROGRESS</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">You made some solid choices but there\'s room for growth. Review the scenarios where you struggled and consider how you might approach them differently.</p>';
+            } else {
+                messageDiv.innerHTML = '<h3 style="color: #fb923c;">⚠️ LEARNING OPPORTUNITY</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">This training revealed areas for development. That\'s valuable insight! Consider what patterns emerged and how you want to change your approach.</p>';
+            }
+            
+            showScene('final');
+        }
+
+        updateTrackRecord(0);
+    </script>
+</body>
+</html>

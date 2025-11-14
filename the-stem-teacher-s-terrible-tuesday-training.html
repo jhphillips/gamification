@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The STEM Teacher's Terrible Tuesday</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; animation: slideDown 0.6s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .header h1 { font-size: 2.8em; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); color: #fbbf24; }
+        .header .subtitle { font-size: 1.3em; color: #fff; opacity: 0.95; }
+        .track-record-meter { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; margin: 30px 0; text-align: center; }
+        .track-record-label { font-size: 1.3em; margin-bottom: 10px; color: #fbbf24; }
+        .track-record-bar { background: rgba(0,0,0,0.3); height: 40px; border-radius: 20px; overflow: hidden; margin: 15px 0; position: relative; }
+        .track-record-fill { background: linear-gradient(90deg, #fb923c, #fbbf24, #34d399); height: 100%; width: 0%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 1.1em; }
+        .reputation-tags { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .reputation-tag { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; font-size: 0.9em; display: none; }
+        .reputation-tag.active { display: inline-block; animation: popIn 0.3s ease-out; }
+        @keyframes popIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .tag-good { background: rgba(52, 211, 153, 0.3); border: 2px solid #34d399; }
+        .tag-bad { background: rgba(251, 146, 60, 0.3); border: 2px solid #fb923c; }
+        .scenario-counter { text-align: center; font-size: 1.2em; margin: 20px 0; color: #fbbf24; }
+        .scene { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; margin-bottom: 30px; border: 2px solid rgba(255,255,255,0.2); display: none; animation: fadeIn 0.5s ease-out; }
+        .scene.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .scene h2 { font-size: 2em; margin-bottom: 20px; color: #fbbf24; }
+        .scene h3 { font-size: 1.5em; margin: 20px 0 15px 0; color: #22d3ee; }
+        .scene p { font-size: 1.1em; line-height: 1.8; margin-bottom: 15px; }
+        .scenario-box { background: rgba(0,0,0,0.4); padding: 25px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #fbbf24; }
+        .choice-container { margin: 30px 0; }
+        .choice-btn { display: block; width: 100%; padding: 20px; margin: 15px 0; font-size: 1.1em; background: rgba(34, 211, 238, 0.15); border: 2px solid #22d3ee; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .choice-btn:hover { background: rgba(34, 211, 238, 0.25); transform: translateX(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .result-box { margin-top: 30px; padding: 30px; border-radius: 15px; display: none; }
+        .result-box.show { display: block; animation: fadeIn 0.5s ease-out; }
+        .result-good { background: rgba(52, 211, 153, 0.2); border: 3px solid #34d399; }
+        .result-bad { background: rgba(251, 146, 60, 0.2); border: 3px solid #fb923c; }
+        .result-box h3 { font-size: 1.8em; margin-bottom: 20px; }
+        .result-good h3 { color: #34d399; }
+        .result-bad h3 { color: #fb923c; }
+        .data-impact { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #fbbf24; }
+        .data-impact h4 { color: #fbbf24; margin-bottom: 10px; font-size: 1.2em; }
+        .btn { padding: 15px 35px; font-size: 1.1em; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; font-weight: bold; text-transform: uppercase; margin: 10px 5px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+        .btn-continue { background: #34d399; color: white; }
+        .btn-retry { background: #fb923c; color: white; }
+        .btn-start { background: #fbbf24; color: #1e293b; }
+        .intro-box { background: rgba(34, 211, 238, 0.15); padding: 30px; border-radius: 15px; margin: 30px 0; border: 3px solid #22d3ee; }
+        .stakes { font-size: 1.3em; color: #fbbf24; font-weight: bold; margin: 20px 0; text-align: center; }
+        .emphasis { color: #fbbf24; font-weight: bold; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 The STEM Teacher's Terrible Tuesday</h1>
+            <div class="subtitle">Build Your Track Record</div>
+        </div>
+
+        <div class="track-record-meter">
+            <div class="track-record-label">Everything is Fine... Its all just Fine</div>
+            <div class="track-record-bar">
+                <div class="track-record-fill" id="track-record">0%</div>
+            </div>
+            <div class="reputation-tags" id="reputation-tags">
+                <!-- Tags will be added dynamically -->
+            </div>
+            <div class="scenario-counter" id="scenario-counter">Scenario 0 of 8</div>
+        </div>
+
+        <!-- INTRO SCENE -->
+        <div class="scene active" id="scene-intro">
+            <h2>Welcome to Your Journey</h2>
+            
+            <div class="intro-box">
+                <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>Here's the truth:</strong></p>
+                <p style="font-size: 1.1em; line-height: 1.8;">Your choices create your professional reputation. Let's see what happens when you face real challenges.</p>
+            </div>
+
+            <div class="stakes">
+                READY TO SEE WHAT YOUR CHOICES SAY ABOUT YOU?
+            </div>
+
+            <div style="background: rgba(251, 191, 36, 0.15); padding: 25px; border-radius: 10px; margin: 30px 0; border: 2px solid #fbbf24;">
+                <h4 style="color: #fbbf24; margin-bottom: 15px; font-size: 1.3em;">⚡ CRITICAL: ANSWER HONESTLY</h4>
+                <p style="font-size: 1.1em; line-height: 1.8;">Don't pick what you THINK you should say. Pick what you would ACTUALLY do TODAY.</p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 10px;">That's where the learning happens. See your real patterns. Feel the consequences. THEN decide if you want to change.</p>
+                <p style="font-size: 1.1em; margin-top: 10px; color: #fbbf24;"><strong>This only works if you're honest with yourself. Try it.</strong></p>
+            </div>
+
+            <p style="font-size: 1.3em; margin-top: 30px; text-align: center;"><strong>Ready to begin?</strong></p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-start" onclick="startChallenge()">LET'S GO</button>
+            </div>
+        </div>
+
+        
+        <!-- SCENARIO 1: THE MISSING MATERIALS MELTDOWN -->
+        <div class="scene" id="scene-1">
+            <h2>The Missing Materials Meltdown</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> It’s 7:45 AM. First period starts in 15 minutes. You discover the supply closet is completely out of lab goggles… the same goggles your students MUST have for today’s experiment.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You’re under pressure and running out of time. Students will arrive any minute.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you adapt quickly without spiraling?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(1, 'a')">
+                    <strong>A)</strong> Pretend everything is normal and let students do the experiment without goggles.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'b')">
+                    <strong>B)</strong> Delay the experiment and shift to a quick STEM demo while you regroup.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'c')">
+                    <strong>C)</strong> Send a frantic all-staff email asking if anyone has goggles you can borrow.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'd')">
+                    <strong>D)</strong> Borrow goggles specifically from the science teacher next door and adjust the class schedule until they arrive.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-1"></div>
+        </div>
+
+
+        <!-- SCENARIO 2: THE SPONTANEOUS OBSERVATION -->
+        <div class="scene" id="scene-2">
+            <h2>The Spontaneous Observation</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You get a surprise email at 8:10 AM: “I’ll be dropping into your 2nd period class today!” Signed: Your Administrator.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> It's your robotics class — the one where everything breaks at the worst possible moment.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you stay composed and prep smartly?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(2, 'a')">
+                    <strong>A)</strong> Try to overhaul your entire lesson plan on the fly to impress them.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'b')">
+                    <strong>B)</strong> Stick to your original plan but add a quick framing intro to show objectives clearly.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'c')">
+                    <strong>C)</strong> Tell students you’re being observed and beg them to be on their best behavior.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'd')">
+                    <strong>D)</strong> Prep a backup mini-activity just in case the robotics bots have 'Tuesday energy.'
+                </button>
+            </div>
+
+            <div class="result-box" id="result-2"></div>
+        </div>
+
+
+        <!-- SCENARIO 3: THE DEVICE DISASTER -->
+        <div class="scene" id="scene-3">
+            <h2>The Device Disaster</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A full class of students arrives… and half their Chromebooks refuse to connect to Wi-Fi.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> The hands-on coding activity requires online access.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you salvage the lesson while fighting the tech gremlins?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(3, 'a')">
+                    <strong>A)</strong> Spend the whole period troubleshooting student laptops one by one.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'b')">
+                    <strong>B)</strong> Switch to an unplugged coding challenge that teaches the same logic concepts.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'c')">
+                    <strong>C)</strong> Tell students to sit quietly while you call IT, hoping they come quickly.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'd')">
+                    <strong>D)</strong> Pair students so those with working devices can help teams make progress.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-3"></div>
+        </div>
+
+
+        <!-- SCENARIO 4: THE PARENT EMAIL TIMEBOMB -->
+        <div class="scene" id="scene-4">
+            <h2>The Parent Email Timebomb</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> During your 10-minute break, you see a fiery email from a parent accusing you of 'ruining their child’s love of science.'</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You’re rattled — and you still have three classes left.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you manage your response energy wisely?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(4, 'a')">
+                    <strong>A)</strong> Immediately write a long, emotional response defending your teaching.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'b')">
+                    <strong>B)</strong> Acknowledge the email politely and say you'll respond fully after school.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'c')">
+                    <strong>C)</strong> Ignore it completely and hope the parent cools down.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'd')">
+                    <strong>D)</strong> Forward the email to your administrator with a calm note asking for guidance before replying.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-4"></div>
+        </div>
+
+
+        <!-- SCENARIO 5: THE GROUP PROJECT EXPLOSION -->
+        <div class="scene" id="scene-5">
+            <h2>The Group Project Explosion</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A group of students starts shouting during a build challenge. Accusations are flying: 'He isn’t doing anything!' 'She took all the supplies!'</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You need to de-escalate and get learning back on track.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you reset expectations without losing the room?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(5, 'a')">
+                    <strong>A)</strong> Raise your voice to regain control.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'b')">
+                    <strong>B)</strong> Pause the whole class, reset norms, and restart the activity with clear roles.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'c')">
+                    <strong>C)</strong> Let the group 'work it out' on their own.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'd')">
+                    <strong>D)</strong> Pull the conflicting students aside and mediate a quick solution before returning them.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-5"></div>
+        </div>
+
+
+        <!-- SCENARIO 6: THE ADMIN WALK-IN DURING PEAK CHAOS -->
+        <div class="scene" id="scene-6">
+            <h2>The Admin Walk-In During Peak Chaos</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Students are testing their balloon-powered cars. It’s loud. It’s wild. And THAT'S the exact moment an administrator walks in.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You need to show this chaos is intentional learning — not meltdown energy.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you show structure inside the storm?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(6, 'a')">
+                    <strong>A)</strong> Freeze and loudly announce to students that admin is here — 'Everyone behave!'
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'b')">
+                    <strong>B)</strong> Casually narrate the learning objective and what students are working toward.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'c')">
+                    <strong>C)</strong> Pretend you don't see the admin and keep doing what you're doing.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'd')">
+                    <strong>D)</strong> Invite the admin to watch a specific group’s prototype test and explain the challenge.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-6"></div>
+        </div>
+
+
+        <!-- SCENARIO 7: THE LUNCH DUTY CATASTROPHE -->
+        <div class="scene" id="scene-7">
+            <h2>The Lunch Duty Catastrophe</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> While monitoring the cafeteria, two students argue, a milk carton explodes, and someone yells your name like you’re a superhero on standby.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You’re overstimulated AND responsible for maintaining order.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you respond without letting the chaos take over?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(7, 'a')">
+                    <strong>A)</strong> Start barking commands to get everything under control.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'b')">
+                    <strong>B)</strong> Triage calmly: de-escalate the argument, delegate cleanup, and check on the student who yelled.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'c')">
+                    <strong>C)</strong> Ignore the noise and hope another staff member handles it.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'd')">
+                    <strong>D)</strong> Address the loudest issue first and promise you’ll follow up with the others afterward.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-7"></div>
+        </div>
+
+
+        <!-- SCENARIO 8: THE END-OF-DAY CURVEBALL -->
+        <div class="scene" id="scene-8">
+            <h2>The End-of-Day Curveball</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> It’s 3:10 PM. You’re exhausted. And a student stops by to ask for help on a project that’s due TOMORROW — something they should have started weeks ago.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You're torn between helping and maintaining boundaries.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you support without self-sacrifice?</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(8, 'a')">
+                    <strong>A)</strong> Stay late to help them build their entire project.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'b')">
+                    <strong>B)</strong> Give them clear next steps they can complete independently and invite them to check in tomorrow morning.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'c')">
+                    <strong>C)</strong> Tell them it's too late and there's nothing you can do.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'd')">
+                    <strong>D)</strong> Offer to help for 5 minutes only to get them started — then send them off to do the rest.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-8"></div>
+        </div>
+
+        <!-- FINAL SCENE -->
+        <div class="scene" id="scene-final">
+            <h2 style="text-align: center; font-size: 2.5em;">🎯 CHALLENGE COMPLETE</h2>
+            <div style="text-align: center; margin: 40px 0;">
+                <div style="font-size: 3em; color: #fbbf24;" id="final-score">0%</div>
+                <p style="font-size: 1.3em; margin-top: 20px;">Everything is Fine... Its all just Fine</p>
+            </div>
+            <div id="final-message" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <!-- Final message based on score -->
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="btn btn-start" onclick="location.reload()">↻ TRY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trackRecord = 0;
+        let currentScenario = 0;
+        let reputationTags = [];
+
+        const responses = {
+            1: {
+                a: {
+                    type: 'bad',
+                    score: 3,
+                    tags: ["unsafe","avoidant"],
+                    title: "🚨 Safety Blindness",
+                    message: "YIKES. You just risked student safety AND your credentials. Within minutes, kids are splashing chemicals everywhere. Your admin now needs to write an incident report — and guess whose name is all over it?",
+                    data: "Reputation impact: Viewed as careless with safety protocols"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["adaptive","resourceful"],
+                    title: "✓ Pivot Like a Pro",
+                    message: "You didn’t panic — you pivoted. Students stay engaged, no safety concerns, and YOU look like a teacher who can turn chaos into a win.",
+                    data: "Reputation impact: Calm problem solver under pressure"
+                },
+                c: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["frazzled","reactive"],
+                    title: "⚠️ The Panic Blast",
+                    message: "Your colleagues try to help, but the energy screams ‘Tuesday is already winning.’ You get credit for trying — but also a few side-eyes for the 7:45 AM chaos burst.",
+                    data: "Reputation impact: Tries hard, but sometimes disorganized"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["strategic","collaborative"],
+                    title: "✓ The Neighbor Network Move",
+                    message: "Fast thinking. Zero drama. Your neighbor comes through, and class stays on track. This is Tuesday jiu-jitsu.",
+                    data: "Reputation impact: Efficient collaborator"
+                }
+            },
+            2: {
+                a: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["overreacting","panicked"],
+                    title: "🚨 The Emergency Remodel",
+                    message: "You burned all your energy scrambling. By class time, you're exhausted, students sense it instantly, and chaos ensues. Your admin walked into ‘frenzied you’ instead of ‘prepared you.’",
+                    data: "Reputation impact: Overthinks under pressure"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["prepared","professional"],
+                    title: "✓ Calm, Clear, Confident",
+                    message: "You didn’t crumble. You didn’t overcompensate. You just strengthened the structure and delivered. THAT’S how Tuesday bows down.",
+                    data: "Reputation impact: Grounded and in control"
+                },
+                c: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["desperate","transparent"],
+                    title: "⚠️ The Pleading Teacher Moment",
+                    message: "Kids smell fear. They either overperform or act wild. Your admin knows immediately you’re not in your confident mode.",
+                    data: "Reputation impact: Looks anxious when observed"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["strategic","proactive"],
+                    title: "✓ The Contingency Wizard",
+                    message: "The bots DO glitch — but YOU anticipated it. Smooth transition. Admin impressed. Tuesday defeated again.",
+                    data: "Reputation impact: Master of Plan B"
+                }
+            },
+            3: {
+                a: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["inefficient","distracted"],
+                    title: "🚨 Tech Triage Trap",
+                    message: "You turned into the Wi-Fi Help Desk. Half the class is off-task, the other half is bored, and the lesson never happened.",
+                    data: "Reputation impact: Lets tech derail teaching"
+                },
+                b: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["innovative","prepared"],
+                    title: "⭐ Tech-Proof Genius Move",
+                    message: "You turned a disaster into a slam-dunk. Kids LOVE it. Admin hears about it. YOU win Tuesday.",
+                    data: "Reputation impact: Exceptionally adaptive teacher"
+                },
+                c: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["passive","stalled"],
+                    title: "⚠️ The Frozen Classroom",
+                    message: "IT doesn’t come for 25 minutes. Students are restless. You’re stressed. Tuesday laughs.",
+                    data: "Reputation impact: Struggles to maintain momentum"
+                },
+                d: {
+                    type: 'good',
+                    score: 21,
+                    tags: ["collaborative","resourceful"],
+                    title: "✓ The Partner Power Play",
+                    message: "Kids jump into teamwork mode. You saved half the lesson AND kept the vibe upbeat.",
+                    data: "Reputation impact: Keeps classes moving despite obstacles"
+                }
+            },
+            4: {
+                a: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["reactive","overwhelmed"],
+                    title: "🚨 Reply Rage",
+                    message: "Your rushed email reads… intense. By noon, admin wants to ‘chat.’ Tuesday continues its reign of terror.",
+                    data: "Reputation impact: Struggles with parent communication"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["professional","measured"],
+                    title: "✓ Emotional Buffer Activated",
+                    message: "You protected your peace AND kept the parent heard. You’re back in control, not the inbox.",
+                    data: "Reputation impact: Handles tough messages with maturity"
+                },
+                c: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["avoidant","risky"],
+                    title: "🚨 The Ostrich Method",
+                    message: "Radio silence makes it worse. The parent forwards the email to admin before lunch. Oof.",
+                    data: "Reputation impact: Unresponsive"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["transparent","team-oriented"],
+                    title: "✓ Support-Seeking Strategist",
+                    message: "Smart move. You looped in leadership, protected yourself, and ensured a unified response.",
+                    data: "Reputation impact: Collaborative communicator"
+                }
+            },
+            5: {
+                a: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ["frustrated","overreactive"],
+                    title: "⚠️ The Volume Wars",
+                    message: "Now everyone is yelling. The room is pure chaos. Tuesday 5, You 0.",
+                    data: "Reputation impact: Loses composure under pressure"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["leader","structured"],
+                    title: "✓ Reset Ritual Success",
+                    message: "You hit the brakes without shaming anyone. Students settle and the activity recovers beautifully.",
+                    data: "Reputation impact: Strong classroom manager"
+                },
+                c: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ["passive","unchecked"],
+                    title: "🚨 Lord of the Flies Mode",
+                    message: "They do NOT work it out. Chaos multiplies. The rest of the room follows.",
+                    data: "Reputation impact: Avoids conflict resolution"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["calm","restorative"],
+                    title: "✓ Quiet Corridor Diplomacy",
+                    message: "You preserved the dignity of everyone involved and prevented the conflict from spreading.",
+                    data: "Reputation impact: Skilled at restoring classroom harmony"
+                }
+            },
+            6: {
+                a: {
+                    type: 'bad',
+                    score: 9,
+                    tags: ["tense","reactive"],
+                    title: "⚠️ The Panic Spotlight",
+                    message: "Kids instantly act weird. Admin senses fear. The vibe tanks.",
+                    data: "Reputation impact: Lacks confidence in hands-on learning environments"
+                },
+                b: {
+                    type: 'good',
+                    score: 22,
+                    tags: ["confident","communicative"],
+                    title: "✓ Smooth Narration Flex",
+                    message: "Admin instantly sees the method in the madness. You look like a STEM rockstar.",
+                    data: "Reputation impact: Poised and intentional educator"
+                },
+                c: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["awkward","avoidant"],
+                    title: "⚠️ The Stealth Pretend",
+                    message: "Admin watches silently, unsure if you’re hiding or just frazzled. Not great.",
+                    data: "Reputation impact: Seems disconnected from observation moments"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["engaging","confident"],
+                    title: "✓ Showcase Spotlight Shift",
+                    message: "You turn an awkward walk-in into a mini STEM demo. Admin LOVES it.",
+                    data: "Reputation impact: Welcomes visibility and highlights learning"
+                }
+            },
+            7: {
+                a: {
+                    type: 'bad',
+                    score: 11,
+                    tags: ["rigid","overwhelmed"],
+                    title: "⚠️ The Lunchroom Drill Sergeant",
+                    message: "Kids tense up. Staff notices the stress. YOU feel frazzled all over again.",
+                    data: "Reputation impact: Struggles in high-noise environments"
+                },
+                b: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["calm","organized","leader"],
+                    title: "⭐ Multi-Task Hero Moment",
+                    message: "You handled THREE crises at once with the calm of a seasoned Jedi. Other teachers take notes.",
+                    data: "Reputation impact: Exceptional emotional regulation"
+                },
+                c: {
+                    type: 'bad',
+                    score: 6,
+                    tags: ["avoidant","checked-out"],
+                    title: "🚨 The Denial Gambit",
+                    message: "Spoiler: No one handles it. Everything gets worse. Tuesday strikes again.",
+                    data: "Reputation impact: Avoids responsibility during chaos"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["realistic","composed"],
+                    title: "✓ Prioritization Mastery",
+                    message: "You tackled the biggest fire first — which calmed the whole room. Well-played.",
+                    data: "Reputation impact: Strong situational judgment"
+                }
+            },
+            8: {
+                a: {
+                    type: 'bad',
+                    score: 7,
+                    tags: ["self-sacrificing","unsustainable"],
+                    title: "🚨 The Martyr Move",
+                    message: "You’re drained, the kid learns zero responsibility, and Tuesday claims its final victory.",
+                    data: "Reputation impact: Overextends beyond reasonable boundaries"
+                },
+                b: {
+                    type: 'good',
+                    score: 25,
+                    tags: ["balanced","supportive"],
+                    title: "⭐ The Empowerment Win",
+                    message: "You helped without absorbing the full weight. Student learns ownership, YOU keep your sanity.",
+                    data: "Reputation impact: Supportive with healthy boundaries"
+                },
+                c: {
+                    type: 'bad',
+                    score: 12,
+                    tags: ["harsh","closed-off"],
+                    title: "⚠️ The Door Slam",
+                    message: "You weren't wrong — but you missed a teachable moment. Student leaves discouraged.",
+                    data: "Reputation impact: Rigid under pressure"
+                },
+                d: {
+                    type: 'good',
+                    score: 20,
+                    tags: ["practical","encouraging"],
+                    title: "✓ Starter Boost Strategy",
+                    message: "You gave just enough help to get momentum going without draining your last energy bar.",
+                    data: "Reputation impact: Fair, balanced, and student-centered"
+                }
+            }
+        };
+
+        function updateTrackRecord(points) {
+            trackRecord = Math.min(100, trackRecord + points);
+            const fill = document.getElementById('track-record');
+            fill.style.width = trackRecord + '%';
+            fill.textContent = trackRecord + '%';
+        }
+
+        function addReputationTag(tag) {
+            if (!reputationTags.includes(tag) && tag) {
+                reputationTags.push(tag);
+                const tagsContainer = document.getElementById('reputation-tags');
+                const tagEl = document.createElement('span');
+                tagEl.className = 'reputation-tag tag-' + responses[currentScenario][Object.keys(responses[currentScenario])[0]].type + ' active';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            }
+        }
+
+        function updateScenarioCounter() {
+            document.getElementById('scenario-counter').textContent = 'Scenario ' + currentScenario + ' of 8';
+        }
+
+        function showScene(sceneNum) {
+            document.querySelectorAll('.scene').forEach(scene => scene.classList.remove('active'));
+            const scene = document.getElementById('scene-' + sceneNum);
+            scene.classList.add('active');
+            
+            // Randomize choice buttons
+            const choiceContainer = scene.querySelector('.choice-container');
+            if (choiceContainer) {
+                const buttons = Array.from(choiceContainer.querySelectorAll('.choice-btn'));
+                for (let i = buttons.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+                }
+                buttons.forEach(button => choiceContainer.appendChild(button));
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startChallenge() {
+            currentScenario = 1;
+            updateScenarioCounter();
+            showScene(1);
+        }
+
+        function makeChoice(scenario, choice) {
+            const response = responses[scenario][choice];
+            const resultBox = document.getElementById('result-' + scenario);
+            
+            resultBox.className = 'result-box show result-' + response.type;
+            resultBox.innerHTML = 
+                '<h3>' + response.title + '</h3>' +
+                '<p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">' + response.message + '</p>' +
+                '<div class="data-impact">' +
+                    '<h4>📊 DATA IMPACT:</h4>' +
+                    '<p style="line-height: 1.6; margin-top: 10px;">' + response.data + '</p>' +
+                '</div>' +
+                (response.type === 'good' ? 
+                    '<button class="btn btn-continue" onclick="nextScenario()">NEXT SCENARIO →</button>' : 
+                    '<button class="btn btn-retry" onclick="retryScenario(' + scenario + ')">↻ TRY A DIFFERENT CHOICE</button>');
+
+            updateTrackRecord(response.score);
+            response.tags.forEach(tag => addReputationTag(tag));
+            document.querySelector('#scene-' + scenario + ' .choice-container').style.display = 'none';
+        }
+
+        function retryScenario(scenario) {
+            const resultBox = document.getElementById('result-' + scenario);
+            resultBox.className = 'result-box';
+            resultBox.innerHTML = '';
+            document.querySelector('#scene-' + scenario + ' .choice-container').style.display = 'block';
+        }
+
+        function nextScenario() {
+            currentScenario++;
+            if (currentScenario > 8) {
+                showFinal();
+            } else {
+                updateScenarioCounter();
+                showScene(currentScenario);
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('final-score').textContent = trackRecord + '%';
+            const messageDiv = document.getElementById('final-message');
+            
+            if (trackRecord >= 85) {
+                messageDiv.innerHTML = '<h3 style="color: #34d399;">🌟 EXCELLENT PERFORMANCE</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">You demonstrated strong decision-making throughout. Your choices show professional maturity and good judgment.</p>';
+            } else if (trackRecord >= 60) {
+                messageDiv.innerHTML = '<h3 style="color: #fbbf24;">📈 GOOD PROGRESS</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">You made some solid choices but there\'s room for growth. Review the scenarios where you struggled and consider how you might approach them differently.</p>';
+            } else {
+                messageDiv.innerHTML = '<h3 style="color: #fb923c;">⚠️ LEARNING OPPORTUNITY</h3><p style="font-size: 1.2em; line-height: 1.8; margin-top: 20px;">This training revealed areas for development. That\'s valuable insight! Consider what patterns emerged and how you want to change your approach.</p>';
+            }
+            
+            showScene('final');
+        }
+
+        updateTrackRecord(0);
+    </script>
+</body>
+</html>
