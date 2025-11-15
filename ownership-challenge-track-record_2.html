@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE OWNERSHIP CHALLENGE: Build Your Track Record</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            color: #fbbf24;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #fff;
+            opacity: 0.95;
+        }
+
+        .track-record-meter {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .track-record-label {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #fbbf24;
+        }
+
+        .track-record-bar {
+            background: rgba(0,0,0,0.3);
+            height: 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .track-record-fill {
+            background: linear-gradient(90deg, #fb923c, #fbbf24, #34d399);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .reputation-tags {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .reputation-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .reputation-tag.active {
+            display: inline-block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .tag-good { background: rgba(52, 211, 153, 0.3); border: 2px solid #34d399; }
+        .tag-bad { background: rgba(251, 146, 60, 0.3); border: 2px solid #fb923c; }
+
+        .scenario-counter {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: #fbbf24;
+        }
+
+        .scene {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scene h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #fbbf24;
+        }
+
+        .scene h3 {
+            font-size: 1.5em;
+            margin: 20px 0 15px 0;
+            color: #22d3ee;
+        }
+
+        .scene p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .scenario-box {
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #fbbf24;
+        }
+
+        .stakeholder-dialogue {
+            background: rgba(34, 211, 238, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #22d3ee;
+            font-style: italic;
+        }
+
+        .choice-container {
+            margin: 30px 0;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 1.1em;
+            background: rgba(34, 211, 238, 0.15);
+            border: 2px solid #22d3ee;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(34, 211, 238, 0.25);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-good {
+            background: rgba(52, 211, 153, 0.2);
+            border: 3px solid #34d399;
+        }
+
+        .result-bad {
+            background: rgba(251, 146, 60, 0.2);
+            border: 3px solid #fb923c;
+        }
+
+        .result-box h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .result-good h3 {
+            color: #34d399;
+        }
+
+        .result-bad h3 {
+            color: #fb923c;
+        }
+
+        .data-impact {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #fbbf24;
+        }
+
+        .data-impact h4 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-continue {
+            background: #34d399;
+            color: white;
+        }
+
+        .btn-retry {
+            background: #fb923c;
+            color: white;
+        }
+
+        .btn-start {
+            background: #fbbf24;
+            color: #1e293b;
+        }
+
+        .tip-box {
+            background: rgba(251, 191, 36, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #fbbf24;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .intro-box {
+            background: rgba(34, 211, 238, 0.15);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #22d3ee;
+        }
+
+        .stakes {
+            font-size: 1.3em;
+            color: #fbbf24;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .email-thread {
+            background: rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .email {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 3px solid #22d3ee;
+        }
+
+        .email-from {
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 5px;
+        }
+
+        .timeline {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .time-stamp {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .final-score {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .final-score.rookie {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+        }
+
+        .final-score.developing {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+
+        .final-score h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .score-display {
+            font-size: 3em;
+            color: #fbbf24;
+            margin: 20px 0;
+        }
+
+        .lessons-learned {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .lessons-learned ul {
+            margin: 15px 0 15px 30px;
+            line-height: 2;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .emphasis {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            .scene {
+                padding: 20px;
+            }
+            .choice-btn {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 THE OWNERSHIP CHALLENGE 📊</h1>
+            <div class="subtitle">Build Your Track Record (Data Doesn't Lie)</div>
+        </div>
+
+        <div class="track-record-meter">
+            <div class="track-record-label">Professional Track Record</div>
+            <div class="track-record-bar">
+                <div class="track-record-fill" id="track-record">0%</div>
+            </div>
+            <div class="reputation-tags" id="reputation-tags">
+                <span class="reputation-tag tag-good" data-tag="reliable">✓ Reliable</span>
+                <span class="reputation-tag tag-good" data-tag="communicator">✓ Communicator</span>
+                <span class="reputation-tag tag-good" data-tag="realistic">✓ Realistic</span>
+                <span class="reputation-tag tag-good" data-tag="ownership">✓ Takes Ownership</span>
+                <span class="reputation-tag tag-bad" data-tag="deflector">✗ Deflects</span>
+                <span class="reputation-tag tag-bad" data-tag="silent">✗ Silent Misses</span>
+                <span class="reputation-tag tag-bad" data-tag="overpromise">✗ Over-Promises</span>
+                <span class="reputation-tag tag-bad" data-tag="hiding">✗ Hides Issues</span>
+            </div>
+            <div class="scenario-counter" id="scenario-counter">Scenario 0 of 8</div>
+        </div>
+
+        <!-- INTRO SCENE -->
+        <div class="scene active" id="scene-intro">
+            <h2>Your Reputation Is Data</h2>
+            
+            <div class="intro-box">
+                <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>Here's the truth about professional growth:</strong></p>
+                <p style="font-size: 1.1em; line-height: 1.8;">Your track record isn't what you SAY you can do. It's what the DATA shows you actually DO.</p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">Every project writes your story:</p>
+                <ul style="margin: 15px 0 15px 40px; line-height: 2;">
+                    <li>📊 Can you estimate your own work?</li>
+                    <li>📈 Do you hit milestones?</li>
+                    <li>💬 Do you communicate when things slip?</li>
+                    <li>🎯 Do you deliver what you promise?</li>
+                    <li>🚀 Do you take ownership or deflect?</li>
+                </ul>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">The organization tracks this. Stakeholders remember. Your reputation is built one project at a time.</p>
+            </div>
+
+            <div class="stakes">
+                EXPERIENCED DEVELOPERS ESTIMATE. COMMUNICATE. DELIVER.
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">This training shows you the difference between <span class="emphasis">rookie behaviors</span> that kill credibility and <span class="emphasis">experienced behaviors</span> that build trust.</p>
+            
+            <div class="tip-box">
+                <h4>💡 HOW THIS WORKS:</h4>
+                <p style="line-height: 1.8;">You'll face 8 REAL project scenarios. Each one tests your ability to estimate, communicate, and take ownership. Some choices build your track record. Some destroy it. You'll see the DATA in real-time—how stakeholders perceive you, what gets remembered, what reputation you're building.</p>
+                <p style="margin-top: 15px; color: #fbbf24;"><strong>Your choices create your professional reputation. Let's build a good one.</strong></p>
+            </div>
+
+            <div style="background: rgba(251, 191, 36, 0.15); padding: 25px; border-radius: 10px; margin: 30px 0; border: 2px solid #fbbf24;">
+                <h4 style="color: #fbbf24; margin-bottom: 15px; font-size: 1.3em;">⚡ CRITICAL: ANSWER HONESTLY</h4>
+                <p style="font-size: 1.1em; line-height: 1.8;">Don't pick what you THINK you should say. Pick what you would ACTUALLY do TODAY.</p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 10px;">That's where the learning happens. See your real patterns. Feel the consequences. THEN decide if you want to change.</p>
+                <p style="font-size: 1.1em; margin-top: 10px; color: #fbbf24;"><strong>This only works if you're honest with yourself. Try it.</strong></p>
+            </div>
+
+            <p style="font-size: 1.3em; margin-top: 30px; text-align: center;"><strong>Ready to see what your data REALLY says about you?</strong></p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-start" onclick="startChallenge()">LET'S BUILD MY TRACK RECORD</button>
+            </div>
+        </div>
+
+        <!-- SCENARIO 1: THE SIMPLE QUESTION -->
+        <div class="scene" id="scene-1">
+            <h2>📅 SCENARIO 1: THE SIMPLE QUESTION</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Monday morning. Your stakeholder emails about a new course: "5 interactive scenarios on conflict resolution for managers. Standard Storyline build."</p>
+                <p style="margin-top: 10px;"><strong>The Question:</strong> "When can you have this done?"</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you estimate your own work?</p>
+            </div>
+
+            <div class="email-thread">
+                <div class="email">
+                    <div class="email-from">From: Sarah Chen (Training Manager)</div>
+                    <p style="margin-top: 10px;">Hi! We need a course on conflict resolution for our new manager training program. 5 interactive scenarios, typical Storyline build. When can you have this done? Planning the rollout calendar and need to know.</p>
+                    <p style="margin-top: 10px;">Thanks!</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">You've built similar courses before. You know this work. What do you say?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(1, 'deflect')">
+                    <strong>A)</strong> "I'm not sure. Let me check with my manager and get back to you."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'vague')">
+                    <strong>B)</strong> "I'll get started on it soon. Shouldn't take too long."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'estimate')">
+                    <strong>C)</strong> "5 scenarios × 4 hours each = 20 hours dev, plus 4 hours QA. I can deliver Friday end of day."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'wild')">
+                    <strong>D)</strong> "I can have it done by Wednesday!" (Without thinking it through)
+                </button>
+            </div>
+
+            <div class="result-box" id="result-1"></div>
+        </div>
+
+        <!-- SCENARIO 2: THE SILENT SLIP -->
+        <div class="scene" id="scene-2">
+            <h2>⏰ SCENARIO 2: THE SILENT SLIP</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You're building a compliance course. You estimated 2 weeks. You're in Week 2, Day 3.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> The SME's content was WAY more complex than you thought. You're not going to hit Friday's deadline.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Do you communicate early or hope you can catch up?</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="time-stamp">Week 1:</span> Started build, realized content is more technical than expected
+                </div>
+                <div class="timeline-item">
+                    <span class="time-stamp">Week 2, Monday:</span> Behind schedule but didn't say anything
+                </div>
+                <div class="timeline-item">
+                    <span class="time-stamp">Week 2, Wednesday (TODAY):</span> You're DEFINITELY not hitting Friday. Stakeholder has no idea.
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">It's Wednesday. Deadline is Friday. You won't make it. What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(2, 'silent')">
+                    <strong>A)</strong> Say nothing. Work late nights. Try to make it happen. Tell them Friday if you can't finish.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'friday')">
+                    <strong>B)</strong> Wait until Friday morning to tell them: "I'm not going to hit today's deadline."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'excuse')">
+                    <strong>C)</strong> Email Wednesday: "The SME's content was more complex than expected. I can't hit Friday."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'proactive')">
+                    <strong>D)</strong> Email Wednesday: "I realized the technical complexity is greater than estimated. I'm 70% done but need until Tuesday to ensure quality. I can deliver a draft Friday if you need to see progress, or final version Tuesday. Your call."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-2"></div>
+        </div>
+
+        <!-- SCENARIO 3: THE MILESTONE QUESTION -->
+        <div class="scene" id="scene-3">
+            <h2>📋 SCENARIO 3: THE MILESTONE QUESTION</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You're building a 4-week project. Stakeholder asks: "Can you send me milestones so I know we're on track?"</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Do you think in terms of deliverable checkpoints or just "it'll be done in 4 weeks"?</p>
+            </div>
+
+            <div class="stakeholder-dialogue">
+                <p><strong>Stakeholder:</strong> "This is a big project—4 weeks. I want to make sure we're aligned and on track. Can you send me milestones? Like, what will be done by when?"</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">They want visibility into your progress. What do you propose?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(3, 'vague')">
+                    <strong>A)</strong> "Sure, I'll check in with you every week and let you know how it's going."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'pro')">
+                    <strong>B)</strong> "Week 1: content outline + first 2 modules. Week 2: remaining modules + interactivity. Week 3: full course for your review. Week 4: revisions + delivery. You'll review at Week 3. Sound good?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'resist')">
+                    <strong>C)</strong> "I don't really work in milestones. I'll just deliver it all at the end of 4 weeks."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'basic')">
+                    <strong>D)</strong> "How about: Week 1 - planning, Week 2 - development, Week 3 - more development, Week 4 - final touches?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-3"></div>
+        </div>
+
+        <!-- SCENARIO 4: THE SCOPE CREEP -->
+        <div class="scene" id="scene-4">
+            <h2>🎯 SCENARIO 4: THE SCOPE CREEP</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> You estimated 1 week for a course. On Day 3, stakeholder adds: "Can we also add a video introduction, gamification, and 3 additional knowledge checks?"</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Do you say yes and scramble, or manage expectations?</p>
+            </div>
+
+            <div class="email-thread">
+                <div class="email">
+                    <div class="email-from">From: Marcus Williams (VP Learning)</div>
+                    <p style="margin-top: 10px;">Quick add-on: Can we include a video intro from our CEO? Also thinking gamification would be great—maybe a point system? And add 3 more knowledge checks throughout. Still on track for Friday, right?</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">That's... a LOT more work. You're already at Day 3 of a 5-day timeline. What do you say?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(4, 'yes')">
+                    <strong>A)</strong> "Sure! I'll make it work." (Then panic and work all weekend)
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'do-it-all')">
+                    <strong>B)</strong> "I'll do my best to fit it all in by Friday." (Try to do everything, deliver nothing polished)
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'pushback')">
+                    <strong>C)</strong> "That's a lot of extra work. I can't add all that and hit Friday."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'negotiate')">
+                    <strong>D)</strong> "I can add those features, but it changes the timeline. Video + gamification + 3 checks = 8 more hours. I can deliver the base course Friday as planned, PLUS the add-ons by Tuesday. Or we push the whole thing to Tuesday and deliver everything together. Which would you prefer?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-4"></div>
+        </div>
+
+        <!-- SCENARIO 5: THE "ALMOST DONE" LOOP -->
+        <div class="scene" id="scene-5">
+            <h2>🔄 SCENARIO 5: THE "ALMOST DONE" LOOP</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Your stakeholder has been asking for status updates. You keep saying "almost done."</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You've been "almost done" for 3 days. Stakeholder is losing confidence.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you give accurate status instead of vague optimism?</p>
+            </div>
+
+            <div class="email-thread">
+                <div class="email">
+                    <div class="email-from">Monday - Stakeholder: "How's it going?"</div>
+                    <p style="margin-top: 5px;"><strong>You:</strong> "Almost done!"</p>
+                </div>
+                <div class="email">
+                    <div class="email-from">Tuesday - Stakeholder: "Ready to review?"</div>
+                    <p style="margin-top: 5px;"><strong>You:</strong> "Almost! Just finishing up a few things."</p>
+                </div>
+                <div class="email">
+                    <div class="email-from">Wednesday - Stakeholder: "Status?"</div>
+                    <p style="margin-top: 5px;"><strong>You:</strong> "Really close! Should have it soon."</p>
+                </div>
+                <div class="email" style="border-left-color: #ef4444;">
+                    <div class="email-from">Thursday (TODAY) - Stakeholder: "Where are we on this?"</div>
+                    <p style="margin-top: 5px; color: #fbbf24;"><em>*They sound frustrated now*</em></p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">"Almost done" has lost all meaning. What do you say TODAY?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(5, 'again')">
+                    <strong>A)</strong> "Still almost done! Just a few more tweaks."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'tomorrow')">
+                    <strong>B)</strong> "Should have it to you by end of day tomorrow."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'excuse')">
+                    <strong>C)</strong> "Sorry for the delays. It's taking longer than expected. I'll get it to you as soon as I can."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'specific')">
+                    <strong>D)</strong> "I apologize for not being specific earlier. Here's exactly where we are: 8 of 10 modules are complete and tested. The last 2 modules need 4 hours of work. I'll have those done by 2 PM tomorrow and send you the complete course for review at that time. You'll have it by 2 PM Friday at the latest."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-5"></div>
+        </div>
+
+        <!-- SCENARIO 6: THE IMPOSSIBLE REQUEST -->
+        <div class="scene" id="scene-6">
+            <h2>🚫 SCENARIO 6: THE IMPOSSIBLE REQUEST</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Stakeholder asks: "Can you build a full compliance course by Friday? It's only 3 days, but it's urgent."</p>
+                <p style="margin-top: 10px;"><strong>The Reality:</strong> A quality compliance course takes 2 weeks minimum. You KNOW this.</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Do you say yes and fail, or set realistic expectations?</p>
+            </div>
+
+            <div class="stakeholder-dialogue">
+                <p><strong>Stakeholder:</strong> "I know it's tight, but we have an audit Monday. Can you build the compliance course by Friday? We're desperate here."</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">You've built compliance courses before. They take 2 weeks. This is 3 days. What do you say?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(6, 'no')">
+                    <strong>A)</strong> "No, that's impossible. Compliance courses take 2 weeks."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'yes')">
+                    <strong>B)</strong> "I'll make it happen!" (Then deliver something rushed and incomplete)
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'options')">
+                    <strong>C)</strong> "A full course in 3 days won't meet standards. But I have 3 options: Basic version Friday (content only), quality version in 10 days, or interim solution for the audit + proper course after. Which works?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'maybe')">
+                    <strong>D)</strong> "I'll try my best, but I can't promise quality in 3 days."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-6"></div>
+        </div>
+
+        <!-- SCENARIO 7: THE NO ESTIMATE HABIT -->
+        <div class="scene" id="scene-7">
+            <h2>❓ SCENARIO 7: THE NO-ESTIMATE HABIT</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> Over 3 months, you've worked on 6 projects. Every time a stakeholder asks for timeline, you say "I'm not sure" or "I'll find out."</p>
+                <p style="margin-top: 10px;"><strong>The Pattern:</strong> You've never given an estimate without checking with your manager first.</p>
+                <p style="margin-top: 10px;"><strong>The Consequence:</strong> Your manager gets a meeting invite: "Can we talk about project timelines?"</p>
+            </div>
+
+            <div class="email-thread">
+                <div class="email">
+                    <div class="email-from">From: Your Manager</div>
+                    <p style="margin-top: 10px;">Sarah Chen reached out to me. She's frustrated that every time she asks you for a timeline, you defer to me. She needs to move faster on project planning and can't wait for me to respond each time.</p>
+                    <p style="margin-top: 10px;">You've been here 2 years. You KNOW how long these projects take. Why aren't you estimating your own work?</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">Your manager is asking: Why don't you estimate? What's the real reason?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(7, 'unsure')">
+                    <strong>A)</strong> "I'm just not confident in my estimates. I don't want to give wrong information."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'safe')">
+                    <strong>B)</strong> "I feel safer having you approve timelines. That way if something goes wrong, it's not on me."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'realize')">
+                    <strong>C)</strong> "You're right. I should be estimating. I know this work. I'll start giving timelines and come to you only if there are unusual factors."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'commit')">
+                    <strong>D)</strong> "You're absolutely right—I should own this. I'm going to start tracking my project times so I have data to estimate from. If I'm genuinely unsure on a new type of project, I'll estimate a range and note it's preliminary. But for standard work, I'll give stakeholders timelines directly. Thanks for the push—I needed this."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-7"></div>
+        </div>
+
+        <!-- SCENARIO 8: THE TRUST TEST -->
+        <div class="scene" id="scene-8">
+            <h2>🎯 SCENARIO 8: THE TRUST TEST</h2>
+            
+            <div class="scenario-box">
+                <p><strong>The Setup:</strong> A VP you've never worked with asks you to build a high-visibility course for the executive team.</p>
+                <p style="margin-top: 10px;"><strong>The Question:</strong> "I'm deciding between you and another developer. Can you walk me through your approach and timeline?"</p>
+                <p style="margin-top: 10px;"><strong>The Test:</strong> Can you demonstrate ownership, planning, and communication skills?</p>
+            </div>
+
+            <div class="stakeholder-dialogue">
+                <p><strong>VP:</strong> "This is for our executive leadership program. High visibility. I need someone who can estimate accurately, communicate proactively, and deliver quality on time. Tell me how you'd approach this project."</p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">This is your chance to show your professional maturity. What do you say?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(8, 'eager')">
+                    <strong>A)</strong> "I can definitely do this! I'm really good at Storyline and I work fast. You won't be disappointed."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'professional')">
+                    <strong>B)</strong> "Give me 30 minutes with your content. Within 24 hours you'll have: detailed project plan with milestones, realistic timeline with review points, and clarifying questions. You'll never chase me for status—I communicate proactively. If anything threatens timeline or quality, you'll know immediately with options. Sound good?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'basic')">
+                    <strong>C)</strong> "I'll build it in Storyline. Should take a few weeks. I'll keep you updated."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'questions')">
+                    <strong>D)</strong> "Tell me more about your goals for the course, then I can give you a timeline and approach."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-8"></div>
+        </div>
+
+        <!-- FINAL RESULTS SCENE -->
+        <div class="scene" id="scene-final">
+            <div class="final-score" id="final-score-box">
+                <h2>📊 YOUR TRACK RECORD 📊</h2>
+                <p style="font-size: 1.2em; margin: 20px 0;">Based on your choices across 8 scenarios...</p>
+                <div class="score-display" id="final-track-record">85%</div>
+                <p style="font-size: 1.3em; margin-top: 20px;" id="reputation-label">Professional Reputation</p>
+            </div>
+
+            <div id="reputation-summary" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <h2 style="margin-top: 40px;">🎯 WHAT THE DATA SHOWS:</h2>
+            
+            <div class="lessons-learned">
+                <h3 style="color: #fbbf24;">📊 On Estimating:</h3>
+                <ul>
+                    <li><strong>EXPERIENCED DEVELOPERS ESTIMATE</strong> - If you've done similar work, you can estimate it</li>
+                    <li><strong>BREAK IT DOWN</strong> - "5 scenarios × 4 hours = 20 hours + 4 hours QA = 3 days"</li>
+                    <li><strong>IT'S OKAY TO BE WRONG</strong> - Better to estimate and adjust than never estimate</li>
+                    <li><strong>DEFLECTING LOOKS JUNIOR</strong> - "I don't know, ask my manager" = you can't scope work</li>
+                    <li><strong>BUILD YOUR ESTIMATION DATA</strong> - Track your projects. Use real data for future estimates.</li>
+                </ul>
+
+                <h3 style="color: #fbbf24; margin-top: 25px;">💬 On Communication:</h3>
+                <ul>
+                    <li><strong>EARLY WARNING = PROFESSIONALISM</strong> - Wednesday "I'll miss Friday" > Friday "I missed it"</li>
+                    <li><strong>GIVE OPTIONS, NOT JUST PROBLEMS</strong> - "I can deliver basic Friday or full Tuesday—your choice"</li>
+                    <li><strong>"ALMOST DONE" DESTROYS TRUST</strong> - Be specific. Give actual completion times.</li>
+                    <li><strong>SILENCE = ANXIETY</strong> - Stakeholders assume the worst when you go dark</li>
+                    <li><strong>OVER-COMMUNICATE EARLY</strong> - Better to over-share than leave people guessing</li>
+                </ul>
+
+                <h3 style="color: #fbbf24; margin-top: 25px;">📋 On Milestones:</h3>
+                <ul>
+                    <li><strong>MILESTONES BUILD TRUST</strong> - Stakeholders see progress, not just "done in 4 weeks"</li>
+                    <li><strong>MAKE THEM REVIEWABLE</strong> - "Week 3 = full draft for review" gives checkpoints</li>
+                    <li><strong>THEY PROTECT YOU TOO</strong> - If stakeholder doesn't review at Week 3, that's on them</li>
+                    <li><strong>THINK IN DELIVERABLES</strong> - Not phases (planning, dev, QA) but actual showable work</li>
+                </ul>
+
+                <h3 style="color: #fbbf24; margin-top: 25px;">🚫 On Scope Creep:</h3>
+                <ul>
+                    <li><strong>NEGOTIATE, DON'T JUST SAY YES</strong> - "I can add that, but it changes the timeline"</li>
+                    <li><strong>GIVE OPTIONS</strong> - "Basic Friday or full Tuesday—you choose priority"</li>
+                    <li><strong>SAYING YES TO EVERYTHING = DELIVERING NOTHING WELL</strong> - Protect quality</li>
+                    <li><strong>SCOPE CHANGES = TIMELINE CHANGES</strong> - This is normal and professional to state</li>
+                </ul>
+
+                <h3 style="color: #fbbf24; margin-top: 25px;">⚡ On Impossible Requests:</h3>
+                <ul>
+                    <li><strong>DON'T PROMISE WHAT YOU CAN'T DELIVER</strong> - Overpromising destroys all future credibility</li>
+                    <li><strong>OFFER ALTERNATIVES</strong> - If you can't do A, what CAN you do?</li>
+                    <li><strong>BE HONEST ABOUT CONSTRAINTS</strong> - Quality work takes time. Don't apologize for reality.</li>
+                    <li><strong>HELP THEM SOLVE THE PROBLEM</strong> - Even if you can't do what they asked</li>
+                </ul>
+
+                <h3 style="color: #fbbf24; margin-top: 25px;">🎯 On Building Your Track Record:</h3>
+                <ul>
+                    <li><strong>EVERY PROJECT IS DATA</strong> - Stakeholders remember who delivers and who doesn't</li>
+                    <li><strong>YOUR REPUTATION IS CUMULATIVE</strong> - One late project = cautious. Pattern of late = don't trust</li>
+                    <li><strong>OWNERSHIP ACCELERATES GROWTH</strong> - Taking responsibility = faster advancement</li>
+                    <li><strong>THE ORGANIZATION WATCHES</strong> - Who can be trusted with bigger projects?</li>
+                    <li><strong>YOU CONTROL YOUR NARRATIVE</strong> - Proactive communication writes YOUR story</li>
+                </ul>
+            </div>
+
+            <div class="tip-box" style="margin-top: 30px;">
+                <h4>📋 YOUR NEW OWNERSHIP CHECKLIST:</h4>
+                <p style="line-height: 1.8; margin-top: 15px;">
+                    <strong>WHEN ASKED "WHEN CAN YOU DELIVER?"</strong><br>
+                    ✅ Break down the work into hours/components<br>
+                    ✅ Give a realistic estimate with buffer<br>
+                    ✅ State any assumptions ("assuming no scope changes")<br>
+                    ✅ If truly unsure, estimate a range and explain why<br><br>
+                    
+                    <strong>DURING THE PROJECT:</strong><br>
+                    ✅ Define milestones at the start (Week 1 = X, Week 2 = Y)<br>
+                    ✅ Communicate progress at each milestone<br>
+                    ✅ If you spot issues EARLY, communicate EARLY<br>
+                    ✅ Give specific status ("75% done, on track for Friday") not vague ("almost done")<br>
+                    ✅ When scope changes, restate the new timeline<br><br>
+                    
+                    <strong>WHEN THINGS GO WRONG:</strong><br>
+                    ✅ Tell stakeholders AS SOON AS you know there's a problem<br>
+                    ✅ Give options, not just bad news ("I can deliver X by Y or Z by W")<br>
+                    ✅ Own it. Don't blame. Focus on solutions.<br>
+                    ✅ Learn from it. Track what went wrong to estimate better next time.<br><br>
+                    
+                    <strong>BUILDING YOUR DATA:</strong><br>
+                    ✅ Track how long projects actually take<br>
+                    ✅ Compare your estimates to actuals<br>
+                    ✅ Adjust future estimates based on real data<br>
+                    ✅ Build a library of standard task times
+                </p>
+            </div>
+
+            <div style="background: rgba(52, 211, 153, 0.2); padding: 30px; border-radius: 15px; margin-top: 30px; border: 2px solid #34d399;">
+                <h3 style="color: #34d399; margin-bottom: 20px;">🚀 YOU'RE READY TO OWN IT</h3>
+                <p style="font-size: 1.2em; line-height: 1.8;">
+                    Starting TODAY, you build your track record differently:<br><br>
+                    
+                    When asked "when can you deliver?" → <span class="emphasis">You estimate</span><br>
+                    When you spot a problem → <span class="emphasis">You communicate early</span><br>
+                    When scope changes → <span class="emphasis">You renegotiate timelines</span><br>
+                    When stakeholders check in → <span class="emphasis">You give specific status</span><br><br>
+                    
+                    This is how experienced developers operate.<br>
+                    This is how you build trust.<br>
+                    This is how you grow.<br><br>
+                    
+                    <strong style="color: #fbbf24;">Your reputation is data. Make it good data.</strong>
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="btn btn-start" onclick="resetChallenge()">↻ RUN IT AGAIN (Different Choices)</button>
+                <button class="btn btn-continue" onclick="window.close()">✓ I'M READY TO OWN MY WORK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let trackRecord = 0;
+        let currentScenario = 0;
+        let reputationTags = [];
+
+        const responses = {
+            1: {
+                deflect: {
+                    type: 'bad',
+                    score: 5,
+                    tags: ['deflector'],
+                    title: '😬 YOU JUST HID',
+                    message: 'STOP. You just told a stakeholder you can\'t answer a basic question about YOUR OWN WORK.<br><br>Sarah\'s thinking right now: <em>"They\'ve been here 2 YEARS and need their manager to estimate a Storyline build? What DO they know?"</em><br><br>She emails your manager instead. Every. Single. Time. Now.<br><br>Feel that? That\'s what hiding from ownership feels like. Stakeholders learn fast: You can\'t answer questions = they go around you.<br><br><strong>YOUR DATA JUST SAID:</strong> Not ready for independent work.',
+                    data: 'Stakeholder perception: <strong>Can\'t scope work. Needs constant supervision.</strong><br>Pattern starting: Routes around you to get answers'
+                },
+                vague: {
+                    type: 'bad',
+                    score: 10,
+                    tags: ['deflector'],
+                    title: '⏰ ZERO INFORMATION',
+                    message: 'Sarah reads: <em>"Soon... shouldn\'t take too long..."</em><br><br>That\'s NOTHING. Is it 3 days? 3 weeks? She can\'t schedule ANYTHING with "soon."<br><br>She emails back: "I need an actual date. Please check with your manager."<br><br>You just made her chase you AND go around you. Double loss.<br><br>You chose vague over 30 seconds of thinking. Feel that cost?<br><br><strong>YOUR DATA JUST SAID:</strong> Vague communicator. Can\'t plan around.',
+                    data: 'Stakeholder perception: <strong>Unclear. Can\'t commit. Difficult to work with.</strong><br>Impact: Projects stall waiting for real timelines'
+                },
+                wild: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ['overpromise'],
+                    title: '💣 BOOM. CREDIBILITY GONE.',
+                    message: 'Wednesday! You said Wednesday!<br><br>Reality check: 5 scenarios × 4 hours = 20 hours = 2.5 days PLUS QA. You needed FOUR days minimum.<br><br>Wednesday comes. You\'re 60% done. You email: "Sorry, need until Friday."<br><br>Sarah ALREADY told leadership it launches Wednesday. You just made HER look bad to executives.<br><br>She won\'t forget this. Next time you estimate? She adds a week "just in case."<br><br>Feel that trust evaporate? That\'s what happens when you guess wildly.<br><br><strong>YOUR DATA JUST SAID:</strong> Over-promises. Don\'t believe estimates.',
+                    data: 'Stakeholder perception: <strong>Unreliable. Doesn\'t think before committing.</strong><br>Future: She won\'t trust your timelines. Ever.'
+                },
+                estimate: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['reliable', 'realistic'],
+                    title: '🎯 THAT\'S HOW IT\'S DONE',
+                    message: 'YES! Sarah reads your breakdown and EXHALES.<br><br>"5 scenarios × 4 hours = 20 hours dev + 4 hours QA = Friday."<br><br>She thinks: <em>"They actually THOUGHT about this. I can plan my launch for Friday. I can TRUST this timeline."</em><br><br>Friday comes. You deliver. Exactly as promised.<br><br>FEEL THAT? That\'s what reliability feels like. That\'s what trust building feels like.<br><br>Next project? She requests YOU by name.<br><br><strong>YOUR DATA JUST SAID:</strong> Can scope work. Delivers when promised. Trustworthy. REQUEST FOR FUTURE PROJECTS.',
+                    data: 'Stakeholder perception: <strong>Thinks through estimates. Realistic. RELIABLE.</strong><br>Future impact: First choice for important work'
+                }
+            },
+            2: {
+                silent: {
+                    type: 'bad',
+                    score: 3,
+                    tags: ['silent', 'hiding'],
+                    title: '💣 SILENT BOMB',
+                    message: 'Friday 10 AM. Stakeholder: "Where\'s the course?"<br>You: "Almost done!"<br><br>2 PM. "Status?"<br>You: "Working on it..."<br><br>5 PM. You\'re 80% done. "I need until Monday."<br><br>They waited ALL DAY. Their plans? RUINED. Their trust in you? DESTROYED.<br><br>You KNEW Wednesday you\'d miss Friday. You said NOTHING.<br><br>Feel that fury? That\'s what happens when you hide problems until deadline day.<br><br><strong>YOUR DATA JUST SAID:</strong> Hides issues. Silent misses. UNRELIABLE. Don\'t assign deadlines.',
+                    data: 'Stakeholder perception: <strong>Cannot be trusted with deadlines. Poor communication.</strong><br>Career impact: Removed from time-sensitive work'
+                },
+                friday: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ['silent'],
+                    title: '⚠️ TOO LATE',
+                    message: 'Friday morning you drop the bomb: "I won\'t hit today."<br><br>Stakeholder EXPLODES: "Why didn\'t you tell me WEDNESDAY? I could\'ve adjusted plans! Found help! SOMETHING!"<br><br>You had information for 48 hours. You kept it from them.<br><br>The course is late. But WORSE—they don\'t trust you anymore.<br><br>You chose silence over a 2-minute email. Feel that cost?<br><br><strong>YOUR DATA JUST SAID:</strong> Waits until disasters to communicate.',
+                    data: 'Stakeholder perception: <strong>Last-minute surprises. Can\'t be trusted.</strong><br>Trust level: Damaged permanently'
+                },
+                excuse: {
+                    type: 'bad',
+                    score: 12,
+                    tags: [],
+                    title: '😬 PROBLEM, NO SOLUTION',
+                    message: 'Wednesday email: "Content was complex. Can\'t hit Friday."<br><br>Stakeholder: "Okay... when CAN you deliver?"<br>You: "Not sure yet."<br><br>You told them the problem but gave ZERO solution. No timeline. No options. Nothing.<br><br>They STILL can\'t plan. Now they think you panic under pressure.<br><br><strong>YOUR DATA JUST SAID:</strong> Reports problems. Doesn\'t solve them.',
+                    data: 'Stakeholder perception: <strong>Needs hand-holding. Can\'t problem-solve.</strong><br>Pattern: Reactive, not proactive'
+                },
+                proactive: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['communicator', 'ownership', 'realistic'],
+                    title: '🎯 THIS IS OWNERSHIP',
+                    message: 'Wednesday email hits their inbox:<br>• Clear problem<br>• Current status (70% done)<br>• TWO options<br>• THEY choose<br><br>Stakeholder response: "Thank you for letting me know EARLY. Let\'s go Tuesday. I\'ll adjust the launch."<br><br>BOOM. You just turned a miss into a TRUST WIN.<br><br>You showed: Early warning. Clear status. Solutions. Respect.<br><br>Feel that? THAT\'S what professional communication feels like.<br><br><strong>YOUR DATA JUST SAID:</strong> Proactive. Solution-oriented. TRUSTWORTHY. Give more important projects.',
+                    data: 'Stakeholder perception: <strong>Reliable. Communicates early. Offers solutions.</strong><br>Future: First choice for complex work'
+                }
+            },
+            3: {
+                resist: {
+                    type: 'bad',
+                    score: 5,
+                    tags: ['hiding'],
+                    title: '🚫 REFUSED VISIBILITY',
+                    message: 'Stakeholder: "You... don\'t work in milestones? How will I know if we\'re on track?"<br><br>You: "You\'ll just have to trust me."<br><br>They think: <em>"I\'m trusting them with 4 weeks of work and NO visibility? What if it\'s all wrong at the end?"</em><br><br>They go to your manager: "Can we get someone who works with milestones? I need visibility on this project."<br><br><strong>DATA POINT RECORDED:</strong> Resists project management basics. Not suitable for large projects.',
+                    data: 'Stakeholder perception: <strong>Doesn\'t understand professional project delivery</strong><br>Result: Removed from project'
+                },
+                vague: {
+                    type: 'bad',
+                    score: 10,
+                    tags: [],
+                    title: '😬 VAGUE "CHECK-INS"',
+                    message: 'Week 1: "How\'s it going?" / "Good!"<br>Week 2: "Making progress?" / "Yep!"<br>Week 3: "On track?" / "I think so!"<br><br>Week 4: You deliver. It\'s WRONG. Completely missed the vision.<br><br>Stakeholder: "Why didn\'t you show me progress earlier? We wasted 4 weeks!"<br><br>Your "check-ins" gave NO actual visibility. They had no chance to course-correct.<br><br><strong>DATA POINT RECORDED:</strong> Vague status updates. Works in vacuum. High risk.',
+                    data: 'Stakeholder perception: <strong>Can\'t show work-in-progress, unclear communication</strong><br>Pattern: Projects go off-track'
+                },
+                basic: {
+                    type: 'bad',
+                    score: 15,
+                    tags: [],
+                    title: '⚠️ PHASES, NOT DELIVERABLES',
+                    message: 'Your milestones: "Week 1 - planning, Week 2 - development, Week 3 - more development..."<br><br>Stakeholder: "But what can I SEE and REVIEW at each point?"<br>You: "Uh... at the end?"<br><br>Phases aren\'t milestones. They have nothing to review until Week 4—and by then it might be wrong.<br><br><strong>DATA POINT RECORDED:</strong> Doesn\'t understand milestone deliverables. Needs training.',
+                    data: 'Stakeholder perception: <strong>Knows the words but not the concept</strong><br>Result: Needs more experienced developer'
+                },
+                pro: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['communicator', 'ownership', 'reliable'],
+                    title: '🎯 MILESTONE MASTERY',
+                    message: 'Your milestones are REVIEWABLE DELIVERABLES:<br>• Week 1: Content + first 2 modules<br>• Week 2: All modules + interactivity<br>• Week 3: Full course for review<br>• Week 4: Final after feedback<br><br>Stakeholder: "Perfect. I can review at Week 3 and we\'ll have time for revisions."<br><br>You built in review points. Protected yourself (if they don\'t review Week 3, that\'s on them). Showed project management maturity.<br><br><strong>DATA POINT RECORDED:</strong> Thinks in deliverables. Builds review points. Professional project planner. EXPERIENCED.',
+                    data: 'Stakeholder perception: <strong>Knows how to structure projects, thinks ahead, easy to work with</strong><br>Future: Trusted with bigger, more visible projects'
+                }
+            },
+            4: {
+                yes: {
+                    type: 'bad',
+                    score: 5,
+                    tags: ['overpromise'],
+                    title: '💀 DOOMED YOURSELF',
+                    message: 'You said yes. You worked all weekend. Sunday night you\'re exhausted and the course is 70% done—none of it polished.<br><br>Monday: "Where\'s the course?"<br>You: "I need more time. The scope expanded..."<br><br>Stakeholder: "YOU said you\'d make it work by Friday!"<br><br>You destroyed your weekend AND still missed the deadline AND damaged credibility. Triple loss.<br><br><strong>DATA POINT RECORDED:</strong> Says yes to everything, delivers nothing on time. Over-commits.',
+                    data: 'Stakeholder perception: <strong>Can\'t say no, can\'t manage scope, unrealistic</strong><br>Pattern: Don\'t believe their commitments'
+                },
+                'do-it-all': {
+                    type: 'bad',
+                    score: 8,
+                    tags: ['overpromise'],
+                    title: '😬 DELIVERED NOTHING WELL',
+                    message: 'Friday: You deliver everything. Sort of.<br>• CEO video: Badly edited, audio issues<br>• Gamification: Broken point system<br>• Knowledge checks: Not tested, buggy<br>• Core content: Rushed<br><br>Stakeholder: "This is... not usable. I need everything redone properly."<br><br>You tried to do it all. You delivered nothing well. Worse than if you\'d delivered LESS with QUALITY.<br><br><strong>DATA POINT RECORDED:</strong> Sacrifices quality to please. Doesn\'t push back on scope.',
+                    data: 'Stakeholder perception: <strong>Poor judgment, doesn\'t prioritize quality, yes-person</strong><br>Trust: Damaged'
+                },
+                pushback: {
+                    type: 'bad',
+                    score: 12,
+                    tags: [],
+                    title: '⚠️ PUSHBACK WITHOUT SOLUTIONS',
+                    message: 'You: "That\'s too much work. I can\'t add all that and hit Friday."<br><br>Stakeholder: "Okay... so what DO you propose?"<br>You: "I don\'t know. Just can\'t do Friday anymore."<br><br>You stated the problem but offered NO solution. The stakeholder has to figure out the path forward.<br><br>You look like you\'re just saying no, not problem-solving.<br><br><strong>DATA POINT RECORDED:</strong> Points out problems but doesn\'t solve them.',
+                    data: 'Stakeholder perception: <strong>Says "can\'t" without offering alternatives</strong><br>Pattern: Needs hand-holding'
+                },
+                negotiate: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['communicator', 'realistic', 'ownership'],
+                    title: '🎯 PROFESSIONAL NEGOTIATION',
+                    message: 'You broke down the NEW work: Video + gamification + checks = 8 hours.<br><br>You gave TWO clear options:<br>1. Base course Friday + add-ons Tuesday<br>2. Everything Tuesday<br><br>Stakeholder: "Let\'s do option 1. I need something Friday for the launch, and we can add features after."<br><br>You managed scope WITHOUT just saying yes. You gave them CONTROL. You protected QUALITY.<br><br><strong>DATA POINT RECORDED:</strong> Manages scope professionally. Gives options. Realistic. TRUSTWORTHY.',
+                    data: 'Stakeholder perception: <strong>Professional, realistic, solution-oriented, protects quality</strong><br>Future: Go-to person for complex projects'
+                }
+            },
+            5: {
+                again: {
+                    type: 'bad',
+                    score: 3,
+                    tags: ['hiding'],
+                    title: '💀 CREDIBILITY DEAD',
+                    message: 'Thursday. You say it AGAIN: "Still almost done!"<br><br>Stakeholder emails your manager RIGHT THEN:<br><br>"I need someone else. They\'ve said \'almost done\' for FOUR DAYS. I have zero idea when I\'ll get this. I can\'t work like this."<br><br>You\'re OFF the project. Right now. TODAY.<br><br>"Almost done" is now a LIE when you say it. Forever. They\'ll NEVER believe your status updates again.<br><br>Feel that career damage? That\'s what vague communication costs.<br><br><strong>YOUR DATA JUST SAID:</strong> Unreliable. Vague. Avoid. REMOVE FROM PROJECT.',
+                    data: 'Stakeholder perception: <strong>Completely unreliable. Can\'t trust ANY update.</strong><br>Career: Removed from project TODAY'
+                },
+                tomorrow: {
+                    type: 'bad',
+                    score: 10,
+                    tags: [],
+                    title: '😬 SAME PATTERN',
+                    message: 'You: "End of day tomorrow."<br><br>Tomorrow end of day arrives. You\'re 90% done.<br><br>"WHERE IS IT?"<br>"Just needs final touches..."<br><br>You DID IT AGAIN. Another vague promise. Another miss.<br><br>Pattern LOCKED IN: Your timelines mean NOTHING.<br><br><strong>YOUR DATA JUST SAID:</strong> Chronic unreliability. Don\'t believe promises.',
+                    data: 'Stakeholder perception: <strong>Don\'t believe ANY timeline they give.</strong><br>Trust: Gone'
+                },
+                excuse: {
+                    type: 'bad',
+                    score: 12,
+                    tags: [],
+                    title: '⚠️ STILL VAGUE',
+                    message: 'You apologize. Say "as soon as I can."<br><br>Stakeholder: "I don\'t need sorry. I need a DATE. WHEN?"<br><br>You STILL didn\'t give them what they need: specific completion time.<br><br>Apologies don\'t help them plan. They need INFORMATION.<br><br><strong>YOUR DATA JUST SAID:</strong> Nice but useless. Still vague.',
+                    data: 'Stakeholder perception: <strong>Apologizes but can\'t commit to specifics.</strong><br>Result: Still can\'t plan'
+                },
+                specific: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['communicator', 'ownership', 'reliable'],
+                    title: '✅ RECOVERY!',
+                    message: 'You give them EVERYTHING they needed:<br>✓ Apology<br>✓ EXACT status (8/10 modules)<br>✓ SPECIFIC remaining work (4 hours)<br>✓ PRECISE delivery (2 PM tomorrow, Friday latest)<br><br>Stakeholder EXHALES: "THANK YOU. Finally. I can work with that."<br><br>FEEL THAT SHIFT? You just recovered credibility with SPECIFICITY.<br><br>You turned damage into trust rebuilding. That\'s ownership.<br><br><strong>YOUR DATA JUST SAID:</strong> Learned. Corrected. Gave clear status. Can improve. SECOND CHANCE.',
+                    data: 'Stakeholder perception: <strong>Made mistake but fixed with clarity. Coachable.</strong><br>Status: Trust rebuilding'
+                }
+            },
+            6: {
+                yes: {
+                    type: 'bad',
+                    score: 3,
+                    tags: ['overpromise'],
+                    title: '💀 CATASTROPHIC PROMISE',
+                    message: 'Friday arrives. You deliver something rushed, incomplete, and riddled with errors.<br><br>Stakeholder: "This is UNUSABLE for an audit. Why did you say you could do this in 3 days?"<br><br>The audit fails. Compliance issue. It\'s traced back to your promise.<br><br>Your manager: "You KNEW this was impossible. Why did you say yes?"<br><br><strong>DATA POINT RECORDED:</strong> Makes impossible promises. Can\'t assess reality. HIGH RISK. Do not assign time-sensitive work.',
+                    data: 'Stakeholder perception: <strong>Dangerously unrealistic, can\'t be trusted with urgent work</strong><br>Career impact: Removed from critical projects'
+                },
+                no: {
+                    type: 'bad',
+                    score: 10,
+                    tags: [],
+                    title: '😬 ACCURATE BUT UNHELPFUL',
+                    message: 'You: "No, that\'s impossible."<br><br>Stakeholder: "Okay, but I still have an audit Monday. What am I supposed to do?"<br>You: "I don\'t know. Not my problem."<br><br>You were RIGHT about the timeline. But you didn\'t HELP them solve their problem.<br><br>They remember: You said no and offered nothing.<br><br><strong>DATA POINT RECORDED:</strong> Accurate assessments but not a team player. Doesn\'t help find solutions.',
+                    data: 'Stakeholder perception: <strong>Technically accurate but not collaborative, doesn\'t think beyond their own work</strong><br>Pattern: Not a problem-solver'
+                },
+                maybe: {
+                    type: 'bad',
+                    score: 8,
+                    tags: [],
+                    title: '⚠️ WISHY-WASHY',
+                    message: 'You: "I\'ll try but can\'t promise quality."<br><br>Stakeholder: "So... should I plan on having this for the audit or not?"<br>You: "Maybe?"<br><br>They can\'t plan around "maybe." And if you deliver low quality, it\'s YOUR reputation.<br><br>You didn\'t set clear expectations. Recipe for disaster.<br><br><strong>DATA POINT RECORDED:</strong> Unclear commitments, hedges instead of communicating clearly.',
+                    data: 'Stakeholder perception: <strong>Unclear, can\'t get straight answers, difficult to plan with</strong><br>Pattern: Avoids decisive communication'
+                },
+                options: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['communicator', 'ownership', 'realistic'],
+                    title: '🎯 PROBLEM-SOLVER',
+                    message: 'You gave them THREE clear options:<br>1. Basic version Friday (meets audit minimum)<br>2. Quality version in 10 days<br>3. Interim solution + proper course later<br><br>Stakeholder: "Option 1 works! Basic version gets us through the audit, then we enhance it. You just saved us!"<br><br>You didn\'t just say no. You SOLVED THEIR PROBLEM within reality.<br><br><strong>DATA POINT RECORDED:</strong> Realistic but solution-oriented. Thinks creatively. Helps stakeholders succeed. VALUABLE.',
+                    data: 'Stakeholder perception: <strong>Problem-solver, realistic, collaborative, thinks beyond just their own work</strong><br>Future: First call for urgent situations'
+                }
+            },
+            7: {
+                unsure: {
+                    type: 'bad',
+                    score: 8,
+                    tags: ['deflector'],
+                    title: '😬 CONFIDENCE ISSUE',
+                    message: 'Manager: "You\'ve been here 2 years. You HAVE built these projects. You KNOW the timeframes. This is a confidence problem, not a knowledge problem."<br><br>"Start estimating. Even if you\'re off by 20%, that\'s better than making stakeholders wait for me to respond every time."<br><br>Your manager is frustrated. They shouldn\'t have to hold your hand on basic estimation.<br><br><strong>DATA POINT RECORDED:</strong> Lacks confidence in own skills. Needs excessive support.',
+                    data: 'Manager perception: <strong>Not developing professional independence</strong><br>Career impact: Won\'t be promoted until this changes'
+                },
+                safe: {
+                    type: 'bad',
+                    score: 5,
+                    tags: ['deflector', 'hiding'],
+                    title: '🚫 HIDING BEHIND MANAGER',
+                    message: 'Manager: "That\'s... concerning. You\'re avoiding responsibility by making ME responsible."<br><br>"If YOU estimate and something goes wrong, we learn and adjust. If I estimate and something goes wrong, you learn nothing."<br><br>"You\'re limiting your own growth by refusing to take ownership."<br><br>This revelation hits hard: You\'ve been CHOOSING not to grow.<br><br><strong>DATA POINT RECORDED:</strong> Avoids ownership. Hides behind manager. Not ready for advancement.',
+                    data: 'Manager perception: <strong>Actively avoiding professional responsibility</strong><br>Career impact: Cannot promote someone who won\'t own their work'
+                },
+                realize: {
+                    type: 'good',
+                    score: 20,
+                    tags: ['ownership'],
+                    title: '✅ OWNERSHIP SHIFT',
+                    message: 'Manager: "Good. That\'s the right mindset. Start today. Next time Sarah asks for a timeline, YOU give it."<br><br>"If you\'re genuinely stuck on something unusual, come to me. But standard Storyline courses? You\'ve got this."<br><br>You just took a step toward professional maturity.<br><br><strong>DATA POINT RECORDED:</strong> Recognized need for ownership. Made commitment. Positive growth trajectory.',
+                    data: 'Manager perception: <strong>Coachable, willing to grow, ready for more independence</strong><br>Career trajectory: Improving'
+                },
+                commit: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['ownership', 'reliable'],
+                    title: '🎯 FULL OWNERSHIP',
+                    message: 'Manager: "NOW we\'re talking. The data tracking is smart—that builds your confidence AND accuracy."<br><br>"And yes—if you hit something genuinely unusual, estimate a range and flag it as preliminary. But you\'re right to own standard work."<br><br>"This is exactly the kind of professional maturity I need to see for you to advance."<br><br>You just leveled up.<br><br><strong>DATA POINT RECORDED:</strong> Proactive growth plan. Taking full ownership. Ready for advancement. PROMOTE.',
+                    data: 'Manager perception: <strong>Professional maturity achieved, ready for senior responsibilities</strong><br>Career trajectory: Fast-tracked for growth'
+                }
+            },
+            8: {
+                basic: {
+                    type: 'bad',
+                    score: 8,
+                    tags: [],
+                    title: '😬 ROOKIE RESPONSE',
+                    message: 'VP: "That\'s... pretty vague. I need someone who can give me confidence in delivery."<br><br>"Let me think about it."<br><br>Later, they pick the other developer who presented a detailed plan.<br><br>You had the skills to do the work. But you couldn\'t DEMONSTRATE professional project planning.<br><br><strong>DATA POINT RECORDED:</strong> Doesn\'t present professionally. Vague approach. Lost opportunity.',
+                    data: 'VP perception: <strong>Seems capable technically but lacking project management maturity</strong><br>Result: Chose someone else'
+                },
+                eager: {
+                    type: 'bad',
+                    score: 10,
+                    tags: [],
+                    title: '⚠️ ALL TALK, NO PLAN',
+                    message: 'VP: "Enthusiasm is great, but I need to see HOW you work. What\'s your process? How do you ensure quality? How do you communicate?"<br><br>"Can you send me a project plan?"<br><br>You realize you have no plan. You were just... enthusiastic.<br><br>They pick the other developer who showed structure.<br><br><strong>DATA POINT RECORDED:</strong> Enthusiastic but unstructured. No demonstrated process.',
+                    data: 'VP perception: <strong>Junior approach, needs more experience before high-visibility projects</strong><br>Result: Not selected'
+                },
+                questions: {
+                    type: 'good',
+                    score: 20,
+                    tags: ['communicator'],
+                    title: '✅ GOOD START',
+                    message: 'VP appreciates that you\'re asking questions first. Shows you don\'t jump to timelines without understanding scope.<br><br>After discussing goals, you give a solid timeline and approach.<br><br>VP: "I like that you took time to understand before committing. That\'s professional."<br><br>You get the project!<br><br><strong>DATA POINT RECORDED:</strong> Asks good questions. Thinks before estimating. Professional approach.',
+                    data: 'VP perception: <strong>Thoughtful, asks clarifying questions, professional approach</strong><br>Result: Project awarded'
+                },
+                professional: {
+                    type: 'good',
+                    score: 25,
+                    tags: ['ownership', 'communicator', 'reliable', 'realistic'],
+                    title: '🎯 EXECUTIVE PRESENCE',
+                    message: 'The VP stops. Sits back. IMPRESSED.<br><br>"THAT is exactly what I needed to hear."<br><br>You just demonstrated:<br>✓ Project planning<br>✓ Clear communication<br>✓ Proactive approach<br>✓ Partnership mindset<br><br>"You\'re hired. And honestly? I\'m remembering this for future high-visibility projects."<br><br>FEEL THAT? You didn\'t just win ONE project. You built a relationship with a VP.<br><br>This is what professional maturity LOOKS like. This is what gets you promoted.<br><br><strong>YOUR DATA JUST SAID:</strong> Executive-level communication. Full ownership. EXPERIENCED. PROMOTE TO SENIOR WORK.',
+                    data: 'VP perception: <strong>Exceptional maturity. Ready for executive work. Future leader.</strong><br>Career impact: Fast-tracked. Requested for VIP projects.'
+                }
+            }
+        };
+
+        function updateTrackRecord(points) {
+            trackRecord = Math.min(100, trackRecord + points);
+            const fill = document.getElementById('track-record');
+            fill.style.width = trackRecord + '%';
+            fill.textContent = trackRecord + '%';
+        }
+
+        function addReputationTag(tag) {
+            if (!reputationTags.includes(tag)) {
+                reputationTags.push(tag);
+                const tagElement = document.querySelector(`[data-tag="${tag}"]`);
+                if (tagElement) {
+                    tagElement.classList.add('active');
+                }
+            }
+        }
+
+        function removeReputationTag(tag) {
+            const index = reputationTags.indexOf(tag);
+            if (index > -1) {
+                reputationTags.splice(index, 1);
+                const tagElement = document.querySelector(`[data-tag="${tag}"]`);
+                if (tagElement) {
+                    tagElement.classList.remove('active');
+                }
+            }
+        }
+
+        function updateScenarioCounter() {
+            document.getElementById('scenario-counter').textContent = `Scenario ${currentScenario} of 8`;
+        }
+
+        function showScene(sceneNum) {
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.classList.remove('active');
+            });
+            const scene = document.getElementById('scene-' + sceneNum);
+            scene.classList.add('active');
+            
+            // Randomize choice buttons if this scene has them
+            // This prevents learners from gaming the system by always picking
+            // "the longest answer" or "the last answer" - forces honest reflection
+            const choiceContainer = scene.querySelector('.choice-container');
+            if (choiceContainer) {
+                const buttons = Array.from(choiceContainer.querySelectorAll('.choice-btn'));
+                // Shuffle array using Fisher-Yates algorithm
+                for (let i = buttons.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+                }
+                // Re-append in random order
+                buttons.forEach(button => choiceContainer.appendChild(button));
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startChallenge() {
+            currentScenario = 1;
+            updateScenarioCounter();
+            showScene(1);
+        }
+
+        function makeChoice(scenario, choice) {
+            const response = responses[scenario][choice];
+            const resultBox = document.getElementById('result-' + scenario);
+            
+            resultBox.className = 'result-box show result-' + response.type;
+            resultBox.innerHTML = `
+                <h3>${response.title}</h3>
+                <p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">${response.message}</p>
+                <div class="data-impact">
+                    <h4>📊 DATA IMPACT:</h4>
+                    <p style="line-height: 1.6; margin-top: 10px;">${response.data}</p>
+                </div>
+                ${response.type === 'good' ? `<button class="btn btn-continue" onclick="nextScenario()">NEXT SCENARIO →</button>` : `<button class="btn btn-retry" onclick="retryScenario(${scenario})">↻ TRY A DIFFERENT CHOICE</button>`}
+            `;
+
+            updateTrackRecord(response.score);
+            
+            // Update reputation tags
+            response.tags.forEach(tag => addReputationTag(tag));
+            
+            // Hide choice buttons
+            document.querySelector(`#scene-${scenario} .choice-container`).style.display = 'none';
+        }
+
+        function retryScenario(scenario) {
+            const resultBox = document.getElementById('result-' + scenario);
+            resultBox.className = 'result-box';
+            resultBox.innerHTML = '';
+            
+            // Show choice buttons again
+            document.querySelector(`#scene-${scenario} .choice-container`).style.display = 'block';
+        }
+
+        function nextScenario() {
+            currentScenario++;
+            
+            if (currentScenario > 8) {
+                showFinal();
+            } else {
+                updateScenarioCounter();
+                showScene(currentScenario);
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('final-track-record').textContent = trackRecord + '%';
+            
+            const finalBox = document.getElementById('final-score-box');
+            const repLabel = document.getElementById('reputation-label');
+            const repSummary = document.getElementById('reputation-summary');
+            
+            let level, message, summaryText;
+            
+            if (trackRecord >= 85) {
+                level = 'pro';
+                finalBox.className = 'final-score';
+                repLabel.textContent = 'EXPERIENCED PROFESSIONAL';
+                summaryText = `<h3 style="color: #34d399;">🌟 EXPERIENCED DEVELOPER TRACK RECORD</h3>
+                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                Your data shows: You estimate your own work. You communicate proactively. You hit milestones. You take ownership.<br><br>
+                <strong>Stakeholders trust you.</strong> You\'re the person they request for important projects.<br><br>
+                This is what professional maturity looks like. You\'ve built a reputation as someone who DELIVERS.
+                </p>`;
+            } else if (trackRecord >= 60) {
+                level = 'developing';
+                finalBox.className = 'final-score developing';
+                repLabel.textContent = 'DEVELOPING PROFESSIONAL';
+                summaryText = `<h3 style="color: #fbbf24;">📈 GROWING TRACK RECORD</h3>
+                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                Your data shows: You\'re making some good choices but still have rookie habits.<br><br>
+                You\'re learning to estimate, communicate, and take ownership. But you\'re not consistent yet.<br><br>
+                <strong>Good news:</strong> You\'re on the right path. Keep building these skills and your reputation will improve.
+                </p>`;
+            } else {
+                level = 'rookie';
+                finalBox.className = 'final-score rookie';
+                repLabel.textContent = 'ROOKIE BEHAVIORS';
+                summaryText = `<h3 style="color: #fb923c;">⚠️ ROOKIE TRACK RECORD</h3>
+                <p style="font-size: 1.2em; line-height: 1.8; margin: 20px 0;">
+                Your data shows: You\'re deflecting, hiding, and avoiding ownership.<br><br>
+                Stakeholders see someone who can\'t estimate their own work, doesn\'t communicate issues, and needs constant supervision.<br><br>
+                <strong>This limits your growth.</strong> But the good news? You can change this. Starting today.
+                </p>`;
+            }
+            
+            repSummary.innerHTML = summaryText;
+            showScene('final');
+        }
+
+        function resetChallenge() {
+            trackRecord = 0;
+            currentScenario = 0;
+            reputationTags = [];
+            updateTrackRecord(0);
+            updateScenarioCounter();
+            
+            // Reset all reputation tags
+            document.querySelectorAll('.reputation-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            
+            // Reset all result boxes
+            document.querySelectorAll('.result-box').forEach(box => {
+                box.className = 'result-box';
+                box.innerHTML = '';
+            });
+            
+            // Show all choice buttons
+            document.querySelectorAll('.choice-container').forEach(container => {
+                container.style.display = 'block';
+            });
+            
+            showScene('intro');
+        }
+
+        // Initialize
+        updateTrackRecord(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE RECORDING GAUNTLET: Don't Blow Your Shot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            color: #e74c3c;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #ecf0f1;
+            opacity: 0.9;
+        }
+
+        .confidence-meter {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .confidence-bar {
+            background: rgba(0,0,0,0.3);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .confidence-fill {
+            background: linear-gradient(90deg, #e74c3c, #3498db, #2ecc71);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .scenario-counter {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: #3498db;
+        }
+
+        .scene {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scene h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+
+        .scene h3 {
+            font-size: 1.5em;
+            margin: 20px 0 15px 0;
+            color: #e74c3c;
+        }
+
+        .scene p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .dialogue-box {
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+            font-style: italic;
+        }
+
+        .sme-dialogue {
+            border-left-color: #e74c3c;
+        }
+
+        .choice-container {
+            margin: 30px 0;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 1.1em;
+            background: rgba(52, 152, 219, 0.3);
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(52, 152, 219, 0.5);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-good {
+            background: rgba(46, 204, 113, 0.3);
+            border: 3px solid #2ecc71;
+        }
+
+        .result-bad {
+            background: rgba(231, 76, 60, 0.3);
+            border: 3px solid #e74c3c;
+        }
+
+        .result-box h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .result-good h3 {
+            color: #2ecc71;
+        }
+
+        .result-bad h3 {
+            color: #e74c3c;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-continue {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-retry {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-start {
+            background: #3498db;
+            color: white;
+        }
+
+        .tip-box {
+            background: rgba(241, 196, 15, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #f1c40f;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #2c3e50;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .intro-box {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #e74c3c;
+        }
+
+        .stakes {
+            font-size: 1.3em;
+            color: #f1c40f;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .scenario-intro {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+        }
+
+        .final-score {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .final-score h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .score-display {
+            font-size: 3em;
+            color: #f1c40f;
+            margin: 20px 0;
+        }
+
+        .lessons-learned {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .lessons-learned ul {
+            margin: 15px 0 15px 30px;
+            line-height: 2;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .emphasis {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .video-icon {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background: #e74c3c;
+            border-radius: 50%;
+            margin: 0 10px;
+            position: relative;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .video-icon::after {
+            content: '●';
+            color: white;
+            font-size: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .webex-screen {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 3px solid #333;
+        }
+
+        .webex-header {
+            background: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            margin: -20px -20px 15px -20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            .scene {
+                padding: 20px;
+            }
+            .choice-btn {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 THE RECORDING GAUNTLET 🎬</h1>
+            <div class="subtitle">Don't Blow Your Shot (Learn By Failing Safely)</div>
+        </div>
+
+        <div class="confidence-meter">
+            <div style="font-size: 1.3em; margin-bottom: 10px;">Professional Confidence</div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidence">0%</div>
+            </div>
+            <div class="scenario-counter" id="scenario-counter">Scenario 0 of 10</div>
+        </div>
+
+        <!-- INTRO SCENE -->
+        <div class="scene active" id="scene-intro">
+            <h2>Welcome to the Safe Place to Fail</h2>
+            
+            <div class="intro-box">
+                <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>Here's the truth:</strong></p>
+                <p style="font-size: 1.1em; line-height: 1.8;">Recording SMEs is HARD. You're managing technology, personalities, time pressure, logistics, AND people who outrank you.</p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">One wrong move and you either:</p>
+                <ul style="margin: 15px 0 15px 40px; line-height: 2;">
+                    <li>🔥 Waste a senior leader's time</li>
+                    <li>😬 Look unprofessional</li>
+                    <li>❌ Get unusable footage</li>
+                    <li>💀 Never get invited back</li>
+                    <li>😰 Miss your deadline</li>
+                </ul>
+            </div>
+
+            <div class="stakes">
+                BUT HERE? You can fail ALL YOU WANT.
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">This is <span class="emphasis">trial-and-error training</span>. You WILL make mistakes. That's the POINT.</p>
+            
+            <div class="tip-box">
+                <h4>💡 HOW THIS WORKS:</h4>
+                <p style="line-height: 1.8;">You'll face 10 REAL recording disasters—from technical failures to scheduling nightmares to human psychology. Each one has choices. Some choices are WRONG—and you'll see exactly why. Some are RIGHT—and you'll learn what pros do. Try different paths. Make mistakes. Learn what works.</p>
+                <p style="margin-top: 15px; color: #f1c40f;"><strong>No judgment. No consequences. Just learning.</strong></p>
+            </div>
+
+            <p style="font-size: 1.1em; margin-top: 30px;">Ready to practice failing so you don't fail for real?</p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-start" onclick="startGauntlet()">LET'S GO - SHOW ME THE DISASTERS</button>
+            </div>
+        </div>
+
+        <!-- SCENARIO 1: THE LATE SME -->
+        <div class="scene" id="scene-1">
+            <h2>🕐 DISASTER #1: THE LATE SME</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You have a 30-minute Webex scheduled with Janet, a VP of Underwriting. She's going to explain COPE fundamentals for your training video.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> It's 2:15 PM. Your meeting was supposed to start at 2:00 PM. She's not here.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> She has a hard stop at 2:30 PM for another meeting.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">⏰ Webex Meeting - Waiting for Janet...</div>
+                <p style="text-align: center; padding: 40px; color: #888;">
+                    <span class="video-icon"></span><br><br>
+                    Waiting for host to start the meeting...
+                </p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">It's 2:15. She's <span class="emphasis">15 minutes late</span>. You have <span class="emphasis">15 minutes left</span>.</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(1, 'wait')">
+                    <strong>A)</strong> Wait silently. She's a VP. She'll show up when she shows up.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'email')">
+                    <strong>B)</strong> Send a polite Teams message: "Hi Janet! Just checking if you're still able to join our Webex?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'reschedule')">
+                    <strong>C)</strong> Proactively message: "Hi Janet! I see we're running short on time. Would it be better to reschedule when you have a full 30 minutes?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(1, 'admin')">
+                    <strong>D)</strong> Contact her admin assistant to check if she's available.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-1"></div>
+        </div>
+
+        <!-- SCENARIO 2: THE AUDIO DISASTER -->
+        <div class="scene" id="scene-2">
+            <h2>🎤 DISASTER #2: THE AUDIO NIGHTMARE</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're recording Mike, a senior claims adjuster. He's explaining fraud detection techniques.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You hit RECORD. Three minutes in, you realize his audio is TERRIBLE—robotic, cutting in and out, echoing.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> He's already given you great content. But it's unusable.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">🔴 RECORDING - Mike's Claims Training</div>
+                <div class="dialogue-box sme-dialogue">
+                    <p>"So when you're looking at a—*bzzt*—claim, the first thing—*robot noise*—is to check the—*echo echo echo*—documentation..."</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">His audio is BAD. But he's rolling. He doesn't seem to notice.</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(2, 'ignore')">
+                    <strong>A)</strong> Keep recording. Maybe you can fix it in post-production.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'interrupt')">
+                    <strong>B)</strong> Interrupt immediately: "Mike! Stop! Your audio is terrible. We need to fix this."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'polite')">
+                    <strong>C)</strong> Wait for him to pause, then say: "Mike, I'm so sorry to interrupt—I'm noticing some audio issues on my end. Could we pause for a second to troubleshoot?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(2, 'finish')">
+                    <strong>D)</strong> Let him finish this section, then address it: "That was great content! Before we continue, let's do a quick audio check—I think we can make you sound even better."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-2"></div>
+        </div>
+
+        <!-- SCENARIO 3: THE LIGHTING DISASTER -->
+        <div class="scene" id="scene-3">
+            <h2>💡 DISASTER #3: THE LIGHTING NIGHTMARE</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're recording Sarah, Director of Risk Management. This is a VIDEO recording—her face will be on screen.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> She's sitting in front of a window. Her face is completely backlit—dark and shadowy. Plus her background is cluttered with moving people.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> She outranks you significantly. This is her office.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">🔴 RECORDING - Sarah's Risk Management Training</div>
+                <div style="text-align: center; padding: 30px;">
+                    <div style="background: linear-gradient(180deg, #fff 0%, #000 50%); width: 200px; height: 200px; margin: 0 auto; border-radius: 10px; position: relative;">
+                        <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 0.8em; color: #666;">Sarah (you can barely see her)</div>
+                    </div>
+                    <p style="margin-top: 15px; color: #e74c3c; font-size: 0.9em;">⚠️ Background: People walking behind her, window glare, messy bookshelf</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">This video is UNUSABLE. But she's a Director. And this is her office.</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(3, 'record')">
+                    <strong>A)</strong> Record anyway. She probably knows her lighting is bad. Not your place to comment.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'direct')">
+                    <strong>B)</strong> Be direct: "Sarah, your lighting is really bad. Can you move?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'blame')">
+                    <strong>C)</strong> Blame technology: "Hmm, Webex is having trouble with the lighting on my end. Would you mind moving away from the window? The camera will pick you up better."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(3, 'suggest')">
+                    <strong>D)</strong> Offer a solution: "Sarah, to make sure you look great on camera, would you be able to turn your chair to face the window instead? Natural light from the front works beautifully on video."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-3"></div>
+        </div>
+
+        <!-- SCENARIO 4: THE RAMBLER -->
+        <div class="scene" id="scene-4">
+            <h2>🗣️ DISASTER #4: THE RAMBLER</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're recording Tom, a technical expert on cybersecurity. You need 5 minutes of content on phishing awareness.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> He's been talking for 12 minutes. He's covered phishing, ransomware, his college thesis, his daughter's soccer team, and blockchain. You have NOTHING usable.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> He's clearly passionate. But you're running out of time.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">🔴 RECORDING - Tom's Cybersecurity Training</div>
+                <div class="dialogue-box sme-dialogue">
+                    <p>"...and that reminds me of when I was at MIT in the 90s, we were working on early encryption algorithms, and my professor—brilliant guy, you'd love him—he always said that security is like an onion, you know? Layers. Speaking of layers, my daughter's soccer team has this layered defense strategy that's actually quite similar to network security if you think about it, and then there's this whole thing with blockchain that people don't understand..."</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">He's been rambling for <span class="emphasis">12 minutes</span>. You need <span class="emphasis">5 minutes of focused content</span>.</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(4, 'wait')">
+                    <strong>A)</strong> Let him finish. He'll get to the point eventually. You can edit later.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'interrupt')">
+                    <strong>B)</strong> Interrupt: "Tom, we're getting off track. Can we focus on phishing?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'redirect')">
+                    <strong>C)</strong> Gently redirect: "Tom, that's fascinating! For this training, I want to make sure we capture your expertise on phishing specifically. Could we dive deeper into how employees can recognize phishing attempts?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(4, 'script')">
+                    <strong>D)</strong> Offer structure: "Tom, this is great content! Let me give you three specific questions to answer—it'll help us keep the training tight and focused. First question: What are the top 3 signs of a phishing email?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-4"></div>
+        </div>
+
+        <!-- SCENARIO 5: THE AUTHORITY PROBLEM -->
+        <div class="scene" id="scene-5">
+            <h2>👔 DISASTER #5: THE AUTHORITY PROBLEM</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're recording Dr. Patricia Chen, VP of Compliance. She's explaining regulatory requirements.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> She just stated a regulation INCORRECTLY. You KNOW it's wrong—you checked the source yesterday. But she's confident. And she's a VP.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> If this wrong information goes into training, it's a compliance risk. But correcting a VP? Terrifying.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">🔴 RECORDING - Dr. Chen's Compliance Training</div>
+                <div class="dialogue-box sme-dialogue">
+                    <p>"Under FCRA Section 615, employers must notify applicants within 5 business days of taking adverse action based on a background check. It's very clear—5 business days."</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.1em; margin: 20px 0;">Your notes say it's <span class="emphasis">3 business days</span>, not 5. You double-checked the FCRA yesterday. She's wrong.</p>
+            <p style="font-size: 1.2em; margin-top: 15px;">But she's a VP. She sounds confident. Maybe YOU'RE wrong?</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(5, 'ignore')">
+                    <strong>A)</strong> Say nothing. She's the VP of Compliance. She probably knows better than you.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'challenge')">
+                    <strong>B)</strong> Challenge her: "Actually, I think that's wrong. It's 3 days, not 5."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'question')">
+                    <strong>C)</strong> Ask for clarification: "Dr. Chen, I want to make sure I have this right for the training materials—I thought FCRA Section 615 required notification within 3 business days. Could you confirm?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(5, 'followup')">
+                    <strong>D)</strong> Continue recording, then follow up: Let her finish, then send a polite email: "Dr. Chen, thank you for the recording! As I'm preparing the materials, I came across some documentation that shows 3 business days for FCRA 615. Could we verify this before finalizing?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-5"></div>
+        </div>
+
+        <!-- SCENARIO 6: SCHEDULING TETRIS -->
+        <div class="scene" id="scene-6">
+            <h2>📅 DISASTER #6: SCHEDULING TETRIS</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You need to record 3 SMEs for a compliance training: Lisa (VP), Marcus (Director), and Ahmed (Manager). They need to explain three connected topics.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> You've sent 5 different meeting invites over 2 weeks. Everyone has conflicts. Your deadline is in 10 days.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> Your project manager is asking: "When are the recordings happening?"</p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: #e74c3c; margin-bottom: 15px;">📧 Email Thread:</h4>
+                <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-left: 3px solid #3498db;">
+                    <strong>Lisa:</strong> "Can't do Monday or Wednesday. Traveling Thurs-Fri."
+                </div>
+                <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-left: 3px solid #e74c3c;">
+                    <strong>Marcus:</strong> "Tuesday is packed. Wednesday afternoon works."
+                </div>
+                <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-left: 3px solid #2ecc71;">
+                    <strong>Ahmed:</strong> "I'm flexible except Monday AM and all day Friday."
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">You CANNOT get all three on the same call. What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(6, 'wait')">
+                    <strong>A)</strong> Keep trying to find ONE time that works for all three. Send more meeting options.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'separate')">
+                    <strong>B)</strong> Schedule them separately: "Lisa - Tuesday 2pm, Marcus - Wednesday 3pm, Ahmed - Thursday 10am." Three different recordings.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'hierarchy')">
+                    <strong>C)</strong> Focus on the VP first: "Lisa, when can YOU meet? I'll work around your schedule and record the others separately."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(6, 'async')">
+                    <strong>D)</strong> Suggest alternatives: "Would anyone be willing to record asynchronously? I can send questions you can answer on video at your convenience."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-6"></div>
+        </div>
+
+        <!-- SCENARIO 7: THE CURVEBALL -->
+        <div class="scene" id="scene-7">
+            <h2>⏱️ DISASTER #7: THE CURVEBALL</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You scheduled 3 SMEs back-to-back: 2pm-Rachel (Intro), 2:30pm-David (Main Content), 3pm-Karen (Summary). Logical sequence.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> It's 2:15pm. Rachel messages: "Emergency meeting. Can we do my part at 3:30 instead?"</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> David and Karen are both online and ready. You have them NOW. Do you record out of sequence?</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">⏰ Webex Lobby</div>
+                <div style="padding: 20px;">
+                    <p style="color: #2ecc71;">✅ David Johnson is waiting...</p>
+                    <p style="color: #2ecc71;">✅ Karen Williams is waiting...</p>
+                    <p style="color: #e74c3c; margin-top: 15px;">❌ Rachel Stevens: "So sorry! Emergency came up. Can I join at 3:30?"</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">You planned: Rachel → David → Karen. But Rachel's MIA. David and Karen are HERE.</p>
+            <p>What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(7, 'cancel')">
+                    <strong>A)</strong> Apologize to David and Karen: "I'm so sorry—we need Rachel first for context. Can we reschedule you both?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'record')">
+                    <strong>B)</strong> Record David and Karen NOW in sequence, then add Rachel's intro at the end. Edit will fix it.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'explain')">
+                    <strong>C)</strong> Brief David and Karen: "Rachel's delayed. Can you give me your content now? I'll add context from her intro later when editing."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(7, 'reschedule')">
+                    <strong>D)</strong> Record only Karen (the summary doesn't need Rachel's intro), reschedule David and Rachel together.
+                </button>
+            </div>
+
+            <div class="result-box" id="result-7"></div>
+        </div>
+
+        <!-- SCENARIO 8: THE RE-RECORD REQUEST -->
+        <div class="scene" id="scene-8">
+            <h2>🔄 DISASTER #8: THE RE-RECORD REQUEST</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You just finished recording Tim, a Director. 25 minutes of content. He gave great information.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> As you're reviewing the footage together, you realize he misspoke in ONE section—said "90 days" when he meant "60 days." It's important.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> Tim's already been generous with his time. He's about to leave. Do you ask him to re-record that part?</p>
+            </div>
+
+            <div class="dialogue-box">
+                <p><strong>You (reviewing):</strong> "This looks great, Tim. Really clear explanations."</p>
+                <p style="margin-top: 10px;"><strong>Tim:</strong> "Glad I could help! If that's everything, I need to jump to my next meeting."</p>
+                <p style="margin-top: 10px; color: #f1c40f;"><em>*You just noticed: He said 90 days instead of 60 days at the 8-minute mark. It's a compliance timeline. It MATTERS.*</em></p>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">He's already given you 25 minutes. But that error will confuse learners. What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(8, 'ignore')">
+                    <strong>A)</strong> Let him go. Fix it in post—add a text correction on screen or edit in the right number somehow.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'email')">
+                    <strong>B)</strong> Let him go, then email later: "Tim, I noticed one small error. Would you be able to do a quick 30-second re-record of that section?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'now')">
+                    <strong>C)</strong> Stop him NOW: "Tim, before you go—I noticed one small thing at the 8-minute mark. Could we do a quick 30-second fix? You said 90 days but I think you meant 60?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(8, 'apologize')">
+                    <strong>D)</strong> "Tim, I'm so sorry—there's one section where you said 90 days instead of 60 days. I know you need to go, but this is a compliance timeline. Could we take 30 seconds to re-record just that line?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-8"></div>
+        </div>
+
+        <!-- SCENARIO 9: THE SPEED TALKER -->
+        <div class="scene" id="scene-9">
+            <h2>🏃 DISASTER #9: THE SPEED TALKER</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're recording Jennifer, a Claims Specialist. She's explaining fraud investigation procedures.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> She's talking SO FAST that learners won't be able to process it. Words are blurring together. She's anxious and rushing.</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> She's clearly nervous. You need to slow her down without making her MORE nervous.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">🔴 RECORDING - Jennifer's Fraud Training</div>
+                <div class="dialogue-box sme-dialogue">
+                    <p>"So-when-you're-reviewing-a-claim-for-fraud-indicators-you-want-to-look-at-the-timeline-and-cross-reference-the-documentation-with-the-initial-report-and-then-you-check-for-inconsistencies-in-the-narrative-and-also-verify-the-witnesses-and-make-sure-everything-lines-up-chronologically-because-that's-where-you'll-find-the-red-flags..."</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #e74c3c;"><em>*She takes a breath finally*</em></p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">She's giving GREAT content but at 2x speed. Learners won't retain ANY of this. What do you do?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(9, 'ignore')">
+                    <strong>A)</strong> Let her continue. You can slow down the video playback in post-production.
+                </button>
+                <button class="choice-btn" onclick="makeChoice(9, 'direct')">
+                    <strong>B)</strong> Interrupt: "Jennifer, you need to slow down. You're talking way too fast."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(9, 'reassure')">
+                    <strong>C)</strong> Pause and reassure: "Jennifer, this content is fantastic! Can we take a breath? There's no rush—learners will want time to absorb this. Let's try that section again, a bit slower?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(9, 'technique')">
+                    <strong>D)</strong> Give her a technique: "Jennifer, you're doing great! Here's a trick that helps—imagine you're explaining this to someone taking notes. Pause after each key point. Let's try: First point... pause... second point... pause. Ready?"
+                </button>
+            </div>
+
+            <div class="result-box" id="result-9"></div>
+        </div>
+
+        <!-- SCENARIO 10: FIRST-TIMER JITTERS -->
+        <div class="scene" id="scene-10">
+            <h2>😰 DISASTER #10: FIRST-TIMER JITTERS</h2>
+            
+            <div class="scenario-intro">
+                <p><strong>The Setup:</strong> You're about to record Brian, a Senior Analyst. He's an expert in risk modeling. This is his FIRST time being recorded.</p>
+                <p style="margin-top: 10px;"><strong>The Problem:</strong> He's freaking out. "I hate my voice. I sound terrible on recordings. Can someone else do this?"</p>
+                <p style="margin-top: 10px;"><strong>The Pressure:</strong> He's the ONLY person who can explain this content. If he doesn't record, you don't have training.</p>
+            </div>
+
+            <div class="webex-screen">
+                <div class="webex-header">📹 Pre-Recording Lobby</div>
+                <div class="dialogue-box sme-dialogue">
+                    <p><strong>Brian:</strong> "I've never done this before. I'm not good on camera. My voice sounds weird. Can we just... not? Maybe someone else can do this?"</p>
+                    <p style="margin-top: 10px;"><em>*He looks genuinely uncomfortable. His camera is off.*</em></p>
+                    <p style="margin-top: 10px;"><strong>Brian:</strong> "Seriously, I'm going to mess this up. I always sound like an idiot when I hear myself recorded."</p>
+                </div>
+            </div>
+
+            <p style="font-size: 1.2em; margin: 20px 0;">He's terrified. But he's the expert you NEED. How do you coach him through this?</p>
+
+            <div class="choice-container">
+                <button class="choice-btn" onclick="makeChoice(10, 'dismiss')">
+                    <strong>A)</strong> Minimize his concerns: "You'll be fine! Everyone feels that way. Let's just start and you'll see it's not that bad."
+                </button>
+                <button class="choice-btn" onclick="makeChoice(10, 'audio')">
+                    <strong>B)</strong> Offer audio-only: "What if we do audio-only? No camera. Just your voice. Would that help?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(10, 'practice')">
+                    <strong>C)</strong> Start with practice: "Brian, here's what we'll do: Let's do a practice run. Not recording. Just you explaining one concept to me. Then we'll decide if you want to record. Deal?"
+                </button>
+                <button class="choice-btn" onclick="makeChoice(10, 'validate')">
+                    <strong>D)</strong> Validate and coach: "Brian, everyone hates hearing their own voice—it's totally normal. Here's the truth: YOU hear your voice differently than everyone else. Learners will hear an expert. Let's try this—do a 30-second test recording, we'll watch it together, and I'll show you what I'm hearing. If it's genuinely bad, we'll figure out plan B. But I bet you'll surprise yourself."
+                </button>
+            </div>
+
+            <div class="result-box" id="result-10"></div>
+        </div>
+
+        <!-- FINAL RESULTS SCENE -->
+        <div class="scene" id="scene-final">
+            <div class="final-score">
+                <h2>🎬 GAUNTLET COMPLETE 🎬</h2>
+                <p style="font-size: 1.2em; margin: 20px 0;">You survived all 10 recording disasters!</p>
+                <div class="score-display" id="final-confidence">85%</div>
+                <p style="font-size: 1.1em;">Professional Confidence Achieved</p>
+            </div>
+
+            <h2 style="margin-top: 40px;">🎯 WHAT YOU LEARNED:</h2>
+            
+            <div class="lessons-learned">
+                <h3 style="color: #3498db;">📱 When SMEs Are Late:</h3>
+                <ul>
+                    <li><strong>REACH OUT</strong> - Don't wait silently. A polite check-in shows professionalism.</li>
+                    <li><strong>OFFER TO RESCHEDULE</strong> - Respect their time. A rushed 15-min session is worse than a full rescheduled one.</li>
+                    <li><strong>PROTECT THE QUALITY</strong> - You're responsible for getting good content. That means having enough time.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">🎤 When Audio Is Bad:</h3>
+                <ul>
+                    <li><strong>STOP IMMEDIATELY</strong> - Every minute of bad audio is wasted effort.</li>
+                    <li><strong>BE POLITE BUT DIRECT</strong> - "I'm noticing audio issues" is professional and non-blaming.</li>
+                    <li><strong>FIX BEFORE CONTINUING</strong> - Check headphones, mic settings, internet connection. Test before recording more.</li>
+                    <li><strong>YOU CAN'T FIX BAD AUDIO IN POST</strong> - This isn't Hollywood. Bad audio = re-record.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">💡 When Lighting Is Bad:</h3>
+                <ul>
+                    <li><strong>FRAME IT AS "MAKING THEM LOOK GOOD"</strong> - "So you look great on camera" vs "your lighting is bad"</li>
+                    <li><strong>OFFER SOLUTIONS, NOT CRITICISM</strong> - "Would you be able to..." vs "You need to..."</li>
+                    <li><strong>BLAME TECHNOLOGY IF NEEDED</strong> - "Webex is having trouble..." gives them an out</li>
+                    <li><strong>YOUR JOB IS QUALITY</strong> - They'll thank you for making them look professional on video</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">🗣️ When SMEs Ramble:</h3>
+                <ul>
+                    <li><strong>REDIRECT WITH QUESTIONS</strong> - Specific questions = focused answers</li>
+                    <li><strong>ACKNOWLEDGE THEN REFOCUS</strong> - "That's fascinating! For this training, let's focus on..."</li>
+                    <li><strong>OFFER STRUCTURE</strong> - Give them 3 questions to answer. Creates natural boundaries.</li>
+                    <li><strong>TIME IS LIMITED</strong> - Your job is to get usable content, not record everything they know</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">👔 When They're Wrong (And Senior):</h3>
+                <ul>
+                    <li><strong>VERIFY, DON'T CHALLENGE</strong> - "Could you confirm..." vs "You're wrong"</li>
+                    <li><strong>BRING DOCUMENTATION</strong> - Facts > opinions. Have sources ready.</li>
+                    <li><strong>FOLLOW UP IN WRITING</strong> - Email gives them time to check without losing face on camera</li>
+                    <li><strong>ACCURACY > COMFORT</strong> - Wrong information in training = compliance risk. You MUST address it.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">📅 When Schedules Won't Align:</h3>
+                <ul>
+                    <li><strong>STOP TRYING TO ALIGN EVERYONE</strong> - After 2-3 attempts, change approach</li>
+                    <li><strong>RECORD SEPARATELY, EDIT TOGETHER</strong> - Works perfectly and often looks more polished</li>
+                    <li><strong>PRIORITIZE BY SENIORITY</strong> - Schedule VPs first, others work around them</li>
+                    <li><strong>OFFER ASYNC OPTIONS</strong> - Loom/recorded video at their convenience. Underused but effective.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">⏱️ When Plans Change Mid-Recording:</h3>
+                <ul>
+                    <li><strong>ADAPT, DON'T CANCEL</strong> - Record who's available NOW, fix sequence in editing</li>
+                    <li><strong>OUT-OF-SEQUENCE IS FINE</strong> - Viewers don't know what order you recorded in</li>
+                    <li><strong>COMMUNICATE CHANGES</strong> - Brief SMEs when plans shift. Most people are flexible when informed.</li>
+                    <li><strong>PROTECT THE TIMELINE</strong> - Getting content today beats rescheduling for weeks</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">🔄 When You Need Re-Records:</h3>
+                <ul>
+                    <li><strong>CATCH ERRORS BEFORE THEY LEAVE</strong> - Review with SMEs present. Fix immediately.</li>
+                    <li><strong>30 SECONDS NOW > 3 DAYS LATER</strong> - Re-records are EASIER when caught immediately</li>
+                    <li><strong>EXPLAIN THE IMPACT</strong> - "This is a compliance issue" > "This is wrong"</li>
+                    <li><strong>TEXT CORRECTIONS LOOK UNPROFESSIONAL</strong> - Confuse learners. Fix properly with re-recording.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">🏃 When They're Talking Too Fast:</h3>
+                <ul>
+                    <li><strong>YOU CAN'T FIX PACING IN POST</strong> - Slowing down audio sounds robotic</li>
+                    <li><strong>REASSURE FIRST, REDIRECT SECOND</strong> - "You're doing great" before "Let's adjust"</li>
+                    <li><strong>TEACH TECHNIQUES</strong> - "Pause after each point" / "Imagine someone taking notes"</li>
+                    <li><strong>NERVOUS = FAST</strong> - Speed is usually anxiety. Address the anxiety, not just the symptom.</li>
+                </ul>
+
+                <h3 style="color: #3498db; margin-top: 25px;">😰 When They Have First-Timer Jitters:</h3>
+                <ul>
+                    <li><strong>VALIDATE THE FEAR</strong> - "Everyone hates their own voice" is universal truth</li>
+                    <li><strong>TEST RECORDINGS BUILD CONFIDENCE</strong> - 30-second test, watch together, show them proof</li>
+                    <li><strong>OFFER AUDIO-ONLY OPTION</strong> - Just as effective, way less intimidating</li>
+                    <li><strong>PRACTICE RUNS WORK</strong> - Let them succeed without recording first. Confidence skyrockets.</li>
+                    <li><strong>THEY SOUND BETTER THAN THEY THINK</strong> - Always. Seeing proof breaks through fear.</li>
+                </ul>
+            </div>
+
+            <div class="achievement">
+                <p style="font-size: 1.5em; margin-bottom: 15px;">🏆 ACHIEVEMENT UNLOCKED 🏆</p>
+                <p style="font-size: 1.2em;">MASTER RECORDING COORDINATOR</p>
+                <p style="font-size: 0.9em; margin-top: 10px; color: #2c3e50;">You know how to handle technical disasters, scheduling nightmares, and human psychology without panicking or looking unprofessional.</p>
+            </div>
+
+            <div class="tip-box" style="margin-top: 30px;">
+                <h4>🎬 YOUR COMPLETE RECORDING CHECKLIST:</h4>
+                <p style="line-height: 1.8; margin-top: 15px;">
+                    <strong>BEFORE you schedule:</strong><br>
+                    ✅ Try for alignment, but don't waste 2+ weeks<br>
+                    ✅ Offer async recording as an option<br>
+                    ✅ Prioritize senior people's calendars first<br>
+                    ✅ Have backup plans for scheduling conflicts<br><br>
+                    
+                    <strong>BEFORE you hit record:</strong><br>
+                    ✅ Confirm SME is on time and available<br>
+                    ✅ Do a 30-second audio/video test<br>
+                    ✅ Check their lighting and background<br>
+                    ✅ Have specific questions/structure prepared<br>
+                    ✅ Have source documentation handy<br>
+                    ✅ Brief first-timers on what to expect<br><br>
+                    
+                    <strong>DURING recording:</strong><br>
+                    ✅ Monitor quality constantly<br>
+                    ✅ Stop immediately if there are technical issues<br>
+                    ✅ Redirect politely when they ramble<br>
+                    ✅ Coach nervous speakers with techniques<br>
+                    ✅ Verify facts if something sounds off<br>
+                    ✅ Adapt when plans change mid-session<br><br>
+                    
+                    <strong>AFTER recording:</strong><br>
+                    ✅ Review footage WITH SMEs before they leave<br>
+                    ✅ Fix errors immediately (30 seconds now > 3 days later)<br>
+                    ✅ Follow up on any questionable information<br>
+                    ✅ Thank them professionally<br>
+                    ✅ Note what worked/didn't for next time
+                </p>
+            </div>
+
+            <div style="background: rgba(46, 204, 113, 0.2); padding: 30px; border-radius: 15px; margin-top: 30px; border: 2px solid #2ecc71;">
+                <h3 style="color: #2ecc71; margin-bottom: 20px;">🚀 YOU'RE READY</h3>
+                <p style="font-size: 1.2em; line-height: 1.8;">
+                    Next time you coordinate a recording, you'll know EXACTLY what to do when:<br><br>
+                    • Schedules won't align 📅<br>
+                    • Someone's late ⏰<br>
+                    • Audio fails 🎤<br>
+                    • They're talking too fast 🏃<br>
+                    • They need to re-record 🔄<br>
+                    • They're terrified 😰<br><br>
+                    
+                    Because they WILL go wrong. But now? <span class="emphasis">You've got this.</span><br><br>
+                    You practiced failing here so you won't fail out there.
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="btn btn-start" onclick="resetGauntlet()">↻ RUN THE GAUNTLET AGAIN</button>
+                <button class="btn btn-continue" onclick="window.close()" style="margin-left: 10px;">✓ I'M READY TO RECORD</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let confidence = 0;
+        let currentScenario = 0;
+        let scenariosCompleted = 0;
+
+        const responses = {
+            1: {
+                wait: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '😬 AWKWARD SILENCE',
+                    message: 'You wait. 2:20 PM. 2:25 PM. At 2:27 PM, Janet joins: "So sorry! I was on another call that ran over. We only have 3 minutes—can we reschedule?"<br><br>You just wasted 27 minutes hoping she\'d show up.<br><br><strong>LESSON:</strong> Don\'t wait silently when someone\'s late. A polite check-in shows you respect BOTH your time and theirs.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d reached out at 2:10?'
+                },
+                email: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ PROFESSIONAL CHECK-IN',
+                    message: 'You send: "Hi Janet! Just checking if you\'re still able to join our Webex?"<br><br>She responds immediately: "Oh my gosh! I completely forgot. Jumping on now!"<br><br>2:17 PM - She joins. You have 13 minutes. It\'s tight, but you get usable content.<br><br><strong>GREAT MOVE!</strong> A polite check-in is ALWAYS appropriate. You respected her time and saved the session.',
+                    tip: '<strong>PRO TIP:</strong> For future sessions, send a calendar reminder 15 minutes before the meeting. Prevents this entirely.'
+                },
+                reschedule: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '🎯 PERFECT PROFESSIONALISM',
+                    message: 'You message: "Hi Janet! I see we\'re running short on time. Would it be better to reschedule when you have a full 30 minutes?"<br><br>She responds: "You\'re absolutely right. I\'m so sorry—can we do tomorrow at 10 AM instead?"<br><br>The next day, you have her FULL attention for 30 minutes. The recording is perfect.<br><br><strong>EXPERT MOVE!</strong> You protected the quality of the content AND showed respect for her time. This is what pros do.',
+                    tip: '<strong>PRO TIP:</strong> A rushed 15-minute session produces worse content than a rescheduled full session. Always prioritize quality over "getting it done."'
+                },
+                admin: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 AWKWARD ESCALATION',
+                    message: 'You message her admin: "Is Janet available for our Webex?"<br><br>The admin messages Janet, who then messages you: "I\'m so sorry! Just finishing another call. I appreciate you checking, but you can always reach out to me directly."<br><br>You got her on the call... but you also just signaled you don\'t feel comfortable messaging a VP directly.<br><br><strong>LESSON:</strong> If you have direct contact with the SME, use it. Going through their admin can seem like you\'re escalating unnecessarily.',
+                    tip: '<strong>TRY AGAIN:</strong> A direct, polite message to Janet would be more professional.'
+                }
+            },
+            2: {
+                ignore: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '❌ DISASTER UNFOLDS',
+                    message: 'You keep recording. Mike talks for 20 minutes. When you review the footage later, it\'s COMPLETELY UNUSABLE. The audio is so bad you can\'t understand 70% of what he says.<br><br>Now you have to ask him to record AGAIN. He\'s annoyed: "I just spent 20 minutes on this."<br><br><strong>YOU WASTED HIS TIME.</strong> And yours.<br><br><strong>LESSON:</strong> Bad audio CANNOT be fixed in post. Stop immediately when you notice issues.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d stopped him right away?'
+                },
+                interrupt: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 TOO ABRUPT',
+                    message: 'You interrupt: "Mike! Stop! Your audio is terrible. We need to fix this."<br><br>He stops mid-sentence, looking confused and slightly embarrassed.<br><br>Mike: "Oh... uh... okay. What\'s wrong with it?"<br><br>The issue gets fixed, but the energy is awkward now. You made him feel like HE did something wrong.<br><br><strong>LESSON:</strong> You were RIGHT to stop, but HOW you stop matters. Tone = professionalism.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you address this more diplomatically?'
+                },
+                polite: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '✅ PROFESSIONAL AND EFFECTIVE',
+                    message: 'You wait for him to pause, then: "Mike, I\'m so sorry to interrupt—I\'m noticing some audio issues on my end. Could we pause for a second to troubleshoot?"<br><br>Mike: "Oh absolutely! What do you need me to do?"<br><br>You discover he\'s using his laptop speakers instead of headphones. Problem solved in 2 minutes. Audio is perfect for the rest of the recording.<br><br><strong>GREAT APPROACH!</strong> You framed it as a technical issue, not his fault. Professional and effective.',
+                    tip: '<strong>PRO TIP:</strong> Always do a 30-second audio test BEFORE starting the actual recording. "Can you count to 5 so I can check your audio?" Saves massive time.'
+                },
+                finish: {
+                    type: 'bad',
+                    confidence: 15,
+                    title: '⏰ WASTED TIME',
+                    message: 'You let him finish the section (10 minutes). Then you address it: "That was great! Before we continue, let\'s check your audio—I think we can make you sound even better."<br><br>He fixes the audio. It sounds perfect now.<br><br>But that first 10 minutes? Completely unusable. You have to ask him to re-record that entire section.<br><br><strong>LESSON:</strong> Stop IMMEDIATELY when you notice technical issues. Every minute of bad recording is wasted effort.<br><br>You were polite, but you should have stopped sooner.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d caught this in the first 30 seconds?'
+                }
+            },
+            3: {
+                record: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '😬 UNUSABLE FOOTAGE',
+                    message: 'You record anyway. When you review the footage, Sarah\'s face is almost invisible—just a dark silhouette. The background movement is incredibly distracting.<br><br>You have to ask her to re-record. She\'s frustrated: "I gave you 30 minutes already. Why didn\'t you say something about the lighting?"<br><br>Now you look unprofessional AND you wasted her time.<br><br><strong>LESSON:</strong> Your job is to ensure quality. If something\'s wrong, speak up BEFORE recording.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you address lighting issues professionally?'
+                },
+                direct: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 TOO BLUNT',
+                    message: 'You say: "Sarah, your lighting is really bad. Can you move?"<br><br>There\'s an awkward pause. Sarah looks annoyed.<br><br>Sarah: "This is my office. I sit here because I can see my team through the window."<br><br>She moves reluctantly, clearly irritated. The recording happens, but the energy is off.<br><br><strong>LESSON:</strong> You were RIGHT to address it, but you sounded critical of HER instead of offering a solution. Words matter.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you suggest the same change without sounding critical?'
+                },
+                blame: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ DIPLOMATIC SOLUTION',
+                    message: 'You say: "Hmm, Webex is having trouble with the lighting on my end. Would you mind moving away from the window? The camera will pick you up better."<br><br>Sarah: "Oh sure, no problem! Is this better?"<br><br>She rotates her chair. Perfect lighting. Clean background. She has NO idea you just saved this recording—she thinks it\'s a tech issue.<br><br><strong>SMART MOVE!</strong> You blamed technology, not her. Problem solved without making it personal.',
+                    tip: '<strong>PRO TIP:</strong> "The camera/mic/system is having trouble..." is a diplomatic way to request changes without criticism.'
+                },
+                suggest: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '🎯 PERFECT PROFESSIONALISM',
+                    message: 'You say: "Sarah, to make sure you look great on camera, would you be able to turn your chair to face the window instead? Natural light from the front works beautifully on video."<br><br>Sarah: "Oh, good idea! Like this?"<br><br>She rotates. The lighting is PERFECT. She looks professional and polished on camera.<br><br>Sarah: "Wow, that does look better! Thanks for the tip."<br><br><strong>EXPERT APPROACH!</strong> You framed it as making HER look good, not fixing HER mistake. That\'s how professionals handle this.',
+                    tip: '<strong>PRO TIP:</strong> Always frame technical feedback as "making them look/sound their best." People respond positively when you\'re helping them shine.'
+                }
+            },
+            4: {
+                wait: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '⏰ TIME DRAINED',
+                    message: 'You let him continue. At 18 minutes, he\'s talking about quantum computing. At 22 minutes, he finally wraps up.<br><br>When you review the footage, there\'s maybe 2 minutes of usable content buried in 22 minutes of rambling.<br><br>Editing this will take HOURS. And you still don\'t have the 5 minutes of focused content you needed.<br><br><strong>LESSON:</strong> You can\'t edit rambling into focus. Your job is to GUIDE the SME during recording, not fix it in post.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d redirected him early?'
+                },
+                interrupt: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 TOO HARSH',
+                    message: 'You interrupt: "Tom, we\'re getting off track. Can we focus on phishing?"<br><br>Tom stops mid-sentence. The energy shifts.<br><br>Tom: "Oh. Right. Sorry. Uh... where were we?"<br><br>He gives you answers after that, but they\'re short and less enthusiastic. You made him feel like his knowledge wasn\'t valuable.<br><br><strong>LESSON:</strong> You were RIGHT to redirect, but the delivery shut him down instead of refocusing him. Tone matters.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you redirect without deflating his enthusiasm?'
+                },
+                redirect: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ SMOOTH REDIRECTION',
+                    message: 'You say: "Tom, that\'s fascinating! For this training, I want to make sure we capture your expertise on phishing specifically. Could we dive deeper into how employees can recognize phishing attempts?"<br><br>Tom: "Oh absolutely! Yes, so with phishing, the first thing to look for is..."<br><br>He refocuses. You get 5 minutes of PERFECT content about phishing. No rambling.<br><br><strong>GREAT APPROACH!</strong> You acknowledged his knowledge, then redirected to what you needed. Professional and effective.',
+                    tip: '<strong>PRO TIP:</strong> "That\'s fascinating! For THIS training specifically..." is a diplomatic way to refocus without insulting their expertise.'
+                },
+                script: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '🎯 EXPERT STRUCTURE',
+                    message: 'You say: "Tom, this is great content! Let me give you three specific questions to answer—it\'ll help us keep the training tight and focused. First: What are the top 3 signs of a phishing email?"<br><br>Tom: "Oh perfect! So the top three are..."<br><br>He answers all three questions clearly and concisely. Total recording time: 7 minutes. All usable.<br><br><strong>MASTERFUL!</strong> You gave him structure. Specific questions = focused answers. That\'s how pros handle ramblers.',
+                    tip: '<strong>PRO TIP:</strong> Prepare 3-5 specific questions before recording. Ramblers respond BEAUTIFULLY to structure. It helps them focus their expertise.'
+                }
+            },
+            5: {
+                ignore: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '⚠️ COMPLIANCE DISASTER',
+                    message: 'You say nothing. You finish the recording.<br><br>Two weeks later, the training goes live. Three days after that, Legal contacts you: "We need to pull this training immediately. The FCRA timing is WRONG. This is a compliance violation."<br><br>You have to re-record, re-edit, re-publish. The training is down for a week. Your team lead asks why you didn\'t catch this.<br><br><strong>DISASTER.</strong> Your job isn\'t just to record—it\'s to ensure ACCURACY.<br><br><strong>LESSON:</strong> When you know something is wrong, you MUST address it. Authority doesn\'t override accuracy.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you verify the information without directly challenging a VP?'
+                },
+                challenge: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 TOO CONFRONTATIONAL',
+                    message: 'You interrupt: "Actually, I think that\'s wrong. It\'s 3 days, not 5."<br><br>Dr. Chen pauses. Her expression hardens.<br><br>Dr. Chen: "I\'ve been doing compliance for 15 years. It\'s 5 days."<br><br>The rest of the recording is tense. Later, you verify—it IS 3 days. But now you have to email her with the correction, and the relationship is strained.<br><br><strong>LESSON:</strong> You were RIGHT about the facts, but your delivery created unnecessary conflict. How you communicate matters.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you verify without sounding like you\'re challenging her authority?'
+                },
+                question: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '✅ DIPLOMATIC VERIFICATION',
+                    message: 'You say: "Dr. Chen, I want to make sure I have this right for the training materials—I thought FCRA Section 615 required notification within 3 business days. Could you confirm?"<br><br>Dr. Chen pauses. "Hmm, let me double-check that. You might be right."<br><br>She checks. "Oh, you\'re correct! It IS 3 days. Good catch—thank you for verifying!"<br><br>You just saved the company from a compliance error AND earned her respect.<br><br><strong>PERFECT APPROACH!</strong> You framed it as verification, not correction. Professional and effective.',
+                    tip: '<strong>PRO TIP:</strong> "I want to make sure I have this right..." is a diplomatic way to fact-check without challenging authority. Always frame it as YOUR need for clarity, not THEIR error.'
+                },
+                followup: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ PROFESSIONAL FOLLOW-UP',
+                    message: 'You let her finish. Then you send an email:<br><br>"Dr. Chen, thank you for the recording! As I\'m preparing the materials, I came across some documentation that shows 3 business days for FCRA 615. Could we verify this before finalizing?"<br><br>She emails back: "You\'re absolutely right. Let\'s re-record that section. Thanks for catching that!"<br><br>Crisis averted. No confrontation. Professional handling.<br><br><strong>SMART MOVE!</strong> Email gave her time to verify privately without losing face on camera.',
+                    tip: '<strong>PRO TIP:</strong> When dealing with potential errors from senior people, follow-up emails with documentation give them space to verify without public embarrassment. Attach sources when possible.'
+                }
+            },
+            6: {
+                wait: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '⏰ CALENDAR HELL',
+                    message: 'You send 3 more meeting invites over the next week. No one can align.<br><br>Day 8: Still no recording scheduled.<br>Day 9: Your PM escalates to YOUR manager.<br>Day 10: Deadline hits. You have NO recordings.<br><br>You spent 2 weeks playing calendar tetris and got NOTHING.<br><br><strong>LESSON:</strong> When you can\'t align schedules, stop trying. Change your approach.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you stopped waiting for all three to align?'
+                },
+                separate: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '✅ PRAGMATIC SOLUTION',
+                    message: 'You schedule three separate recordings:<br>• Lisa - Tuesday 2pm<br>• Marcus - Wednesday 3pm<br>• Ahmed - Thursday 10am<br><br>All three happen. You edit them together seamlessly. Training is done by Day 7.<br><br><strong>SMART MOVE!</strong> You realized you don\'t NEED them on the same call. Separate recordings work perfectly when edited together.',
+                    tip: '<strong>PRO TIP:</strong> Don\'t waste time trying to coordinate impossible schedules. Record separately, edit together. It often looks MORE polished anyway.'
+                },
+                hierarchy: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ STRATEGIC PRIORITIZATION',
+                    message: 'You message Lisa: "What works best for you? I\'ll coordinate everyone else around your schedule."<br><br>Lisa appreciates the consideration: "Tuesday at 10 works."<br><br>You then schedule Marcus and Ahmed around her. Everyone\'s recorded by Day 6.<br><br><strong>GOOD APPROACH!</strong> You prioritized by seniority. VPs appreciate when you work around THEIR schedule.',
+                    tip: '<strong>PRO TIP:</strong> When coordinating multiple SMEs, start with the most senior person\'s availability. Others will accommodate.'
+                },
+                async: {
+                    type: 'good',
+                    confidence: 22,
+                    title: '🎯 INNOVATIVE SOLUTION',
+                    message: 'You email all three: "Would anyone be willing to record a Loom video answering these questions at your convenience? It gives you full control and saves meeting time."<br><br>Ahmed responds: "Perfect! I\'ll record tonight."<br>Marcus: "I can do mine on my commute tomorrow."<br>Lisa prefers live, so you schedule just her.<br><br>2 async recordings + 1 live = Done by Day 4.<br><br><strong>CREATIVE THINKING!</strong> Async recording is UNDERUSED. Many SMEs prefer the control.',
+                    tip: '<strong>PRO TIP:</strong> Offer async recording as an option. Busy SMEs love being able to record at midnight in their pajamas. Tools: Loom, Zoom record-yourself, even phone video.'
+                }
+            },
+            7: {
+                cancel: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '😬 WASTED OPPORTUNITY',
+                    message: 'You apologize and reschedule David and Karen.<br><br>Problem: Karen can\'t meet again for 2 weeks. David has conflicts next week.<br><br>What should have taken 2 hours now takes 3 weeks to complete. Your deadline is BLOWN.<br><br>You had them. They were READY. You let perfection kill progress.<br><br><strong>LESSON:</strong> Sometimes out-of-sequence recording is the RIGHT choice. Edit can fix sequence.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d recorded them now and added Rachel\'s intro later?'
+                },
+                record: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '✅ SMART ADAPTATION',
+                    message: 'You record David and Karen in sequence. When Rachel joins at 3:30, you record her "intro" content.<br><br>In editing, you put Rachel first, then David, then Karen. It looks PERFECT. No one knows you recorded out of order.<br><br>Entire project done in one day instead of rescheduling for weeks.<br><br><strong>EXCELLENT ADAPTATION!</strong> You didn\'t let logistics derail the project. That\'s professional flexibility.',
+                    tip: '<strong>PRO TIP:</strong> Viewers don\'t know what order you recorded in. Edit controls sequence. Record when SMEs are AVAILABLE, edit into the right order later.'
+                },
+                explain: {
+                    type: 'good',
+                    confidence: 22,
+                    title: '✅ TRANSPARENT APPROACH',
+                    message: 'You explain to David and Karen: "Rachel\'s delayed, but her intro sets context. Can you still give me your content? I\'ll weave in her intro during editing."<br><br>They understand and proceed. You get great content from both.<br><br>When Rachel records at 3:30, you have all three pieces. Edit makes it seamless.<br><br><strong>GOOD COMMUNICATION!</strong> You kept everyone informed and got their buy-in.',
+                    tip: '<strong>PRO TIP:</strong> Brief SMEs when plans change. "Here\'s what happened, here\'s the new plan." Most people are flexible when they understand the situation.'
+                },
+                reschedule: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '⏰ PARTIAL SOLUTION',
+                    message: 'You record Karen (summary doesn\'t need intro context). You reschedule David and Rachel together for next week.<br><br>Problem: Next week, David is traveling. The week after, Rachel has conferences.<br><br>What should have been done TODAY takes 3 weeks.<br><br><strong>LESSON:</strong> You were partially right (record Karen), but rescheduling David was unnecessary. His content doesn\'t NEED to be recorded WITH Rachel.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d recorded both David AND Karen now?'
+                }
+            },
+            8: {
+                ignore: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '❌ FIXING IN POST FAILS',
+                    message: 'You let Tim go. You add a text correction on screen: "*Correction: 60 days"<br><br>Your QA reviewer flags it: "Why does the SME say 90 but the text says 60? This is confusing."<br><br>Your manager: "Why didn\'t you just ask him to re-record that line?"<br><br>Now you need to email Tim anyway to re-record. It takes him 3 days to respond and schedule. Could have been done in 30 seconds.<br><br><strong>LESSON:</strong> Text corrections look unprofessional and confuse learners. Fix it properly.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d caught him before he left?'
+                },
+                email: {
+                    type: 'bad',
+                    confidence: 15,
+                    title: '😬 HARDER THAN IT NEEDS TO BE',
+                    message: 'You email Tim later: "Could you do a quick 30-second re-record?"<br><br>He responds... 2 days later. "Sure, when?"<br><br>You schedule a new meeting. He joins. You re-record that ONE line. 5 minutes total.<br><br>What could have been 30 seconds RIGHT THEN became a 2-day delay plus another meeting.<br><br><strong>LESSON:</strong> Re-records are EASIER when you catch them immediately. Don\'t let SMEs leave with errors.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d stopped him before he logged off?'
+                },
+                now: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '✅ EFFICIENT FIX',
+                    message: 'You say: "Tim, before you go—I noticed one small thing at the 8-minute mark. Could we do a quick 30-second fix? You said 90 days but I think you meant 60?"<br><br>Tim: "Oh! Yes, you\'re right. Let me re-record that."<br><br>30 seconds later, it\'s fixed. He leaves. Project is done. No follow-up needed.<br><br><strong>PERFECT!</strong> You caught the error immediately and fixed it efficiently. That\'s professional.',
+                    tip: '<strong>PRO TIP:</strong> ALWAYS review footage with SMEs before they leave. Catch errors while they\'re still there. Frame it as "quick fixes" not "you messed up."'
+                },
+                apologize: {
+                    type: 'good',
+                    confidence: 23,
+                    title: '✅ RESPECTFUL AND CLEAR',
+                    message: 'You say: "Tim, I\'m so sorry—there\'s one section where you said 90 days instead of 60 days. I know you need to go, but this is a compliance timeline. Could we take 30 seconds to re-record just that line?"<br><br>Tim: "Absolutely. Thanks for catching that! Which part?"<br><br>Fixed in 30 seconds. He appreciates your attention to detail.<br><br><strong>EXCELLENT!</strong> You explained WHY it matters (compliance), apologized for his time, and made it quick.',
+                    tip: '<strong>PRO TIP:</strong> When asking for re-records, explain the impact: "This is a compliance issue" carries more weight than "this is wrong." SMEs understand priorities.'
+                }
+            },
+            9: {
+                ignore: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '❌ POST-PRODUCTION MYTH',
+                    message: 'You record the whole session at lightning speed. In editing, you slow down the playback to 0.75x.<br><br>It sounds... robotic. Unnatural. Words are still running together, just slower.<br><br>Your QA team: "This sounds weird. Can we re-record?"<br><br>You have to ask Jennifer to do the entire session again. She\'s confused: "I thought we already did this?"<br><br><strong>LESSON:</strong> You CANNOT fix pacing in post. Speed correction makes audio sound artificial. Fix it during recording.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d coached her during the recording?'
+                },
+                direct: {
+                    type: 'bad',
+                    confidence: 10,
+                    title: '😬 INCREASED ANXIETY',
+                    message: 'You interrupt: "Jennifer, you need to slow down. You\'re talking way too fast."<br><br>Jennifer freezes. "Oh... sorry. I didn\'t realize."<br><br>She continues, but now she\'s SELF-CONSCIOUS. Her delivery is stilted. She keeps apologizing. "Sorry, is this too fast? How about now?"<br><br>The nervous energy got WORSE, not better.<br><br><strong>LESSON:</strong> You were right to address it, but your approach increased her anxiety. HOW you coach matters.',
+                    tip: '<strong>TRY AGAIN:</strong> How could you slow her down without making her more nervous?'
+                },
+                reassure: {
+                    type: 'good',
+                    confidence: 23,
+                    title: '✅ CALM AND SUPPORTIVE',
+                    message: 'You say: "Jennifer, this content is fantastic! Can we take a breath? There\'s no rush—learners will want time to absorb this. Let\'s try that section again, a bit slower?"<br><br>Jennifer: *takes a breath* "Okay, sorry. I get nervous and talk fast."<br><br>You: "Totally normal! You\'re doing great. Ready?"<br><br>She tries again. Much better pace. The content is now usable.<br><br><strong>GREAT COACHING!</strong> You reassured her first, then redirected. Anxiety decreased.',
+                    tip: '<strong>PRO TIP:</strong> Nervous speakers need REASSURANCE before direction. "You\'re doing great" → "Let\'s adjust this one thing" works better than just criticism.'
+                },
+                technique: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '🎯 TEACHING A SKILL',
+                    message: 'You say: "Jennifer, you\'re doing great! Here\'s a trick that helps—imagine you\'re explaining this to someone taking notes. Pause after each key point. Let\'s try: First point... pause... second point... pause. Ready?"<br><br>Jennifer: "Oh! That\'s helpful. Okay." *She tries it*<br><br>"When you\'re reviewing a claim... *pause* ...look at the timeline first... *pause* ...then cross-reference the documentation..."<br><br>PERFECT. She just learned a skill she can use forever.<br><br><strong>MASTERFUL!</strong> You didn\'t just fix this recording—you taught her a technique.',
+                    tip: '<strong>PRO TIP:</strong> Give nervous speakers TECHNIQUES, not criticism. "Pause after each point" / "Imagine explaining to one person" / "Take a breath between sentences." They\'ll use these skills in future recordings.'
+                }
+            },
+            10: {
+                dismiss: {
+                    type: 'bad',
+                    confidence: 5,
+                    title: '😬 INVALIDATED',
+                    message: 'You say: "You\'ll be fine! Everyone feels that way. Let\'s just start."<br><br>Brian reluctantly agrees. You hit record.<br><br>He\'s TERRIBLE. Stammering. Starting over. "Um... sorry... can we start again?"<br><br>After 10 painful minutes, he says: "I can\'t do this. I told you I\'m not good at this."<br><br>Session ends. No usable footage. He feels worse about himself.<br><br><strong>LESSON:</strong> You dismissed his legitimate fear instead of addressing it. He wasn\'t being dramatic—he needed coaching.',
+                    tip: '<strong>TRY AGAIN:</strong> What if you\'d validated his fear and offered support?'
+                },
+                audio: {
+                    type: 'good',
+                    confidence: 20,
+                    title: '✅ ACCOMMODATION WORKS',
+                    message: 'You say: "What if we do audio-only? No camera. Just your voice. Would that help?"<br><br>Brian: "Actually... yeah. That would be way less stressful."<br><br>Camera off, he relaxes. The recording goes smoothly. His explanations are clear and confident.<br><br>You get excellent audio content. Problem solved.<br><br><strong>SMART ACCOMMODATION!</strong> Audio-only is often JUST as effective and way less intimidating.',
+                    tip: '<strong>PRO TIP:</strong> Many trainings don\'t need video of the SME. Audio + screenshare or audio + visuals works great. Offer audio-only to nervous first-timers.'
+                },
+                practice: {
+                    type: 'good',
+                    confidence: 23,
+                    title: '✅ BUILDING CONFIDENCE',
+                    message: 'You say: "Let\'s do a practice run. Not recording. Just explain one concept to me. Then we\'ll decide. Deal?"<br><br>Brian: "Okay... I can try that."<br><br>He explains risk modeling. He\'s EXCELLENT. Clear, confident, expert.<br><br>You: "Brian, that was perfect! You\'re a natural teacher. Want to try recording that?"<br><br>Brian: "Really? Okay... let\'s try."<br><br>The actual recording is great. He just needed proof he could do it.<br><br><strong>EXCELLENT APPROACH!</strong> Practice builds confidence.',
+                    tip: '<strong>PRO TIP:</strong> Offer practice runs for first-timers. Let them hear themselves succeed BEFORE hitting record. Builds confidence fast.'
+                },
+                validate: {
+                    type: 'good',
+                    confidence: 25,
+                    title: '🎯 COACHING EXCELLENCE',
+                    message: 'You say: "Brian, everyone hates their own voice—totally normal. Here\'s the truth: YOU hear it differently than others. Learners will hear an expert. Let\'s try this—do a 30-second test recording. We\'ll watch it together. If it\'s genuinely bad, we\'ll figure out plan B. But I bet you\'ll surprise yourself."<br><br>Brian: "...Okay. That\'s fair."<br><br>You record 30 seconds. You play it back.<br><br>Brian: "Huh. That\'s... not as bad as I thought."<br><br>You: "You sound professional and knowledgeable. Ready for the real one?"<br><br>Brian: "Yeah. Let\'s do it."<br><br>Session is excellent.<br><br><strong>MASTERCLASS IN COACHING!</strong> You validated his fear, explained the psychology, offered proof, and built confidence. Perfect.',
+                    tip: '<strong>PRO TIP:</strong> The "test recording" technique works MAGIC on first-timers. They always sound better than they think. Seeing proof breaks through the fear. This is the most powerful technique for nervous SMEs.'
+                }
+            }
+        };
+
+        function updateConfidence(points) {
+            confidence = Math.min(100, confidence + points);
+            const confidenceFill = document.getElementById('confidence');
+            confidenceFill.style.width = confidence + '%';
+            confidenceFill.textContent = confidence + '%';
+        }
+
+        function updateScenarioCounter() {
+            document.getElementById('scenario-counter').textContent = `Scenario ${currentScenario} of 10`;
+        }
+
+        function startGauntlet() {
+            currentScenario = 1;
+            updateScenarioCounter();
+            showScene(1);
+        }
+
+        function showScene(sceneNum) {
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.classList.remove('active');
+            });
+            document.getElementById('scene-' + sceneNum).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function makeChoice(scenario, choice) {
+            const response = responses[scenario][choice];
+            const resultBox = document.getElementById('result-' + scenario);
+            
+            resultBox.className = 'result-box show result-' + response.type;
+            resultBox.innerHTML = `
+                <h3>${response.title}</h3>
+                <p style="font-size: 1.1em; line-height: 1.8; margin: 20px 0;">${response.message}</p>
+                ${response.tip ? `<div style="background: rgba(241, 196, 15, 0.2); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 3px solid #f1c40f;"><p style="margin: 0;">${response.tip}</p></div>` : ''}
+                ${response.type === 'good' ? `<button class="btn btn-continue" onclick="nextScenario()">NEXT DISASTER →</button>` : `<button class="btn btn-retry" onclick="retryScenario(${scenario})">↻ TRY AGAIN</button>`}
+            `;
+
+            updateConfidence(response.confidence);
+            
+            // Hide choice buttons
+            document.querySelector(`#scene-${scenario} .choice-container`).style.display = 'none';
+        }
+
+        function retryScenario(scenario) {
+            const resultBox = document.getElementById('result-' + scenario);
+            resultBox.className = 'result-box';
+            resultBox.innerHTML = '';
+            
+            // Show choice buttons again
+            document.querySelector(`#scene-${scenario} .choice-container`).style.display = 'block';
+        }
+
+        function nextScenario() {
+            scenariosCompleted++;
+            currentScenario++;
+            
+            if (currentScenario > 10) {
+                showFinal();
+            } else {
+                updateScenarioCounter();
+                showScene(currentScenario);
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('final-confidence').textContent = confidence + '%';
+            showScene('final');
+        }
+
+        function resetGauntlet() {
+            confidence = 0;
+            currentScenario = 0;
+            scenariosCompleted = 0;
+            updateConfidence(0);
+            updateScenarioCounter();
+            showScene('intro');
+            
+            // Reset all result boxes
+            document.querySelectorAll('.result-box').forEach(box => {
+                box.className = 'result-box';
+                box.innerHTML = '';
+            });
+            
+            // Show all choice buttons
+            document.querySelectorAll('.choice-container').forEach(container => {
+                container.style.display = 'block';
+            });
+        }
+
+        // Initialize
+        updateConfidence(0);
+    </script>
+</body>
+</html>
