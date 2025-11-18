@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 CSS HUNT: Three Levels of Mastery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #00ff88;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(30, 30, 60, 0.8);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .header p {
+            color: #00ffcc;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 10px #00ff88; }
+            50% { text-shadow: 0 0 30px #00ff88, 0 0 50px #00ffcc; }
+        }
+
+        .progress-section {
+            margin-bottom: 30px;
+        }
+
+        .level-indicator {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .level-badge {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ffcc;
+            border-radius: 8px;
+            text-align: center;
+            color: #00ffcc;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .level-badge.active {
+            background: linear-gradient(135deg, #00ff88, #00ffcc);
+            color: #0f0c29;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            transform: scale(1.05);
+        }
+
+        .level-badge.completed {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            opacity: 0.6;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ffcc);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f0c29;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .challenge-section {
+            background: rgba(0, 255, 136, 0.05);
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .challenge-title {
+            font-size: 1.5em;
+            color: #00ffcc;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .challenge-description {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* LEVEL 1: INTERFACE */
+        .level-1-interface {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px dashed #00ffcc;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .demo-element {
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        input[type="text"],
+        input[type="range"],
+        input[type="color"] {
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ffcc;
+            color: #00ff88;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+
+        input[type="text"] {
+            min-width: 300px;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(0, 255, 136, 0.5);
+        }
+
+        input[type="range"] {
+            cursor: pointer;
+            width: 150px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .label {
+            color: #00ffcc;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .value-display {
+            color: #ff00ff;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* LEVEL 2: CODE HUNT */
+        .code-hunt-container {
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ff6600;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .code-line {
+            padding: 5px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        .code-line:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .code-line.selectable {
+            border-left: 3px solid transparent;
+        }
+
+        .code-line.selectable:hover {
+            border-left-color: #ff6600;
+            background: rgba(255, 102, 0, 0.1);
+        }
+
+        .code-line.selected {
+            border-left-color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+            font-weight: bold;
+        }
+
+        .clickable-line {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        .clickable-line:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #ff6600;
+        }
+
+        .property-name {
+            color: #ff00ff;
+            font-weight: bold;
+        }
+
+        .property-value {
+            color: #ffaa00;
+        }
+
+        .hunt-instruction {
+            background: rgba(255, 102, 0, 0.1);
+            border-left: 4px solid #ff6600;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+            color: #ffcc99;
+            line-height: 1.6;
+        }
+
+        /* LEVEL 3: CODE EDIT */
+        .code-edit-section {
+            background: rgba(255, 0, 0, 0.05);
+            border: 2px solid #ff6600;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .code-edit-section h3 {
+            color: #ff6600;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .instruction-box {
+            background: rgba(255, 102, 0, 0.1);
+            border-left: 4px solid #ff6600;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+            color: #ffcc99;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: rgba(255, 102, 0, 0.3);
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        .copy-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background: #ff6600;
+            color: #0f0c29;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .copy-button:hover {
+            background: #ff8833;
+        }
+
+        .copy-button.copied {
+            background: #00ff88;
+        }
+
+        /* BUTTONS */
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #00ff88, #00ffcc);
+            color: #0f0c29;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        button:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .button-secondary {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 2px solid #00ff88;
+            box-shadow: none;
+        }
+
+        .button-secondary:hover {
+            background: rgba(0, 255, 136, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        /* MESSAGES */
+        .victory-message {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 5px solid #00ff88;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            animation: slideIn 0.5s ease;
+            display: none;
+        }
+
+        .victory-message.show {
+            display: block;
+        }
+
+        .victory-text {
+            font-size: 1.2em;
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .victory-subtext {
+            color: #00ffcc;
+            font-size: 0.95em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .final-message {
+            text-align: center;
+            padding: 40px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            margin-top: 40px;
+            display: none;
+        }
+
+        .final-message.show {
+            display: block;
+            animation: celebrate 0.6s ease;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .final-message h2 {
+            font-size: 2em;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            margin-bottom: 15px;
+        }
+
+        .final-message p {
+            font-size: 1.2em;
+            color: #00ffcc;
+            margin-bottom: 20px;
+        }
+
+        code {
+            color: #00ff88;
+            display: block;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 CSS HUNT</h1>
+            <p>Three Levels. Three Skills. Pure CSS Mastery.</p>
+        </div>
+
+        <div class="progress-section">
+            <div class="level-indicator">
+                <div class="level-badge active" id="level1Badge">LEVEL 1<br>EXPERIENCE</div>
+                <div class="level-badge" id="level2Badge">LEVEL 2<br>IDENTIFY</div>
+                <div class="level-badge" id="level3Badge">LEVEL 3<br>CREATE</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div id="challengeContainer"></div>
+
+        <div class="final-message" id="finalMessage">
+            <h2>🎉 YOU DID IT! 🎉</h2>
+            <p>YOU MASTERED EIGHT CSS PROPERTIES.</p>
+            <p>Level 1: You experienced each one. Level 2: You found them in code. Level 3: You WROTE them yourself.</p>
+            <p>That's not a learner anymore. <strong>That's a vibe coder.</strong> You can build engaging interactions now.</p>
+            <button onclick="location.reload()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const challenges = [
+            {
+                title: "COLOR SHIFT",
+                description: "Text is gray and boring.",
+                property: "color",
+                initialValue: "#999999",
+                demoSetup: (element) => {
+                    element.textContent = "I'm boring.";
+                    element.style.fontSize = "1.5em";
+                },
+                update: (element, value) => {
+                    element.style.color = value;
+                },
+                hint: "Use hex colors like #ff00ff or #00ff88",
+                controlType: "color",
+                nudge: "You just changed COLOR with one property. That's CSS.",
+                level1Victory: "You made it pop with COLOR. That's Level 1 mastered.",
+                level2Hint: "Find the line that says 'color:' and click it.",
+                level3Instructions: "Change the color value. Save. Refresh. Watch your code work."
+            },
+            {
+                title: "BACKGROUND TAKEOVER",
+                description: "This box is empty. Give it a background.",
+                property: "background-color",
+                initialValue: "rgba(0, 255, 136, 0.1)",
+                demoSetup: (element) => {
+                    element.textContent = "I need a vibe...";
+                    element.style.padding = "20px";
+                    element.style.textAlign = "center";
+                },
+                update: (element, value) => {
+                    const demoBox = element.parentElement;
+                    demoBox.style.backgroundColor = value;
+                },
+                hint: "Try #ff00ff or #00ffcc",
+                controlType: "color",
+                nudge: "You just controlled a BOX'S BACKGROUND. That's a design skill.",
+                level1Victory: "You gave that box presence with BACKGROUND-COLOR.",
+                level2Hint: "Find 'background-color' in the code. Click it.",
+                level3Instructions: "Change the background value and watch the whole box transform."
+            },
+            {
+                title: "OPACITY PLAY",
+                description: "Make this element invisible and visible again.",
+                property: "opacity",
+                initialValue: "1",
+                demoSetup: (element) => {
+                    element.textContent = "How solid am I?";
+                    element.style.fontSize = "1.3em";
+                },
+                update: (element, value) => {
+                    element.style.opacity = value;
+                },
+                hint: "Use 0 (invisible) to 1 (solid). Try 0.5 for half!",
+                controlType: "range",
+                min: "0",
+                max: "1",
+                step: "0.1",
+                nudge: "You just made something FADE. That's advanced interaction.",
+                level1Victory: "You controlled OPACITY. You just made something fade in and out.",
+                level2Hint: "Find 'opacity' in the code. That's your target.",
+                level3Instructions: "Change opacity to 0.3. Refresh. Watch it become a ghost."
+            },
+            {
+                title: "BORDER RADIUS MAGIC",
+                description: "Sharp box. Round it. Make it a circle. Play with corners.",
+                property: "border-radius",
+                initialValue: "0",
+                demoSetup: (element) => {
+                    element.textContent = "Square me up!";
+                    element.style.padding = "20px";
+                    element.style.textAlign = "center";
+                    element.style.background = "rgba(0, 255, 136, 0.2)";
+                    element.style.border = "2px solid #00ffcc";
+                },
+                update: (element, value) => {
+                    const demoBox = element.parentElement;
+                    demoBox.style.borderRadius = value + "px";
+                },
+                hint: "Slide from 0px to 100px!",
+                controlType: "range",
+                min: "0",
+                max: "100",
+                step: "5",
+                nudge: "You just rounded corners! That's a DESIGN move. Corners control the vibe.",
+                level1Victory: "You mastered BORDER-RADIUS. Corners = personality.",
+                level2Hint: "Find 'border-radius' in the code. Click it.",
+                level3Instructions: "Change border-radius to 50px and watch the corners round. Try 50 for a circle!"
+            },
+            {
+                title: "TEXT ALIGNMENT POWER",
+                description: "Text is left. Move it around. Center, right, justify.",
+                property: "text-align",
+                initialValue: "left",
+                demoSetup: (element) => {
+                    element.textContent = "Move me around. I can go left, center, or right.";
+                    element.style.fontSize = "1.1em";
+                    element.style.lineHeight = "1.6";
+                    element.style.width = "100%";
+                },
+                update: (element, value) => {
+                    element.style.textAlign = value;
+                },
+                hint: "Try: center, right, justify",
+                controlType: "text",
+                nudge: "You just repositioned TEXT with one property. That's layout control.",
+                level1Victory: "You controlled TEXT-ALIGN. Layout is power.",
+                level2Hint: "Find 'text-align' in the code. Click it.",
+                level3Instructions: "Change text-align to center. Refresh. See the difference."
+            },
+            {
+                title: "ROTATION EXPLOSION",
+                description: "Make it spin. Rotate this box. Feel the power.",
+                property: "transform: rotate()",
+                initialValue: "0deg",
+                demoSetup: (element) => {
+                    element.textContent = "SPIN ME!";
+                    element.style.padding = "20px";
+                    element.style.textAlign = "center";
+                    element.style.fontSize = "1.3em";
+                    element.style.fontWeight = "bold";
+                },
+                update: (element, value) => {
+                    element.style.transform = `rotate(${value})`;
+                },
+                hint: "Use degrees: 45deg, 90deg, 180deg, 360deg. Go wild!",
+                controlType: "text",
+                nudge: "You just made something ROTATE. That's a transform. You're officially doing advanced CSS.",
+                level1Victory: "You controlled TRANSFORM: ROTATE(). You can move things now.",
+                level2Hint: "Find 'transform: rotate()' in the code. Click it.",
+                level3Instructions: "Change rotation to 45deg. Refresh. Watch it tilt at an angle."
+            },
+            {
+                title: "SMOOTH TRANSITIONS",
+                description: "Make changes feel buttery smooth. Change the timing.",
+                property: "transition",
+                initialValue: "0.3",
+                demoSetup: (element) => {
+                    element.textContent = "I feel smooth...";
+                    element.style.padding = "20px";
+                    element.style.textAlign = "center";
+                    element.style.background = "rgba(0, 255, 136, 0.2)";
+                    element.style.fontSize = "1.1em";
+                    element.style.transition = "all 0.3s ease";
+                    element.style.width = "100px";
+                },
+                update: (element, value) => {
+                    element.style.transition = `all ${value}s ease`;
+                },
+                hint: "Slide from 0.1 (instant) to 2 (slow motion)",
+                controlType: "range",
+                min: "0.1",
+                max: "2",
+                step: "0.1",
+                nudge: "You just added MOTION. Transitions make things feel alive.",
+                level1Victory: "You mastered TRANSITION timing. Smooth beats jarring every time.",
+                level2Hint: "Find 'transition' in the code. Click it.",
+                level3Instructions: "Change transition to 'all 1s ease'. Refresh and watch changes become SLOW and smooth.",
+                hasButton: true
+            },
+            {
+                title: "GRADIENT BACKGROUNDS",
+                description: "Flat color is boring. Add a gradient. Make it flow.",
+                property: "background",
+                initialValue: "linear-gradient(135deg, #ff00ff, #00ffcc)",
+                demoSetup: (element) => {
+                    element.textContent = "I have a vibe now...";
+                    element.style.padding = "30px";
+                    element.style.textAlign = "center";
+                    element.style.fontSize = "1.2em";
+                    element.style.color = "#fff";
+                    element.style.minHeight = "200px";
+                    element.style.display = "flex";
+                    element.style.alignItems = "center";
+                    element.style.justifyContent = "center";
+                },
+                update: (element, value) => {
+                    const demoBox = element.parentElement;
+                    demoBox.style.background = value;
+                },
+                hint: "Swap colors: try #00ff88 to #ff00ff, or #ffaa00 to #ff00ff",
+                controlType: "text",
+                nudge: "You just created a GRADIENT. That's professional design in one line.",
+                level1Victory: "You mastered GRADIENT BACKGROUNDS. Depth and color in one shot.",
+                level2Hint: "Find 'background' in the code. Click it.",
+                level3Instructions: "Change the gradient colors. Try 'linear-gradient(90deg, #00ff88, #ff6600)'. Refresh and feel the vibe shift."
+            }
+        ];
+
+        let currentChallenge = 0;
+        let currentLevel = 1;
+        let isTransitioning = false;
+
+        function renderChallenge(index) {
+            const challenge = challenges[index];
+            const container = document.getElementById('challengeContainer');
+            
+            const challengeHTML = `
+                <div class="challenge-section">
+                    <div class="challenge-title">Challenge ${index + 1}: ${challenge.title}</div>
+                    <div class="challenge-description">${challenge.description}</div>
+                    
+                    <!-- LEVEL 1: INTERFACE -->
+                    <div id="level1${index}" class="level-1-section">
+                        <h3 style="color: #00ffcc; margin: 20px 0 15px 0;">📊 LEVEL 1: EXPERIENCE</h3>
+                        <p style="color: #00ff88; margin-bottom: 15px;">Change the slider. Watch it transform. Feel what CSS does.</p>
+                        
+                        <div class="level-1-interface" id="demoBox${index}">
+                            <div class="demo-element" id="demoElement${index}"></div>
+                        </div>
+
+                        ${challenge.hasButton ? `
+                        <button class="button-secondary" onclick="triggerTransition(${index})" style="margin-top: 15px;">TRIGGER ANIMATION</button>
+                        ` : ''}
+
+                        <div class="controls">
+                            <span class="label">Change the value:</span>
+                            ${challenge.controlType === 'color' ? 
+                                `<input type="color" id="input${index}" value="${challenge.initialValue}" oninput="updateChallenge(${index}, false)" onchange="updateChallenge(${index}, true)">` :
+                                challenge.controlType === 'range' ?
+                                `<input type="range" id="input${index}" min="${challenge.min}" max="${challenge.max}" step="${challenge.step}" value="${challenge.initialValue}" oninput="updateChallenge(${index}, true)">
+                                <span class="value-display" id="valueDisplay${index}">${challenge.initialValue}</span>` :
+                                `<input type="text" id="input${index}" value="${challenge.initialValue}" placeholder="${challenge.hint}" oninput="updateChallenge(${index}, true)">`
+                            }
+                        </div>
+
+                        <div class="victory-message" id="victory${index}">
+                            <div class="victory-text">✨ LEVEL 1 COMPLETE! ✨</div>
+                            <div class="victory-subtext">${challenge.level1Victory}</div>
+                        </div>
+
+                        <button onclick="moveToLevel2(${index})">NEXT: IDENTIFY THE CODE</button>
+                    </div>
+
+                    <!-- LEVEL 2: IDENTIFY -->
+                    <div id="level2${index}" class="level-2-section hidden">
+                        <h3 style="color: #ff6600; margin: 20px 0 15px 0;">🔍 LEVEL 2: IDENTIFY</h3>
+                        <p style="color: #ffcc99; margin-bottom: 15px;">REAL CODE. REAL CHALLENGE. Which line made the change you just did? Click it.</p>
+                        
+                        <div class="hunt-instruction">
+                            💡 You changed something. Now FIND the line in the code that controls it.<br>
+                            <span style="opacity: 0.8; font-size: 0.9em;">Click on lines to test them. Only ONE is the answer.</span>
+                        </div>
+
+                        <div class="code-hunt-container">
+                            <div class="code-block" id="codeBlock${index}">
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;!DOCTYPE html&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;html&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;head&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">  &lt;style&gt;</span></div>
+                                <div class="code-line">
+                                    <span style="color: #00ffcc;">    body {</span>
+                                </div>
+                                <div class="code-line clickable-line" onclick="tryLine(event, ${index}, false)">
+                                    <span style="color: #ff00ff;">      margin</span>: <span class="property-value">0</span>;
+                                </div>
+                                <div class="code-line clickable-line" onclick="tryLine(event, ${index}, false)">
+                                    <span style="color: #ff00ff;">      padding</span>: <span class="property-value">20px</span>;
+                                </div>
+                                <div class="code-line">
+                                    <span style="color: #00ffcc;">    }</span>
+                                </div>
+                                <div class="code-line">
+                                    <span style="color: #00ffcc;">    .demo {</span>
+                                </div>
+                                <div class="code-line clickable-line" onclick="tryLine(event, ${index}, false)">
+                                    <span style="color: #ff00ff;">      font-size</span>: <span class="property-value">16px</span>;
+                                </div>
+                                <div class="code-line clickable-line" onclick="tryLine(event, ${index}, true)" data-correct="true">
+                                    <span style="color: #ff00ff;">      ${challenge.property}</span>: <span class="property-value">${challenge.initialValue}</span>;
+                                </div>
+                                <div class="code-line clickable-line" onclick="tryLine(event, ${index}, false)">
+                                    <span style="color: #ff00ff;">      transition</span>: <span class="property-value">all 0.3s ease</span>;
+                                </div>
+                                <div class="code-line">
+                                    <span style="color: #00ffcc;">    }</span>
+                                </div>
+                                <div class="code-line">
+                                    <span style="color: #00ffcc;">  &lt;/style&gt;</span>
+                                </div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;/head&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;body&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">  &lt;div class="demo"&gt;Change me!&lt;/div&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;/body&gt;</span></div>
+                                <div class="code-line"><span style="color: #00ffcc;">&lt;/html&gt;</span></div>
+                            </div>
+                        </div>
+
+                        <div class="hunt-message" id="huntMessage${index}" style="display: none; background: rgba(255, 102, 0, 0.1); border-left: 4px solid #ff6600; padding: 15px; margin: 15px 0; border-radius: 3px; color: #ffcc99;">
+                            <strong style="color: #ff6600;">❌ Not it.</strong> That's not the line. Keep looking!
+                        </div>
+
+                        <div class="victory-message" id="victory2${index}">
+                            <div class="victory-text">✨ LEVEL 2 COMPLETE! ✨</div>
+                            <div class="victory-subtext">YOU FOUND IT! That line controls the visual change. Now let's write it yourself.</div>
+                        </div>
+
+                        <button onclick="moveToLevel3(${index})">NEXT: WRITE THE CODE</button>
+                    </div>
+
+                    <!-- LEVEL 3: CREATE -->
+                    <div id="level3${index}" class="level-3-section hidden">
+                        <h3 style="color: #ff6600; margin: 20px 0 15px 0;">✍️ LEVEL 3: CREATE</h3>
+                        <p style="color: #ffcc99; margin-bottom: 15px;">Copy this code. Paste it into a text editor. Make the change yourself.</p>
+                        
+                        <div class="instruction-box">
+                            <strong>📋 HERE'S YOUR HTML FILE:</strong><br>
+                            Copy the code below and paste it into a text editor (VS Code, Notepad, whatever).
+                        </div>
+
+                        <div class="copy-container">
+                            <button class="copy-button" onclick="copyToClipboard(this, 'htmlCode${index}')">COPY CODE</button>
+                            <div class="code-block">
+                                <code id="htmlCode${index}">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;style&gt;
+        .demo {
+            ${challenge.property}: ${challenge.initialValue};
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="demo"&gt;Change me!&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                            </div>
+                        </div>
+
+                        <div class="instruction-box" style="margin: 25px 0;">
+                            <strong>🎯 WHAT TO CHANGE:</strong><br><br>
+                            Find this line in the code:<br>
+                            <code style="background: rgba(255, 102, 0, 0.2); padding: 10px; display: inline-block; margin: 10px 0;">
+                                <span class="property-name">${challenge.property}</span>: <span class="highlight">change-this-value</span>;
+                            </code><br><br>
+                            ${challenge.hint}
+                        </div>
+
+                        <div class="instruction-box" style="margin: 25px 0;">
+                            <strong>📝 STEPS:</strong><br>
+                            1️⃣ Copy the code (button above)<br>
+                            2️⃣ Open Notepad or VS Code<br>
+                            3️⃣ Paste the code<br>
+                            4️⃣ Change the <span class="highlight">${challenge.property}</span> value<br>
+                            5️⃣ Save as <span class="highlight">challenge-${index + 1}.html</span><br>
+                            6️⃣ Double-click the file to open in browser<br>
+                            7️⃣ SEE YOUR CODE WORK
+                        </div>
+
+                        <div class="victory-message" id="victory3${index}">
+                            <div class="victory-text">✨ LEVEL 3 COMPLETE! ✨</div>
+                            <div class="victory-subtext">YOU WROTE THAT CODE. YOU MADE IT WORK. You're not learning CSS. You're DOING CSS.</div>
+                        </div>
+
+                        <button onclick="completeLevel3(${index})">I'VE TESTED MY CODE!</button>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = challengeHTML;
+            
+            // Setup demo element
+            const demoElement = document.getElementById(`demoElement${index}`);
+            challenge.demoSetup(demoElement);
+            
+            updateProgressBar();
+        }
+
+        function updateChallenge(index, showVictory = true) {
+            const challenge = challenges[index];
+            const input = document.getElementById(`input${index}`);
+            const demoElement = document.getElementById(`demoElement${index}`);
+            const valueDisplay = document.getElementById(`valueDisplay${index}`);
+            const victory = document.getElementById(`victory${index}`);
+
+            challenge.update(demoElement, input.value);
+            
+            if (challenge.controlType === 'range' && valueDisplay) {
+                valueDisplay.textContent = input.value;
+            }
+
+            // For challenges with buttons (like transition), don't auto-show victory
+            if (showVictory && !challenge.hasButton) {
+                victory.classList.add('show');
+                victory.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function triggerTransition(index) {
+            const demoElement = document.getElementById(`demoElement${index}`);
+            const victory = document.getElementById(`victory${index}`);
+            
+            // Toggle size, rotation, and color to make transition speed obvious
+            if (demoElement.style.transform === 'scale(1.5) rotate(10deg)') {
+                demoElement.style.transform = 'scale(1) rotate(0deg)';
+                demoElement.style.background = 'rgba(0, 255, 136, 0.2)';
+            } else {
+                demoElement.style.transform = 'scale(1.5) rotate(10deg)';
+                demoElement.style.background = 'rgba(255, 0, 255, 0.3)';
+            }
+            
+            // Show victory after animation completes
+            setTimeout(() => {
+                victory.classList.add('show');
+                victory.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 2500); // Wait for slowest animation (2s) + buffer
+        }
+
+        function moveToLevel2(index) {
+            document.getElementById(`level1${index}`).classList.add('hidden');
+            document.getElementById(`level2${index}`).classList.remove('hidden');
+            currentLevel = 2;
+            updateLevelBadges();
+            updateProgressBar();
+            window.scrollTo(0, 0);
+        }
+
+        function tryLine(event, index, isCorrect) {
+            const codeLine = event.currentTarget;
+            const huntMessage = document.getElementById(`huntMessage${index}`);
+            
+            if (isCorrect) {
+                // Correct answer!
+                codeLine.classList.add('selected');
+                huntMessage.style.display = 'none';
+                const victory = document.getElementById(`victory2${index}`);
+                victory.classList.add('show');
+                victory.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                // Wrong answer - shake and show hint
+                huntMessage.style.display = 'block';
+                codeLine.style.animation = 'shake 0.4s ease';
+                setTimeout(() => { codeLine.style.animation = ''; }, 400);
+                huntMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function moveToLevel3(index) {
+            document.getElementById(`level2${index}`).classList.add('hidden');
+            document.getElementById(`level3${index}`).classList.remove('hidden');
+            currentLevel = 3;
+            updateLevelBadges();
+            updateProgressBar();
+            window.scrollTo(0, 0);
+        }
+
+        function copyToClipboard(button, elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✓ COPIED!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'COPY CODE';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function completeLevel3(index) {
+            if (isTransitioning) return; // Prevent double clicks
+            isTransitioning = true;
+            
+            const victory = document.getElementById(`victory3${index}`);
+            victory.classList.add('show');
+            victory.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Change button text to show what happens next
+            const button = event.currentTarget;
+            if (index < challenges.length - 1) {
+                button.textContent = 'NEXT CHALLENGE';
+                button.onclick = function() {
+                    currentChallenge = index + 1;
+                    currentLevel = 1;
+                    renderChallenge(currentChallenge);
+                    updateLevelBadges();
+                    window.scrollTo(0, 0);
+                };
+            } else {
+                button.textContent = 'SEE FINAL MESSAGE';
+                button.onclick = function() {
+                    showFinalMessage();
+                    window.scrollTo(0, 0);
+                };
+            }
+            
+            isTransitioning = false;
+        }
+
+        function updateProgressBar() {
+            const totalLevels = challenges.length * 3;
+            const completedLevels = currentChallenge * 3 + (currentLevel - 1);
+            const progress = (completedLevels / totalLevels) * 100;
+            
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = progress + '%';
+        }
+
+        function updateLevelBadges() {
+            const badges = document.querySelectorAll('.level-badge');
+            badges.forEach((badge, i) => {
+                badge.classList.remove('active', 'completed');
+                if (i + 1 === currentLevel) {
+                    badge.classList.add('active');
+                } else if (i + 1 < currentLevel) {
+                    badge.classList.add('completed');
+                }
+            });
+        }
+
+        function showFinalMessage() {
+            const finalMessage = document.getElementById('finalMessage');
+            finalMessage.classList.add('show');
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize
+        renderChallenge(0);
+    </script>
+</body>
+</html>
